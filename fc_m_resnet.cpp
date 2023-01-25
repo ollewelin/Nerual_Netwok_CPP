@@ -262,5 +262,33 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
         }
     }
 }
+void fc_m_resnet::forward_pass(void)
+{
+    for(int l_cnt=0;l_cnt<nr_of_hidden_layers;l_cnt++)//Loop though all hidden layers
+    {
+        int dst_nodes = hidden_layer[l_cnt].size();//
+        if(l_cnt==0)
+        {
+            //Input layer will connect to first hidden layer
+             int src_nodes = input_layer.size();
+             for(int dst_n_cnt=0;dst_n_cnt<dst_nodes;dst_n_cnt++)
+             {
+                double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes];//Set the bias weight as the start value
+                for(int src_n_cnt=0;src_n_cnt<src_nodes;src_n_cnt++)
+                {
+                    acc_dot_product += input_layer[src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt];//Add all to make the dot product
+                }
+                //Dot product finnished
+                //Make the activation function
+                hidden_layer[l_cnt][dst_n_cnt] = 1.0/(1.0 + exp(-acc_dot_product));//Sigmoid function and put it into 
+             }
+        }
+        else
+        {
+            //Connection from hidden layer to next hidden layer
+            //TODO... 
 
+        }
+    }
+}
 //TODO... more functions
