@@ -20,23 +20,27 @@ private:
     vector<vector<double>> internal_delta;//2D [layer_nr][node_nr] nr_of_hidden_layers + 2 for i_layer_delta and o_layer_delta as well
     vector<vector<vector<double>>> all_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
     vector<vector<vector<double>>> change_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
+    double activation_function(double);
+    double delta_activation_func(double,double);
     
 public:
     fc_m_resnet(/* args */);
     ~fc_m_resnet();
 
     int block_type;//0..2
-    //0 = start block means no i_layer_delta i produced
+    //0 = start block 
     //1 = middle block means both i_layer_delta is produced (backpropagate) and o_layer_delta is needed
     //2 = end block. target_nodes is used but o_layer_delta not used only loss and i_layer_delta i calculated. 
     int use_softmax;
     //0 = No softmax
     //1 = Use softmax at end. Only possible to enable if block_type = 2 end block
-    int activation_function;
+    int activation_function_mode;
     //0 = sigmoid activation function
     //1 = Relu simple activation function
     //2 = Relu fix leaky activation function
     //3 = Relu random variable leaky activation function
+    double fix_leaky_proportion;
+    double random_max_leaky_propotion;
     int use_skip_connect_mode;
     //0 = turn OFF skip connections, ordinary fully connected nn block only
     //1 = turn ON skip connectons
@@ -55,8 +59,8 @@ public:
     vector<double> input_layer;//Always used, block type 0,1,2
     vector<double> output_layer;//Always used, block type 0,1,2
     vector<double> target_layer;//Only used when block type, 2 = end block. target_nodes is used 
-    vector<double> i_layer_delta;//Delta for all input nodes this should be backprop connect to previous multiple resenet block if there is any
-    vector<double> o_layer_delta;//Detla from m_resnet block after this block
+    vector<double> i_layer_delta;//Delta for all input nodes this should be backprop connect to previous multiple resenet block if there is any. Always used, block type 0,1,2
+    vector<double> o_layer_delta;//Detla from m_resnet block after this block. Always used, block type 0,1,2
 
     //========== Functions ==================
    
@@ -66,6 +70,7 @@ public:
     void load_weights(string);//load weights with file name argument 
     void save_weights(string);//save weights with file name argument 
     void forward_pass(void);
+    void only_loss_calculation(void);
     void backpropagtion_and_update(void);//If batchmode update only when batch end
     void print_weights(int, int, int);
 

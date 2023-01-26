@@ -1,9 +1,9 @@
-#include"fc_m_resnet.hpp"
-#include<iostream>
-#include<fstream>
-#include<stdlib.h>// for exit(0)
-#include<math.h>
-#include<time.h>
+#include "fc_m_resnet.hpp"
+#include <iostream>
+#include <fstream>
+#include <stdlib.h> // for exit(0)
+#include <math.h>
+#include <time.h>
 
 using namespace std;
 
@@ -11,40 +11,42 @@ fc_m_resnet::fc_m_resnet(/* args */)
 {
     setup_state = 0;
     nr_of_hidden_layers = 0;
-    setup_inc_layer_cnt = 0; 
-    //0 = start up state, nothing done yet
-    //1 = set_nr_of_hidden_layers() is set up
-    //2 = set_nr_of_hid_nodeson_layer() is done
-    //3 = init_weights or load weights is done
-    block_type = 0;//0..2
-    //0 = start block means no i_layer_delta i produced
-    //1 = middle block means both i_layer_delta is produced (backpropagate) and o_layer_delta is needed
-    //2 = end block. target_nodes is used but o_layer_delta not used only loss and i_layer_delta i calculated. 
-    use_softmax = 0;//
-    //0 = No softmax
-    //1 = Use softmax at end. Only possible to enable if block_type = 2 end block
-    activation_function = 0;
-    //0 = sigmoid activation function
-    //1 = Relu simple activation function
-    //2 = Relu fix leaky activation function
-    //3 = Relu random variable leaky activation function
+    setup_inc_layer_cnt = 0;
+    // 0 = start up state, nothing done yet
+    // 1 = set_nr_of_hidden_layers() is set up
+    // 2 = set_nr_of_hid_nodeson_layer() is done
+    // 3 = init_weights or load weights is done
+    block_type = 0; // 0..2
+    // 0 = start block means no i_layer_delta i produced
+    // 1 = middle block means both i_layer_delta is produced (backpropagate) and o_layer_delta is needed
+    // 2 = end block. target_nodes is used but o_layer_delta not used only loss and i_layer_delta i calculated.
+    use_softmax = 0; //
+    // 0 = No softmax
+    // 1 = Use softmax at end. Only possible to enable if block_type = 2 end block
+    activation_function_mode = 0;
+    // 0 = sigmoid activation function
+    // 1 = Relu simple activation function
+    // 2 = Relu fix leaky activation function
+    // 3 = Relu random variable leaky activation function
+    fix_leaky_proportion = 0.05;
+    random_max_leaky_propotion = 0.05;
     use_skip_connect_mode = 0;
-    //0 = turn OFF skip connections, ordinary fully connected nn block only
-    //1 = turn ON skip connectons
+    // 0 = turn OFF skip connections, ordinary fully connected nn block only
+    // 1 = turn ON skip connectons
     training_mode = 0;
-    //0 = SGD Stocastic Gradient Decent
-    //1 = Batch Gradient Decent, not yet implemented
+    // 0 = SGD Stocastic Gradient Decent
+    // 1 = Batch Gradient Decent, not yet implemented
     use_dopouts = 0;
-    //0 = No dropout
-    //1 = Use dropout
-    batch_size = 0; //Only used if trainging_mode 1
+    // 0 = No dropout
+    // 1 = Use dropout
+    batch_size = 0; // Only used if trainging_mode 1
     loss = 0.0;
     learning_rate = 0.0;
     momentum = 0.0;
     dropout_proportion = 0.0;
     use_dopouts = 0;
     cout << "fc_m_resnet Constructor" << endl;
-    srand(time(NULL));//Seed radomizer
+    srand(time(NULL)); // Seed radomizer
     cout << "Seed radomizer done" << endl;
 }
 
@@ -55,35 +57,35 @@ fc_m_resnet::~fc_m_resnet()
 void fc_m_resnet::set_nr_of_hidden_layers(int nr_of_hid_layers)
 {
     const int MAX_LAYERS = 100;
-    if(nr_of_hid_layers < 1)
+    if (nr_of_hid_layers < 1)
     {
-        cout << "ERROR! Setup error, nr_of_hid_layers < 1. At least 1 hidden layer must be used in this architecture. nr_of_hid_layers = " << nr_of_hid_layers << endl; 
-        cout << "Set nr_of_hid_layers in range 1 to MAX_LAYERS = " << MAX_LAYERS << endl;   
-        cout << "Exit program !" << endl;    
+        cout << "ERROR! Setup error, nr_of_hid_layers < 1. At least 1 hidden layer must be used in this architecture. nr_of_hid_layers = " << nr_of_hid_layers << endl;
+        cout << "Set nr_of_hid_layers in range 1 to MAX_LAYERS = " << MAX_LAYERS << endl;
+        cout << "Exit program !" << endl;
         exit(0);
     }
     else
     {
-        if(nr_of_hid_layers > MAX_LAYERS)
+        if (nr_of_hid_layers > MAX_LAYERS)
         {
-            cout << "ERROR! Setup error, nr_of_hid_layers is set too LARGE ! nr_of_hid_layers = " << nr_of_hid_layers << endl; 
-            cout << "MAX_LAYERS = " << MAX_LAYERS << endl;   
-            cout << "Exit program !" << endl;    
+            cout << "ERROR! Setup error, nr_of_hid_layers is set too LARGE ! nr_of_hid_layers = " << nr_of_hid_layers << endl;
+            cout << "MAX_LAYERS = " << MAX_LAYERS << endl;
+            cout << "Exit program !" << endl;
             exit(0);
         }
-        if(setup_state != 0)
+        if (setup_state != 0)
         {
             cout << "ERROR! Setup error, maybe call set_nr_of_hidden_layers(int) more the one time, setup_state = " << setup_state << endl;
             cout << "set_nr_of_hidden_layers(int) should only calls once " << endl;
-            cout << "Exit program !" << endl;    
+            cout << "Exit program !" << endl;
             exit(0);
         }
         //====================== Set up vectors layers  ====================
         nr_of_hidden_layers = nr_of_hid_layers;
-        cout << " Number of hidden layers is set to = " << nr_of_hidden_layers << endl;  
-        for(int i = 0;i< nr_of_hidden_layers;i++)
+        cout << " Number of hidden layers is set to = " << nr_of_hidden_layers << endl;
+        for (int i = 0; i < nr_of_hidden_layers; i++)
         {
-            number_of_hidden_nodes.push_back(0);//Emty number of nodes yet. Then after this call is done. driver will fill this vector with numbers of nodes on each hidden layers
+            number_of_hidden_nodes.push_back(0); // Emty number of nodes yet. Then after this call is done. driver will fill this vector with numbers of nodes on each hidden layers
         }
         setup_state = 1;
         //====================== Vectors layer setup finnish =======================
@@ -91,27 +93,27 @@ void fc_m_resnet::set_nr_of_hidden_layers(int nr_of_hid_layers)
 }
 void fc_m_resnet::randomize_weights(double rand_proportion)
 {
-    if(setup_state < 2)
+    if (setup_state < 2)
     {
-        cout << "ERROR! Setup error, setup_state is < 2 when calling randomize_weights() function setup_state = " << setup_state << endl;    
-        cout << "Exit program !" << endl;    
+        cout << "ERROR! Setup error, setup_state is < 2 when calling randomize_weights() function setup_state = " << setup_state << endl;
+        cout << "Exit program !" << endl;
         exit(0);
     }
     cout << "Randomize weights 3D vector all weights of fc_resnet object...." << endl;
     int layers = all_weights.size();
-    for(int l_cnt = 0; l_cnt < layers;l_cnt++)
+    for (int l_cnt = 0; l_cnt < layers; l_cnt++)
     {
         int nodes_on_this_layer = all_weights[l_cnt].size();
-        for(int n_cnt = 0;n_cnt < nodes_on_this_layer;n_cnt++)
+        for (int n_cnt = 0; n_cnt < nodes_on_this_layer; n_cnt++)
         {
             int weights_to_this_node = all_weights[l_cnt][n_cnt].size();
-            for(int w_cnt = 0;w_cnt < weights_to_this_node;w_cnt++)
+            for (int w_cnt = 0; w_cnt < weights_to_this_node; w_cnt++)
             {
-                all_weights[l_cnt][n_cnt][w_cnt] = ((((double) rand()/RAND_MAX) - 0.5) * rand_proportion);
+                all_weights[l_cnt][n_cnt][w_cnt] = ((((double)rand() / RAND_MAX) - 0.5) * rand_proportion);
             }
         }
     }
-    if(setup_state == 2)
+    if (setup_state == 2)
     {
         setup_state = 3;
     }
@@ -121,90 +123,90 @@ void fc_m_resnet::randomize_weights(double rand_proportion)
 
 void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
 {
-    if(setup_state < 1)
+    if (setup_state < 1)
     {
-        cout << "ERROR! Setup error. number of hidden layer is not set" << endl; 
-        cout << "Exit program !" << endl;    
+        cout << "ERROR! Setup error. number of hidden layer is not set" << endl;
+        cout << "Exit program !" << endl;
         exit(0);
     }
-    if(setup_state > 1)
+    if (setup_state > 1)
     {
-        cout << "ERROR! Setup error. All hidden layers is alread setup, setup_state > 1" << endl; 
-        cout << "Exit program !" << endl;    
+        cout << "ERROR! Setup error. All hidden layers is alread setup, setup_state > 1" << endl;
+        cout << "Exit program !" << endl;
         exit(0);
     }
 
     // ========= Check i_ and o_   layer_delta.size match input and output_layer size ==========
-    //0 = start block means no i_layer_delta i produced
-    //1 = middle block means both i_layer_delta is produced (backpropagate) and o_layer_delta is needed
-    //2 = end block. target_nodes is used but o_layer_delta not used only loss and i_layer_delta i calculated. 
-    if(block_type > 0)
+    // 0 = start block means no i_layer_delta i produced
+    // 1 = middle block means both i_layer_delta is produced (backpropagate) and o_layer_delta is needed
+    // 2 = end block. target_nodes is used but o_layer_delta not used only loss and i_layer_delta i calculated.
+    if (block_type > 0)
     {
         // not start block then we check size of i_layer_delta
-        if(i_layer_delta.size() != input_layer.size())
+        if (i_layer_delta.size() != input_layer.size())
         {
-            cout << "ERROR! Setup error. i_layer_delta.size() != input_layer.size() " << endl; 
+            cout << "ERROR! Setup error. i_layer_delta.size() != input_layer.size() " << endl;
             cout << "setup all public vector size before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
-            cout << "Exit program !" << endl;    
+            cout << "Exit program !" << endl;
             exit(0);
         }
     }
-    if(block_type < 2)
+    if (block_type < 2)
     {
         // not end block the we check size of i_layer_delta
-        if(o_layer_delta.size() != output_layer.size())
+        if (o_layer_delta.size() != output_layer.size())
         {
-            cout << "ERROR! Setup error. o_layer_delta.size() != output_layer.size() " << endl; 
+            cout << "ERROR! Setup error. o_layer_delta.size() != output_layer.size() " << endl;
             cout << "setup all public vector size before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
-            cout << "Exit program !" << endl;    
+            cout << "Exit program !" << endl;
             exit(0);
         }
     }
     //=============================================================================================
     vector<double> dummy_hidd_nodes_on_this_layer;
-    for(int i=0;i<nodes;i++)
+    for (int i = 0; i < nodes; i++)
     {
         dummy_hidd_nodes_on_this_layer.push_back(0.0);
-    }   
+    }
     hidden_layer.push_back(dummy_hidd_nodes_on_this_layer);
     internal_delta.push_back(dummy_hidd_nodes_on_this_layer);
+
     number_of_hidden_nodes[setup_inc_layer_cnt] = nodes;
     cout << "Size of hidden_layer[" << setup_inc_layer_cnt << "][x] = " << hidden_layer[setup_inc_layer_cnt].size() << endl;
-    
+
     setup_inc_layer_cnt++;
-    if(setup_inc_layer_cnt > nr_of_hidden_layers-1)
+    if (setup_inc_layer_cnt > nr_of_hidden_layers - 1)
     {
         cout << "hidden_layer vector is now set up" << endl;
         int out_layer_size = output_layer.size();
         vector<double> temporary_dummy_output_vector;
-        for(int i=0;i<out_layer_size;i++)
+        for (int i = 0; i < out_layer_size; i++)
         {
             temporary_dummy_output_vector.push_back(0.0);
         }
         internal_delta.push_back(temporary_dummy_output_vector);
-        
 
-        //i_layer_delta and o_layer_delta data will NOT copy to last and first internal_delta data this are diffrent data
-        //i_layer_delta is the delta data at the end point of thi input wires of this nn block
-        //internal_delta[0][x] will contain the delta at the hildden_layer[0][x]
-        //i_layer_delta[x] will contain the delta backproped from internal_delta[0][x] via first layer wheights and skip wire sum at top
-        //Likevice internal_delta[end output layer][x] before the activation function
-        //but o_layer_delta[x] is the delta from outside after the activation function
+        // i_layer_delta and o_layer_delta data will NOT copy to last and first internal_delta data this are diffrent data
+        // i_layer_delta is the delta data at the end point of thi input wires of this nn block
+        // internal_delta[0][x] will contain the delta at the hildden_layer[0][x]
+        // i_layer_delta[x] will contain the delta backproped from internal_delta[0][x] via first layer wheights and skip wire sum at top
+        // Likevice internal_delta[end output layer][x] before the activation function
+        // but o_layer_delta[x] is the delta from outside after the activation function
 
         cout << "Now setup all_weight, change_weights vectors size of this fc block" << endl;
-        vector<double>         dummy_1D_weight_vector;
-        vector<vector<double>> dummy_2D_weight_vector; 
+        vector<double> dummy_1D_weight_vector;
+        vector<vector<double>> dummy_2D_weight_vector;
         int weight_size_1D = 0;
         int weight_size_2D = 0;
-        for(int l_cnt=0;l_cnt<nr_of_hidden_layers;l_cnt++)
+        for (int l_cnt = 0; l_cnt < nr_of_hidden_layers; l_cnt++)
         {
             dummy_1D_weight_vector.clear();
             dummy_2D_weight_vector.clear();
-            if(l_cnt==0)
+            if (l_cnt == 0)
             {
-                //Input layer connect to hidden_layer[0] 
-                weight_size_1D = input_layer.size() + 1;// +1 for the Bias wheight
-                for(int i=0;i<weight_size_1D;i++)
+                // Input layer connect to hidden_layer[0]
+                weight_size_1D = input_layer.size() + 1; // +1 for the Bias wheight
+                for (int i = 0; i < weight_size_1D; i++)
                 {
                     dummy_1D_weight_vector.push_back(0.0);
                 }
@@ -213,31 +215,31 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             }
             else
             {
-                //weight size make up for connections between hidden_layer before to this hiden_layer 
-                for(int i=0;i<number_of_hidden_nodes[l_cnt-1] + 1;i++)// +1 for Bias weight
+                // weight size make up for connections between hidden_layer before to this hiden_layer
+                for (int i = 0; i < number_of_hidden_nodes[l_cnt - 1] + 1; i++) // +1 for Bias weight
                 {
                     dummy_1D_weight_vector.push_back(0.0);
                 }
                 cout << "Size of temporary dummy_1D_weight_vector from hidden layer connection[" << l_cnt << "] is = " << dummy_1D_weight_vector.size() << endl;
             }
             weight_size_2D = hidden_layer[l_cnt].size();
-            for(int n_cnt=0;n_cnt<weight_size_2D;n_cnt++)
+            for (int n_cnt = 0; n_cnt < weight_size_2D; n_cnt++)
             {
                 dummy_2D_weight_vector.push_back(dummy_1D_weight_vector);
             }
             all_weights.push_back(dummy_2D_weight_vector);
             change_weights.push_back(dummy_2D_weight_vector);
         }
-         
+
         // output weight setup
-        weight_size_1D = number_of_hidden_nodes[nr_of_hidden_layers-1] + 1;// +1 is because that we have 1 weights added for the Bias node
+        weight_size_1D = number_of_hidden_nodes[nr_of_hidden_layers - 1] + 1; // +1 is because that we have 1 weights added for the Bias node
         dummy_1D_weight_vector.clear();
         for (int i = 0; i < weight_size_1D; i++) //
         {
             dummy_1D_weight_vector.push_back(0.0);
         }
-        cout << "Size of temporary dummy_1D_weight_vector last hidden layer connection[" << nr_of_hidden_layers-1 << "] is = " << dummy_1D_weight_vector.size() << endl;
-        
+        cout << "Size of temporary dummy_1D_weight_vector last hidden layer connection[" << nr_of_hidden_layers - 1 << "] is = " << dummy_1D_weight_vector.size() << endl;
+
         weight_size_2D = output_layer.size();
         dummy_2D_weight_vector.clear();
         for (int n_cnt = 0; n_cnt < weight_size_2D; n_cnt++)
@@ -250,45 +252,226 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
         cout << "Note that the program how call this object could only set this size once. No protections against change size of the public vectors" << endl;
         setup_state = 2;
         cout << "Setup state = " << setup_state << endl;
-        //Print out the size of the network structure
+        // Print out the size of the network structure
         int weight_l_size = all_weights.size();
         cout << "Size of layer dimentions[] of weights at the this nn block = " << weight_l_size << endl;
-        for(int i=0;i < weight_l_size;i++)
+        for (int i = 0; i < weight_l_size; i++)
         {
-          int weight_n_size = all_weights[i].size();
-          int weight_w_size = all_weights[i][weight_n_size-1].size();
-          cout << "Size of node dimentions[][] of weights for hidden layer number " << i << " is: " <<  weight_n_size << endl;
-          cout << "Size of weight dimentions[][][] of weights for hidden layer number " << i << " is: " <<  weight_w_size << endl;
+            int weight_n_size = all_weights[i].size();
+            int weight_w_size = all_weights[i][weight_n_size - 1].size();
+            cout << "Size of node dimentions[][] of weights for hidden layer number " << i << " is: " << weight_n_size << endl;
+            cout << "Size of weight dimentions[][][] of weights for hidden layer number " << i << " is: " << weight_w_size << endl;
         }
     }
 }
-void fc_m_resnet::forward_pass(void)
+double fc_m_resnet::activation_function(double input_data)
 {
-    for(int l_cnt=0;l_cnt<nr_of_hidden_layers;l_cnt++)//Loop though all hidden layers
+    double output_data = 0.0;
+    int this_node_dopped_out = 0;
+    if (use_dopouts == 1)
     {
-        int dst_nodes = hidden_layer[l_cnt].size();//
-        if(l_cnt==0)
+        double dropout_random = ((double)rand() / RAND_MAX);
+        if (dropout_random < dropout_proportion)
         {
-            //Input layer will connect to first hidden layer
-             int src_nodes = input_layer.size();
-             for(int dst_n_cnt=0;dst_n_cnt<dst_nodes;dst_n_cnt++)
-             {
-                double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes];//Set the bias weight as the start value
-                for(int src_n_cnt=0;src_n_cnt<src_nodes;src_n_cnt++)
-                {
-                    acc_dot_product += input_layer[src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt];//Add all to make the dot product
-                }
-                //Dot product finnished
-                //Make the activation function
-                hidden_layer[l_cnt][dst_n_cnt] = 1.0/(1.0 + exp(-acc_dot_product));//Sigmoid function and put it into 
-             }
+            this_node_dopped_out = 1;
+        }
+    }
+    if (this_node_dopped_out == 0)
+    {
+        if (activation_function_mode == 0)
+        {
+            // 0 = sigmoid activation function
+            output_data = 1.0 / (1.0 + exp(-input_data)); // Sigmoid function and put it into
         }
         else
         {
-            //Connection from hidden layer to next hidden layer
-            //TODO... 
-
+            // 1 = Relu simple activation function
+            // 2 = Relu fix leaky activation function
+            // 3 = Relu random variable leaky activation function
+            if (input_data >= 0.0)
+            {
+                // Positiv value go right though ar Relu (Rectify Linear)
+                output_data = input_data;
+            }
+            else
+            {
+                // Negative
+                switch (activation_function_mode)
+                {
+                case 1:
+                    // 1 = Relu simple activation function
+                    output_data = 0;
+                    break;
+                case 2:
+                    // 2 = Relu fix leaky activation function
+                    output_data = input_data * fix_leaky_proportion;
+                    break;
+                case 3:
+                    // 3 = Relu random variable leaky activation function
+                    double leaky_random = ((((double)rand() / RAND_MAX)) * random_max_leaky_propotion);
+                    output_data = input_data * leaky_random;
+                    break;
+                }
+            }
         }
     }
+    return output_data;
 }
-//TODO... more functions
+double fc_m_resnet::delta_activation_func(double delta_outside_function, double value_from_node_outputs)
+{
+    double delta_inside_func = 0.0;
+    if (activation_function_mode == 0)
+    {
+        // 0 = sigmoid activation function
+        delta_inside_func = delta_outside_function * value_from_node_outputs * (1.0 * value_from_node_outputs); // Sigmoid function and put it into
+    }
+    else
+    {
+        // 1 = Relu simple activation function
+        // 2 = Relu fix leaky activation function
+        // 3 = Relu random variable leaky activation function
+        if (value_from_node_outputs >= 0.0)
+        {
+            // Positiv value go right though ar Relu (Rectify Linear)
+            delta_inside_func = delta_outside_function;
+        }
+        else
+        {
+            // Negative
+            switch (activation_function_mode)
+            {
+            case 1:
+                // 1 = Relu simple activation function
+                delta_inside_func = 0;
+                break;
+            case 2:
+                // 2 = Relu fix leaky activation function
+                
+                delta_inside_func = delta_outside_function * fix_leaky_proportion;
+                break;
+            case 3:
+                // 3 = Relu random variable leaky activation function
+                double leaky_random = ((((double)rand() / RAND_MAX)) * random_max_leaky_propotion);
+                delta_inside_func = delta_outside_function * leaky_random * 0.5;//Dirly solution radnom leaky derivative
+                //output_data * leaky_random;
+                break;
+            }
+        }
+
+    }
+    if (value_from_node_outputs == 0.0)
+    {
+        delta_inside_func = 0.0;//Dropout may have ocure
+    }
+
+    return delta_inside_func;
+}
+void fc_m_resnet::forward_pass(void)
+{
+    for (int l_cnt = 0; l_cnt < nr_of_hidden_layers; l_cnt++) // Loop though all hidden layers
+    {
+        int dst_nodes = hidden_layer[l_cnt].size(); //
+        if (l_cnt == 0)
+        {
+            // Input layer will connect to first hidden layer
+            int src_nodes = input_layer.size();
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            {
+                double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes]; // Set the bias weight as the start value
+                for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                {
+                    acc_dot_product += input_layer[src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt]; // Add all to make the dot product
+                }
+                // Dot product finnished
+                // Make the activation function
+                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product);
+            }
+        }
+        else
+        {
+            // Connection from hidden layer to next hidden layer
+            int src_nodes = hidden_layer[l_cnt - 1].size(); // Note -1 because we take the signal from the hidden layer befor this desitnatiuon layer we will calculate at this l_cnt.
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            {
+                double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes]; // Set the bias weight as the start value
+                for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                {
+                    acc_dot_product += hidden_layer[l_cnt - 1][src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt]; // Add all to make the dot product
+                }
+                // Dot product finnished
+                // Make the activation function
+                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product);
+
+            }
+        }
+    }
+    // Last hidden layer will be connected to output layer
+    int dst_nodes = output_layer.size();
+    int l_cnt = hidden_layer.size();
+    int last_hidden_layer_nr = l_cnt - 1;
+    int src_nodes = hidden_layer[last_hidden_layer_nr].size();
+    for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+    {
+        double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes]; // Set the bias weight as the start value
+        for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+        {
+            acc_dot_product += hidden_layer[l_cnt - 1][src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt]; // Add all to make the dot product
+        }
+        // Dot product finnished
+        // Make the activation function
+        output_layer[dst_n_cnt] = activation_function(acc_dot_product);
+    }
+}
+
+void fc_m_resnet::only_loss_calculation(void)
+{
+    int nr_out_nodes = output_layer.size();
+    for (int i = 0; i < nr_out_nodes; i++)
+    {
+        loss += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
+
+        // Softmax not yet implemented
+    }
+}
+void fc_m_resnet::backpropagtion_and_update(void)
+{
+    //============ Calculated and Backpropagate output delta and neural network loss ============
+    int nr_out_nodes = output_layer.size();
+    int last_delta_layer_nr = internal_delta.size();
+    for (int i = 0; i < nr_out_nodes; i++)
+    {
+        if (block_type == 2)
+        {
+            internal_delta[last_delta_layer_nr][i] = delta_activation_func((target_layer[i] - output_layer[i]), output_layer[i]);
+            loss += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
+        }
+        else
+        {
+            internal_delta[last_delta_layer_nr][i] = delta_activation_func(o_layer_delta[i], output_layer[i]);
+        }
+        // Softmax not yet implemented
+    }
+   //============================================================================================
+   //============ Backpropagate hidden layer errors ============
+   for(int i = last_delta_layer_nr-1;i>-1;i--)//last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
+   {
+    int nr_delta_nodes_dst_layer = internal_delta[i].size();
+    int nr_delta_nodes_src_layer = internal_delta[i+1].size();
+    for(int dst_n_cnt=0;dst_n_cnt<nr_delta_nodes_dst_layer;dst_n_cnt++)
+    {
+        double accumulated_backprop = 0.0;
+        for(int src_n_cnt=0;src_n_cnt<nr_delta_nodes_src_layer;src_n_cnt++)
+        {
+            accumulated_backprop += all_weights[i+1][src_n_cnt][dst_n_cnt] * internal_delta[i+1][src_n_cnt];
+        }
+        internal_delta[i][dst_n_cnt] = delta_activation_func(accumulated_backprop, hidden_layer[i][dst_n_cnt]);
+    }
+   }
+   //============ Backpropagate finish =================================
+
+   // ======== Update weights ========================
+
+   // ===============================================
+}
+
+// TODO... more functions
