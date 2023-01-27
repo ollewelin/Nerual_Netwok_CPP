@@ -513,4 +513,41 @@ void fc_m_resnet::print_weights(void)
         cout << endl;
     }
 }
-// TODO... more functions
+
+//==== Used or verify gradient calcualtion ======================
+double fc_m_resnet::verify_gradient(int l,int n,int w,double adjust_weight)
+{
+    double gradient_return = 0.0;
+    all_weights[l][n][w] += adjust_weight;
+    if(l > 0)
+    {
+        //from hidden layer
+        gradient_return = hidden_layer[l][w] * internal_delta[l][n];
+    }
+    else
+    {
+        //from input layer
+        gradient_return = input_layer[w] * internal_delta[l][n];
+    }
+    return gradient_return;
+}
+
+double fc_m_resnet::calc_error_verify_grad(void)
+{
+   int nr_out_nodes = output_layer.size();
+    double error = 0;
+    for (int i = 0; i < nr_out_nodes; i++)
+    {
+        if (block_type == 2)
+        {
+            error += target_layer[i] - output_layer[i];
+        }
+        else
+        {
+            error += o_layer_delta[i] - output_layer[i];
+        }
+        // Softmax not yet implemented
+    }
+    return error;
+}
+//================================================================

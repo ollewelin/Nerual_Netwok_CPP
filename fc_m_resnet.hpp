@@ -71,8 +71,8 @@ public:
     void only_loss_calculation(void);
     void backpropagtion_and_update(void);//If batchmode update only when batch end
     void print_weights(void);
-   // void 
-
+    double verify_gradient(int,int,int,double);
+    double calc_error_verify_grad(void);
 };
 
 
