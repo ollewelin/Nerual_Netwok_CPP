@@ -453,6 +453,21 @@ void fc_m_resnet::backpropagtion_and_update(void)
             internal_delta[i][dst_n_cnt] = delta_activation_func(accumulated_backprop, hidden_layer[i][dst_n_cnt]);
         }
     }
+    //============ Backpropagate i_layer_delta ============
+    if(block_type > 0)
+    {
+        int nr_delta_nodes_dst_layer = i_layer_delta.size();
+        int nr_delta_nodes_src_layer = internal_delta[0].size();
+        for (int dst_n_cnt = 0; dst_n_cnt < nr_delta_nodes_dst_layer; dst_n_cnt++)
+        {
+            double accumulated_backprop = 0.0;
+            for (int src_n_cnt = 0; src_n_cnt < nr_delta_nodes_src_layer; src_n_cnt++)
+            {
+                accumulated_backprop += all_weights[0][src_n_cnt][dst_n_cnt] * internal_delta[0][src_n_cnt];
+            }
+            i_layer_delta[dst_n_cnt] = delta_activation_func(accumulated_backprop, input_layer[dst_n_cnt]);
+        }
+    }
     //============ Backpropagate finish =================================
 
     // ======== Update weights ========================
