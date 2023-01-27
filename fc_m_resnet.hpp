@@ -38,9 +38,7 @@ public:
     //0 = sigmoid activation function
     //1 = Relu simple activation function
     //2 = Relu fix leaky activation function
-    //3 = Relu random variable leaky activation function
     double fix_leaky_proportion;
-    double random_max_leaky_propotion;
     int use_skip_connect_mode;
     //0 = turn OFF skip connections, ordinary fully connected nn block only
     //1 = turn ON skip connectons
@@ -73,6 +71,7 @@ public:
     void only_loss_calculation(void);
     void backpropagtion_and_update(void);//If batchmode update only when batch end
     void print_weights(int, int, int);
+   // void 
 
 };
 

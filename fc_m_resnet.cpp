@@ -29,7 +29,6 @@ fc_m_resnet::fc_m_resnet(/* args */)
     // 2 = Relu fix leaky activation function
     // 3 = Relu random variable leaky activation function
     fix_leaky_proportion = 0.05;
-    random_max_leaky_propotion = 0.05;
     use_skip_connect_mode = 0;
     // 0 = turn OFF skip connections, ordinary fully connected nn block only
     // 1 = turn ON skip connectons
@@ -306,11 +305,6 @@ double fc_m_resnet::activation_function(double input_data)
                     // 2 = Relu fix leaky activation function
                     output_data = input_data * fix_leaky_proportion;
                     break;
-                case 3:
-                    // 3 = Relu random variable leaky activation function
-                    double leaky_random = ((((double)rand() / RAND_MAX)) * random_max_leaky_propotion);
-                    output_data = input_data * leaky_random;
-                    break;
                 }
             }
         }
@@ -346,22 +340,15 @@ double fc_m_resnet::delta_activation_func(double delta_outside_function, double 
                 break;
             case 2:
                 // 2 = Relu fix leaky activation function
-                
+
                 delta_inside_func = delta_outside_function * fix_leaky_proportion;
-                break;
-            case 3:
-                // 3 = Relu random variable leaky activation function
-                double leaky_random = ((((double)rand() / RAND_MAX)) * random_max_leaky_propotion);
-                delta_inside_func = delta_outside_function * leaky_random * 0.5;//Dirly solution radnom leaky derivative
-                //output_data * leaky_random;
                 break;
             }
         }
-
     }
     if (value_from_node_outputs == 0.0)
     {
-        delta_inside_func = 0.0;//Dropout may have ocure
+        delta_inside_func = 0.0; // Dropout may have ocure
     }
 
     return delta_inside_func;
@@ -401,7 +388,6 @@ void fc_m_resnet::forward_pass(void)
                 // Dot product finnished
                 // Make the activation function
                 hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product);
-
             }
         }
     }
@@ -451,27 +437,62 @@ void fc_m_resnet::backpropagtion_and_update(void)
         }
         // Softmax not yet implemented
     }
-   //============================================================================================
-   //============ Backpropagate hidden layer errors ============
-   for(int i = last_delta_layer_nr-1;i>-1;i--)//last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
-   {
-    int nr_delta_nodes_dst_layer = internal_delta[i].size();
-    int nr_delta_nodes_src_layer = internal_delta[i+1].size();
-    for(int dst_n_cnt=0;dst_n_cnt<nr_delta_nodes_dst_layer;dst_n_cnt++)
+    //============================================================================================
+    //============ Backpropagate hidden layer errors ============
+    for (int i = last_delta_layer_nr - 1; i > -1; i--) // last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
     {
-        double accumulated_backprop = 0.0;
-        for(int src_n_cnt=0;src_n_cnt<nr_delta_nodes_src_layer;src_n_cnt++)
+        int nr_delta_nodes_dst_layer = internal_delta[i].size();
+        int nr_delta_nodes_src_layer = internal_delta[i + 1].size();
+        for (int dst_n_cnt = 0; dst_n_cnt < nr_delta_nodes_dst_layer; dst_n_cnt++)
         {
-            accumulated_backprop += all_weights[i+1][src_n_cnt][dst_n_cnt] * internal_delta[i+1][src_n_cnt];
+            double accumulated_backprop = 0.0;
+            for (int src_n_cnt = 0; src_n_cnt < nr_delta_nodes_src_layer; src_n_cnt++)
+            {
+                accumulated_backprop += all_weights[i + 1][src_n_cnt][dst_n_cnt] * internal_delta[i + 1][src_n_cnt];
+            }
+            internal_delta[i][dst_n_cnt] = delta_activation_func(accumulated_backprop, hidden_layer[i][dst_n_cnt]);
         }
-        internal_delta[i][dst_n_cnt] = delta_activation_func(accumulated_backprop, hidden_layer[i][dst_n_cnt]);
     }
-   }
-   //============ Backpropagate finish =================================
+    //============ Backpropagate finish =================================
 
-   // ======== Update weights ========================
+    // ======== Update weights ========================
+    int weight_size_1D = all_weights.size();
+    for (int i = 0; i < weight_size_1D; i++)
+    {
 
-   // ===============================================
+        int weight_size_2D = all_weights[i].size();
+        if (i == 0)
+        {
+            // Input layer
+            for (int j = 0; j < weight_size_2D; j++)
+            {
+                int weight_size_3D = all_weights[i][j].size()-1;
+                change_weights[i][j][weight_size_3D] = learning_rate * internal_delta[i][j] + momentum * change_weights[i][j][weight_size_3D]; // Bias weight
+                all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
+                for (int k = 0; k < weight_size_3D; k++)
+                {
+                    change_weights[i][j][weight_size_3D] = learning_rate * input_layer[k] + momentum * change_weights[i][j][k];
+                    all_weights[i][j][k] += change_weights[i][j][k];
+                }
+            }
+        }
+        else
+        {
+            // Hidden layer
+            for (int j = 0; j < weight_size_2D; j++)
+            {
+                int weight_size_3D = all_weights[i][j].size()-1;
+                change_weights[i][j][weight_size_3D] = learning_rate * internal_delta[i][j] + momentum * change_weights[i][j][weight_size_3D]; // Bias weight
+                all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
+                for (int k = 0; k < weight_size_3D; k++)
+                {
+                    change_weights[i][j][weight_size_3D] = learning_rate * input_layer[k] + momentum * change_weights[i][j][k];
+                    all_weights[i][j][k] += change_weights[i][j][k];
+                }
+            }
+        }
+    }
+    // ===============================================
 }
 
 // TODO... more functions
