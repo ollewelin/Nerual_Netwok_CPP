@@ -466,7 +466,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             // Input layer
             for (int j = 0; j < weight_size_2D; j++)
             {
-                int weight_size_3D = all_weights[i][j].size()-1;
+                int weight_size_3D = all_weights[i][j].size() - 1;
                 change_weights[i][j][weight_size_3D] = learning_rate * internal_delta[i][j] + momentum * change_weights[i][j][weight_size_3D]; // Bias weight
                 all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
                 for (int k = 0; k < weight_size_3D; k++)
@@ -481,7 +481,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             // Hidden layer
             for (int j = 0; j < weight_size_2D; j++)
             {
-                int weight_size_3D = all_weights[i][j].size()-1;
+                int weight_size_3D = all_weights[i][j].size() - 1;
                 change_weights[i][j][weight_size_3D] = learning_rate * internal_delta[i][j] + momentum * change_weights[i][j][weight_size_3D]; // Bias weight
                 all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
                 for (int k = 0; k < weight_size_3D; k++)
@@ -494,5 +494,23 @@ void fc_m_resnet::backpropagtion_and_update(void)
     }
     // ===============================================
 }
-
+void fc_m_resnet::print_weights(void)
+{
+    cout << "all_weights = " << endl;
+    int weight_size_1D = all_weights.size();
+    for (int i = 0; i < weight_size_1D; i++)
+    {
+        int weight_size_2D = all_weights[i].size();
+        for (int j = 0; j < weight_size_2D; j++)
+        {
+            int weight_size_3D = all_weights[i][j].size();
+            for (int k = 0; k < weight_size_3D; k++)
+            {
+               cout << " " << all_weights[i][j][k];
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+}
 // TODO... more functions

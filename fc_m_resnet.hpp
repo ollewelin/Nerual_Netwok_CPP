@@ -70,7 +70,7 @@ public:
     void forward_pass(void);
     void only_loss_calculation(void);
     void backpropagtion_and_update(void);//If batchmode update only when batch end
-    void print_weights(int, int, int);
+    void print_weights(void);
    // void 
 
 };
