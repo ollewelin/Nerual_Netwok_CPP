@@ -42,8 +42,24 @@ int main() {
   basic_fc_nn.set_nr_of_hidden_nodes_on_layer_nr(hid_nodes_L2);
   //basic_fc_nn.set_nr_of_hidden_nodes_on_layer_nr(hid_nodes_L3);
   // Note that set_nr_of_hidden_nodes_on_layer_nr() cal must be exactly same number as the set_nr_of_hidden_layers(hid_layers)
-  //============ Neural Network setup is finnish ! ==================
+  //============ Neural Network Size setup is finnish ! ==================
 
+  //=== Now setup the hyper parameters of the Neural Network ====
+  basic_fc_nn.momentum = 0.9;
+  basic_fc_nn.learning_rate = 0.01;
+  basic_fc_nn.dropout_proportion = 0.35;
+  double init_random_weight_propotion = 0.001;
+  cout << "Do you want to load weights from saved weight file = Y/N " << endl;
+  char answer='N';
+  cin >> answer;
+  if (answer == 'Y' || answer == 'y')
+  {
+    basic_fc_nn.load_weights("weights.dat");
+  }
+  else
+  {
+    basic_fc_nn.randomize_weights(init_random_weight_propotion);
+  }
 
   const int tabl_size = 10;
   vector<int> table;

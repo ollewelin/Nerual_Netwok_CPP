@@ -138,6 +138,92 @@ void fc_m_resnet::randomize_weights(double rand_proportion)
     cout << "setup_state = " << setup_state << endl;
 }
 
+const int precision_to_text_file = 16;
+void fc_m_resnet::save_weights(string filename)
+{
+    if (setup_state > 2)
+    {
+        cout << "Save data weights ..." << endl;
+        ofstream outputFile;
+        outputFile.precision(precision_to_text_file);
+        outputFile.open(filename);
+        int layers = all_weights.size();
+        for (int l_cnt = 0; l_cnt < layers; l_cnt++)
+        {
+            int nodes_on_this_layer = all_weights[l_cnt].size();
+            for (int n_cnt = 0; n_cnt < nodes_on_this_layer; n_cnt++)
+            {
+                int weights_to_this_node = all_weights[l_cnt][n_cnt].size();
+                for (int w_cnt = 0; w_cnt < weights_to_this_node; w_cnt++)
+                {
+                    outputFile << all_weights[l_cnt][n_cnt][w_cnt] << endl;
+                }
+            }
+        }
+        outputFile.close();
+        cout << "Save data finnish !" << endl;
+    }
+    else
+    {
+        cout << "ERROR! Setup error. weights file can only be saved when setup_state is in mode > 2. setup_state = " << setup_state << endl;
+        cout << "Exit program !" << endl;
+        exit(0);
+    }
+}
+void fc_m_resnet::load_weights(string filename)
+{
+    if (setup_state > 2)
+    {
+        cout << "Load data weights ..." << endl;
+        ifstream inputFile;
+        inputFile.precision(precision_to_text_file);
+        inputFile.open(filename);
+        double d_element = 0.0;
+        int data_load_error = 0;
+        int layers = all_weights.size();
+        int data_load_numbers = 0;
+        for (int l_cnt = 0; l_cnt < layers; l_cnt++)
+        {
+            int nodes_on_this_layer = all_weights[l_cnt].size();
+            for (int n_cnt = 0; n_cnt < nodes_on_this_layer; n_cnt++)
+            {
+                int weights_to_this_node = all_weights[l_cnt][n_cnt].size();
+                for (int w_cnt = 0; w_cnt < weights_to_this_node; w_cnt++)
+                {
+                    if(inputFile >> d_element)
+                    {
+                        all_weights[l_cnt][n_cnt][w_cnt] = d_element;
+                        data_load_numbers++;
+                    }
+                    else
+                    {
+                        data_load_error = 1;
+                    }
+                    if(data_load_error !=0){break;}
+                }
+                if(data_load_error !=0){break;}
+            }
+            if(data_load_error !=0){break;}
+        }
+        inputFile.close();
+        if(data_load_error == 0)
+        {
+            cout << "Load data finnish !" << endl;
+        }
+        else
+        {
+            cout << "ERROR! weight file error have not sufficient amount of data to put into  all_weights[l_cnt][n_cnt][w_cnt] vector" << endl;
+            cout << "Loaded this amout of data weights data_load_numbers = " << data_load_numbers << endl;
+        }
+    }
+    else
+    {
+        cout << "ERROR! Setup error. weights file can only be loaded when setup_state is in mode > 2. setup_state = " << setup_state << endl;
+        cout << "Exit program !" << endl;
+        exit(0);
+    }
+}
+
 void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
 {
     if (setup_state < 1)
