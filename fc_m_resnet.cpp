@@ -9,6 +9,10 @@ using namespace std;
 
 fc_m_resnet::fc_m_resnet(/* args */)
 {
+    version_major = 0;
+    version_mid = 0;
+    version_minor = 1;
+
     setup_state = 0;
     nr_of_hidden_layers = 0;
     setup_inc_layer_cnt = 0;
@@ -58,6 +62,14 @@ fc_m_resnet::fc_m_resnet(/* args */)
 fc_m_resnet::~fc_m_resnet()
 {
     cout << "fc_m_resnet Destructor" << endl;
+}
+void fc_m_resnet::get_version(void)
+{
+    cout << "Fully connected residual neural network object" << endl;
+    cout << "fc_m_resnet object version : " << version_major << "." << version_mid << "." << version_minor << endl;
+    ver_major = version_major;
+    ver_mid = version_mid;
+    ver_minor = version_minor;
 }
 void fc_m_resnet::set_nr_of_hidden_layers(int nr_of_hid_layers)
 {
@@ -165,6 +177,53 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             cout << "setup all public vector size before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
             cout << "Exit program !" << endl;
             exit(0);
+        }
+        if (use_softmax == 1)
+        {
+            cout << "ERROR! Setup error. Sofmax is only allowed at End block" << endl;
+            cout << "Tip ! Set use_softmax = 0 when not using End block block_type < 2" << endl;
+            cout << "Exit program !" << endl;
+            exit(0);
+        }
+        if (use_skip_connect_mode == 1)
+        {
+            cout << "ERROR! Setup error. use_skip_connect_mode ON is not allowed at End block" << endl;
+            cout << "Note use_skip_connect_mode is now FORCED to 0 instead !!" << endl;
+            use_skip_connect_mode = 0;
+            cout << "use_skip_connect_mode = " << use_skip_connect_mode << endl;
+        }
+    }
+    else
+    {
+        if (use_softmax == 1)
+        {
+            // check that softmax layer is correct setup outside from the object caller
+            int size_of_output_layer = output_layer.size();
+            int size_of_softmax_layer = softmax_layer.size();
+            if (size_of_output_layer == size_of_softmax_layer)
+            {
+                if (size_of_softmax_layer > 0)
+                {
+                    // Softmax size OK
+                    cout << "OK! use softmax softmax_layer.size() = " << softmax_layer.size() << endl;
+                }
+                else
+                {
+                    cout << "ERROR! Setup error. softmax softmax_layer.size() = " << softmax_layer.size() << endl;
+                    cout << "Tip ! Set softmax_layer size before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
+                    cout << "Exit program !" << endl;
+                    exit(0);
+                }
+            }
+            else
+            {
+                    cout << "ERROR! Setup error. softmax softmax_layer.size() NOT equal to output_layer.size()" << softmax_layer.size() << endl;
+                    cout << "softmax_layer.size() = " << softmax_layer.size() << endl;
+                    cout << "output_layer.size() = " << output_layer.size() << endl;
+                    cout << "Tip ! Set softmax_layer equal to output_layer.size() before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
+                    cout << "Exit program !" << endl;
+                    exit(0);
+            }
         }
     }
     //=============================================================================================
@@ -459,32 +518,42 @@ void fc_m_resnet::forward_pass(void)
         // Make the activation function
         output_layer[dst_n_cnt] = activation_function(acc_dot_product);
     }
-    if (use_skip_connect_mode == 1)
+    if (block_type == 2)
     {
-        int src_nodes = input_layer.size();
-        int dst_nodes = output_layer.size();
-        if (skip_conn_in_out_relation == 0)
+        if (use_softmax == 1)
         {
-            // 0 = same input/output
-            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
-            {
-                output_layer[dst_n_cnt] += input_layer[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
-            }
+            // Add a softmax layer, used for classification purpose
         }
-        else if (skip_conn_in_out_relation == 1)
+    }
+    else
+    {
+        if (use_skip_connect_mode == 1)
         {
-            // 1 = input > output
-            for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+            int src_nodes = input_layer.size();
+            int dst_nodes = output_layer.size();
+            if (skip_conn_in_out_relation == 0)
             {
-                output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
+                // 0 = same input/output
+                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                {
+                    output_layer[dst_n_cnt] += input_layer[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
+                }
             }
-        }
-        else if (skip_conn_in_out_relation == 2)
-        {
-            // 2 = output > input
-            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            else if (skip_conn_in_out_relation == 1)
             {
-                output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
+                // 1 = input > output
+                for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                {
+                    output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
+                }
+            }
+            else if (skip_conn_in_out_relation == 2)
+            {
+                // 2 = output > input
+                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                {
+                    output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
+                }
             }
         }
     }
@@ -535,7 +604,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
         }
     }
     //============ Backpropagate i_layer_delta ============
-    if (block_type > 0)//Skip backprop to i_layer_delta if this object is a start block. 0 = start block 
+    if (block_type > 0) // Skip backprop to i_layer_delta if this object is a start block. 0 = start block
     {
         int nr_delta_nodes_dst_layer = i_layer_delta.size();
         int nr_delta_nodes_src_layer = internal_delta[0].size();
@@ -565,7 +634,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 // 1 = input > output
                 for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
                 {
-                    i_layer_delta[src_n_cnt] += o_layer_delta[src_n_cnt % dst_nodes];// Input nodes are > output nodes
+                    i_layer_delta[src_n_cnt] += o_layer_delta[src_n_cnt % dst_nodes]; // Input nodes are > output nodes
                 }
             }
             else if (skip_conn_in_out_relation == 2)
@@ -573,7 +642,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 // 2 = output > input
                 for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
                 {
-                    i_layer_delta[dst_n_cnt % src_nodes] += o_layer_delta[dst_nodes];//
+                    i_layer_delta[dst_n_cnt % src_nodes] += o_layer_delta[dst_nodes]; //
                 }
             }
         }
@@ -639,7 +708,8 @@ void fc_m_resnet::print_weights(void)
     }
 }
 
-//==== Used or verify gradient calcualtion ======================
+//==== Used or verify gradient calcualtion ================================================================
+//================= Functions only for debugging/verify the backpropagation gradient functions ============
 double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
 {
     double gradient_return = 0.0;
@@ -656,7 +726,7 @@ double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
     }
     return gradient_return;
 }
-
+//================= Functions only for debugging/verify the backpropagation gradient functions ============
 double fc_m_resnet::calc_error_verify_grad(void)
 {
     int nr_out_nodes = output_layer.size();
@@ -675,4 +745,5 @@ double fc_m_resnet::calc_error_verify_grad(void)
     }
     return error;
 }
-//================================================================
+//=========================================================================================================
+//=========================================================================================================

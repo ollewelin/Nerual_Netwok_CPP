@@ -6,7 +6,10 @@ using namespace std;
 class fc_m_resnet
 {
 private:
-    /* data */
+    int version_major;
+    int version_mid;
+    int version_minor;
+
     int nr_of_hidden_layers;//Numbers of hidden layers inside this m_resnet block object
     int setup_inc_layer_cnt;//Used during setup 
     int setup_state;
@@ -22,11 +25,17 @@ private:
     vector<vector<vector<double>>> change_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
     double activation_function(double);
     double delta_activation_func(double,double);
+
+    int skip_conn_rest_part;
+    int skip_conn_multiple_part;
+    int skip_conn_in_out_relation;
+    //0 = same input/output
+    //1 = input > output
+    //2 = output > input
     
 public:
     fc_m_resnet(/* args */);
     ~fc_m_resnet();
-
     int block_type;//0..2
     //0 = start block 
     //1 = middle block means both i_layer_delta is produced (backpropagate) and o_layer_delta is needed
@@ -42,12 +51,6 @@ public:
     int use_skip_connect_mode;
     //0 = turn OFF skip connections, ordinary fully connected nn block only
     //1 = turn ON skip connectons
-    int skip_conn_rest_part;
-    int skip_conn_multiple_part;
-    int skip_conn_in_out_relation;
-    //0 = same input/output
-    //1 = input > output
-    //2 = output > input
     
     int training_mode;
     //0 = SGD Stocastic Gradient Decent
@@ -64,6 +67,7 @@ public:
 
     vector<double> input_layer;//Always used, block type 0,1,2
     vector<double> output_layer;//Always used, block type 0,1,2
+    vector<double> softmax_layer;//Add on a softmax layer only setup and used when use_softmax enabled and End block used
     vector<double> target_layer;//Only used when block type, 2 = end block. target_nodes is used 
     vector<double> i_layer_delta;//Delta for all input nodes this should be backprop connect to previous multiple resenet block if there is any. Always used, block type 0,1,2
     vector<double> o_layer_delta;//Detla from m_resnet block after this block. Always used, block type 0,1,2
@@ -79,8 +83,16 @@ public:
     void only_loss_calculation(void);
     void backpropagtion_and_update(void);//If batchmode update only when batch end
     void print_weights(void);
+
+    //================= Functions only for debugging/verify the backpropagation gradient functions ============
     double verify_gradient(int,int,int,double);
     double calc_error_verify_grad(void);
+    //=========================================================================================================
+    
+    void get_version(void);
+    int ver_major;
+    int ver_mid;
+    int ver_minor;
 };
 
 

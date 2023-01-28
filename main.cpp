@@ -32,6 +32,7 @@ int main() {
   }
 
   fc_m_resnet fc_1;
+  fc_1.get_version();
   
 
 
