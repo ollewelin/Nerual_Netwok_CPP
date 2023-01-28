@@ -51,6 +51,8 @@ int main() {
 
   //=========== Test Neural Network size settings ==============
   fc_m_resnet basic_fc_nn;
+  string weight_filename;
+  weight_filename = "weights.dat";
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
   basic_fc_nn.use_softmax = 0;
@@ -89,7 +91,7 @@ int main() {
   cin >> answer;
   if (answer == 'Y' || answer == 'y')
   {
-    basic_fc_nn.load_weights("weights.dat");
+    basic_fc_nn.load_weights(weight_filename);
   }
   else
   {
@@ -218,6 +220,16 @@ int main() {
     }
     
     cout << "Training loss = " << basic_fc_nn.loss <<endl;
+    if(save_epoc_counter < save_after_epcs-1)
+    {
+      save_epoc_counter++;
+    }
+    else
+    {
+      save_epoc_counter=0;
+      basic_fc_nn.save_weights(weight_filename);
+    }
+    
   }
 
 

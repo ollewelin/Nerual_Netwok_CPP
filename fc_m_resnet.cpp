@@ -172,7 +172,13 @@ void fc_m_resnet::save_weights(string filename)
 }
 void fc_m_resnet::load_weights(string filename)
 {
-    if (setup_state > 2)
+    if (setup_state < 2)
+    {
+        cout << "ERROR! Setup error, setup_state is < 2 when calling load_weights() function setup_state = " << setup_state << endl;
+        cout << "Exit program !" << endl;
+        exit(0);
+    }
+    else
     {
         cout << "Load data weights ..." << endl;
         ifstream inputFile;
@@ -215,12 +221,7 @@ void fc_m_resnet::load_weights(string filename)
             cout << "ERROR! weight file error have not sufficient amount of data to put into  all_weights[l_cnt][n_cnt][w_cnt] vector" << endl;
             cout << "Loaded this amout of data weights data_load_numbers = " << data_load_numbers << endl;
         }
-    }
-    else
-    {
-        cout << "ERROR! Setup error. weights file can only be loaded when setup_state is in mode > 2. setup_state = " << setup_state << endl;
-        cout << "Exit program !" << endl;
-        exit(0);
+        setup_state = 3;
     }
 }
 
