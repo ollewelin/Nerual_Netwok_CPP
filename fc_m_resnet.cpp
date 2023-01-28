@@ -458,6 +458,7 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
                 {
                     // Positiv value go right though ar Relu (Rectify Linear)
                     output_data = input_data;
+                    //cout << "forward + output_data = " << output_data << endl;
                 }
                 else
                 {
@@ -466,11 +467,13 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
                     {
                     case 1:
                         // 1 = Relu simple activation function
-                        output_data = 0;
+                        output_data = 0.0;
+                      //  cout << "forward - output_data = " << output_data << endl;
                         break;
                     case 2:
                         // 2 = Relu fix leaky activation function
                         output_data = input_data * fix_leaky_proportion;
+                      //  cout << "forward -2 output_data = " << output_data << endl;
                         break;
                     }
                 }

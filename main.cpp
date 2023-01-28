@@ -56,12 +56,13 @@ int main() {
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
   basic_fc_nn.use_softmax = 0;
+  basic_fc_nn.activation_function_mode = 2;
   basic_fc_nn.use_skip_connect_mode = 0;
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 100;
-  const int hid_nodes_L2 = 15;
+  const int hid_nodes_L1 = 30;
+  const int hid_nodes_L2 = 30;
   //const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
   {
@@ -85,7 +86,8 @@ int main() {
   basic_fc_nn.momentum = 0.9;
   basic_fc_nn.learning_rate = 0.001;
   basic_fc_nn.dropout_proportion = 0.15;
-  double init_random_weight_propotion = 0.0001;
+  basic_fc_nn.fix_leaky_proportion = 0.05;
+  double init_random_weight_propotion = 0.01;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
   char answer='N';
   cin >> answer;
@@ -155,9 +157,9 @@ int main() {
     training_input_data[i][0] = linear_line;// 0..1
     training_input_data[i][1] = -linear_line;// 0..1
     training_input_data[i][2] = linear_line * 1.0;// 0..10
-    training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    training_target_data[i][2] = (linear_line * linear_line) * 0.5 + +0.5;
+    training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
+    training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
+    training_target_data[i][2] = (linear_line * linear_line) * 0.5 + 0.5;
   }
   for(int i=0;i<verify_dataset_size;i++)
   {
@@ -165,9 +167,9 @@ int main() {
     verify_input_data[i][0] = linear_line;// 0..1
     verify_input_data[i][1] = -linear_line;// 0..1
     verify_input_data[i][2] = linear_line * 10.0;// 0..10
-    verify_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    verify_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    verify_target_data[i][3] = (linear_line * linear_line) * 0.5 + +0.5;
+    verify_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
+    verify_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
+    verify_target_data[i][3] = (linear_line * linear_line) * 0.5 + 0.5;
   }
   //------------------------- Toy example setup finnis -------------------------------------
 
