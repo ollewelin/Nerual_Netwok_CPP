@@ -23,7 +23,7 @@ private:
     vector<vector<double>> internal_delta;//2D [layer_nr][node_nr] nr_of_hidden_layers + 2 for i_layer_delta and o_layer_delta as well
     vector<vector<vector<double>>> all_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
     vector<vector<vector<double>>> change_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
-    double activation_function(double);
+    double activation_function(double, int);
     double delta_activation_func(double,double);
 
     int skip_conn_rest_part;
@@ -67,7 +67,6 @@ public:
 
     vector<double> input_layer;//Always used, block type 0,1,2
     vector<double> output_layer;//Always used, block type 0,1,2
-    vector<double> softmax_layer;//Add on a softmax layer only setup and used when use_softmax enabled and End block used
     vector<double> target_layer;//Only used when block type, 2 = end block. target_nodes is used 
     vector<double> i_layer_delta;//Delta for all input nodes this should be backprop connect to previous multiple resenet block if there is any. Always used, block type 0,1,2
     vector<double> o_layer_delta;//Detla from m_resnet block after this block. Always used, block type 0,1,2

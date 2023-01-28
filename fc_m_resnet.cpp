@@ -193,39 +193,6 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             cout << "use_skip_connect_mode = " << use_skip_connect_mode << endl;
         }
     }
-    else
-    {
-        if (use_softmax == 1)
-        {
-            // check that softmax layer is correct setup outside from the object caller
-            int size_of_output_layer = output_layer.size();
-            int size_of_softmax_layer = softmax_layer.size();
-            if (size_of_output_layer == size_of_softmax_layer)
-            {
-                if (size_of_softmax_layer > 0)
-                {
-                    // Softmax size OK
-                    cout << "OK! use softmax softmax_layer.size() = " << softmax_layer.size() << endl;
-                }
-                else
-                {
-                    cout << "ERROR! Setup error. softmax softmax_layer.size() = " << softmax_layer.size() << endl;
-                    cout << "Tip ! Set softmax_layer size before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
-                    cout << "Exit program !" << endl;
-                    exit(0);
-                }
-            }
-            else
-            {
-                    cout << "ERROR! Setup error. softmax softmax_layer.size() NOT equal to output_layer.size()" << softmax_layer.size() << endl;
-                    cout << "softmax_layer.size() = " << softmax_layer.size() << endl;
-                    cout << "output_layer.size() = " << output_layer.size() << endl;
-                    cout << "Tip ! Set softmax_layer equal to output_layer.size() before call set_nr_of_hidden_nodes_on_layer_nr()" << endl;
-                    cout << "Exit program !" << endl;
-                    exit(0);
-            }
-        }
-    }
     //=============================================================================================
     vector<double> dummy_hidd_nodes_on_this_layer;
     for (int i = 0; i < nodes; i++)
@@ -374,11 +341,11 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
         }
     }
 }
-double fc_m_resnet::activation_function(double input_data)
+double fc_m_resnet::activation_function(double input_data, int end_layer)
 {
     double output_data = 0.0;
     int this_node_dopped_out = 0;
-    if (use_dopouts == 1)
+    if (use_dopouts == 1 && end_layer == 0)
     {
         double dropout_random = ((double)rand() / RAND_MAX);
         if (dropout_random < dropout_proportion)
@@ -388,36 +355,44 @@ double fc_m_resnet::activation_function(double input_data)
     }
     if (this_node_dopped_out == 0)
     {
-        if (activation_function_mode == 0)
+        if (use_softmax == 0)
         {
-            // 0 = sigmoid activation function
-            output_data = 1.0 / (1.0 + exp(-input_data)); // Sigmoid function and put it into
-        }
-        else
-        {
-            // 1 = Relu simple activation function
-            // 2 = Relu fix leaky activation function
-            // 3 = Relu random variable leaky activation function
-            if (input_data >= 0.0)
+            if (activation_function_mode == 0)
             {
-                // Positiv value go right though ar Relu (Rectify Linear)
-                output_data = input_data;
+                // 0 = sigmoid activation function
+                output_data = 1.0 / (1.0 + exp(-input_data)); // Sigmoid function and put it into
             }
             else
             {
-                // Negative
-                switch (activation_function_mode)
+                // 1 = Relu simple activation function
+                // 2 = Relu fix leaky activation function
+                // 3 = Relu random variable leaky activation function
+                if (input_data >= 0.0)
                 {
-                case 1:
-                    // 1 = Relu simple activation function
-                    output_data = 0;
-                    break;
-                case 2:
-                    // 2 = Relu fix leaky activation function
-                    output_data = input_data * fix_leaky_proportion;
-                    break;
+                    // Positiv value go right though ar Relu (Rectify Linear)
+                    output_data = input_data;
+                }
+                else
+                {
+                    // Negative
+                    switch (activation_function_mode)
+                    {
+                    case 1:
+                        // 1 = Relu simple activation function
+                        output_data = 0;
+                        break;
+                    case 2:
+                        // 2 = Relu fix leaky activation function
+                        output_data = input_data * fix_leaky_proportion;
+                        break;
+                    }
                 }
             }
+        }
+        else
+        {
+            // Softmax
+            output_data = exp(input_data);
         }
     }
     return output_data;
@@ -482,7 +457,7 @@ void fc_m_resnet::forward_pass(void)
                 }
                 // Dot product finnished
                 // Make the activation function
-                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product);
+                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product, 0);
             }
         }
         else
@@ -498,7 +473,7 @@ void fc_m_resnet::forward_pass(void)
                 }
                 // Dot product finnished
                 // Make the activation function
-                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product);
+                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product, 0);
             }
         }
     }
@@ -507,6 +482,7 @@ void fc_m_resnet::forward_pass(void)
     int l_cnt = hidden_layer.size();
     int last_hidden_layer_nr = l_cnt - 1;
     int src_nodes = hidden_layer[last_hidden_layer_nr].size();
+    double sum_softmax_e_digits = 0.0f; // Softmax first clear sum of all exp(Accum)
     for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
     {
         double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes]; // Set the bias weight as the start value
@@ -516,44 +492,51 @@ void fc_m_resnet::forward_pass(void)
         }
         // Dot product finnished
         // Make the activation function
-        output_layer[dst_n_cnt] = activation_function(acc_dot_product);
-    }
-    if (block_type == 2)
-    {
+        output_layer[dst_n_cnt] = activation_function(acc_dot_product, 1);
         if (use_softmax == 1)
         {
-            // Add a softmax layer, used for classification purpose
+            sum_softmax_e_digits += output_layer[dst_n_cnt];
         }
     }
-    else
+    if (use_softmax == 1)
     {
-        if (use_skip_connect_mode == 1)
+        if (sum_softmax_e_digits == 0.0f)
         {
-            int src_nodes = input_layer.size();
-            int dst_nodes = output_layer.size();
-            if (skip_conn_in_out_relation == 0)
+            // 0 div protection
+            sum_softmax_e_digits = 0.0000000000000001;
+        }
+        for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+        {
+            output_layer[dst_n_cnt] = output_layer[dst_n_cnt] / sum_softmax_e_digits; // Make the softmax layer data
+        }
+    }
+
+    if (use_skip_connect_mode == 1 && use_softmax == 0)
+    {
+        int src_nodes = input_layer.size();
+        int dst_nodes = output_layer.size();
+        if (skip_conn_in_out_relation == 0)
+        {
+            // 0 = same input/output
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
             {
-                // 0 = same input/output
-                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
-                {
-                    output_layer[dst_n_cnt] += input_layer[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
-                }
+                output_layer[dst_n_cnt] += input_layer[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
             }
-            else if (skip_conn_in_out_relation == 1)
+        }
+        else if (skip_conn_in_out_relation == 1)
+        {
+            // 1 = input > output
+            for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
             {
-                // 1 = input > output
-                for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
-                {
-                    output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
-                }
+                output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
             }
-            else if (skip_conn_in_out_relation == 2)
+        }
+        else if (skip_conn_in_out_relation == 2)
+        {
+            // 2 = output > input
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
             {
-                // 2 = output > input
-                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
-                {
-                    output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
-                }
+                output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
             }
         }
     }
@@ -565,8 +548,6 @@ void fc_m_resnet::only_loss_calculation(void)
     for (int i = 0; i < nr_out_nodes; i++)
     {
         loss += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
-
-        // Softmax not yet implemented
     }
 }
 void fc_m_resnet::backpropagtion_and_update(void)
@@ -578,14 +559,20 @@ void fc_m_resnet::backpropagtion_and_update(void)
     {
         if (block_type == 2)
         {
-            internal_delta[last_delta_layer_nr][i] = delta_activation_func((target_layer[i] - output_layer[i]), output_layer[i]);
+            if (use_softmax == 0)
+            {
+                internal_delta[last_delta_layer_nr][i] = delta_activation_func((target_layer[i] - output_layer[i]), output_layer[i]);
+            }
+            else
+            {
+                internal_delta[last_delta_layer_nr][i] = (target_layer[i] - output_layer[i]);
+            }
             loss += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
         }
         else
         {
             internal_delta[last_delta_layer_nr][i] = delta_activation_func(o_layer_delta[i], output_layer[i]);
         }
-        // Softmax not yet implemented
     }
     //============================================================================================
     //============ Backpropagate hidden layer errors ============
@@ -710,6 +697,7 @@ void fc_m_resnet::print_weights(void)
 
 //==== Used or verify gradient calcualtion ================================================================
 //================= Functions only for debugging/verify the backpropagation gradient functions ============
+// You must turn OFF drop out and set learning rate to 0.0 when verify backpropagation
 double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
 {
     double gradient_return = 0.0;
@@ -727,6 +715,7 @@ double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
     return gradient_return;
 }
 //================= Functions only for debugging/verify the backpropagation gradient functions ============
+// You must turn OFF drop out and set learning rate to 0.0 when verify backpropagation
 double fc_m_resnet::calc_error_verify_grad(void)
 {
     int nr_out_nodes = output_layer.size();
