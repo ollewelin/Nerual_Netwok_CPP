@@ -640,7 +640,8 @@ void fc_m_resnet::backpropagtion_and_update(void)
 {
     //============ Calculated and Backpropagate output delta and neural network loss ============
     int nr_out_nodes = output_layer.size();
-    int last_delta_layer_nr = internal_delta.size();
+    int last_delta_layer_nr = internal_delta.size()-1;
+    
     for (int i = 0; i < nr_out_nodes; i++)
     {
         if (block_type == 2)
@@ -661,6 +662,8 @@ void fc_m_resnet::backpropagtion_and_update(void)
         }
     }
     //============================================================================================
+    
+   
     //============ Backpropagate hidden layer errors ============
     for (int i = last_delta_layer_nr - 1; i > -1; i--) // last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
     {
@@ -676,6 +679,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             internal_delta[i][dst_n_cnt] = delta_activation_func(accumulated_backprop, hidden_layer[i][dst_n_cnt]);
         }
     }
+   
     //============ Backpropagate i_layer_delta ============
     if (block_type > 0) // Skip backprop to i_layer_delta if this object is a start block. 0 = start block
     {
@@ -720,6 +724,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             }
         }
     }
+    
     //============ Backpropagate finish =================================
 
     // ======== Update weights ========================
@@ -760,6 +765,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
         }
     }
     // ===============================================
+    
 }
 void fc_m_resnet::print_weights(void)
 {
