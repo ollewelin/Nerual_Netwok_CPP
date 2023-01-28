@@ -14,9 +14,36 @@ using namespace std;
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main() {
 
- cout << "under work..." << endl;
-
+  cout << "General Neural Network Beta version under work..." << endl;
   srand(time(NULL));
+
+  //=========== Test Neural Network size settings ==============
+  fc_m_resnet basic_fc_nn;
+  basic_fc_nn.get_version();
+  const int inp_nodes = 3;
+  const int out_nodes = 3;
+  const int hid_layers = 2;
+  const int hid_nodes_L1 = 1500;
+  const int hid_nodes_L2 = 15;
+  //const int hid_nodes_L3 = 7;
+  for (int i=0;i<inp_nodes;i++)
+  {
+    basic_fc_nn.input_layer.push_back(0.0);
+    basic_fc_nn.i_layer_delta.push_back(0.0);
+  }
+  for (int i=0;i<out_nodes;i++)
+  {
+    basic_fc_nn.output_layer.push_back(0.0);
+    basic_fc_nn.target_layer.push_back(0.0);
+    basic_fc_nn.o_layer_delta.push_back(0.0);//Not need for End block
+  }
+  basic_fc_nn.set_nr_of_hidden_layers(hid_layers);
+  basic_fc_nn.set_nr_of_hidden_nodes_on_layer_nr(hid_nodes_L1);
+  basic_fc_nn.set_nr_of_hidden_nodes_on_layer_nr(hid_nodes_L2);
+  //basic_fc_nn.set_nr_of_hidden_nodes_on_layer_nr(hid_nodes_L3);
+  // Note that set_nr_of_hidden_nodes_on_layer_nr() cal must be exactly same number as the set_nr_of_hidden_layers(hid_layers)
+  //============ Neural Network setup is finnish ! ==================
+
 
   const int tabl_size = 10;
   vector<int> table;
@@ -31,8 +58,6 @@ int main() {
     cout << "rand table[" << i << "] = " << table[i] << endl;
   }
 
-  fc_m_resnet fc_1;
-  fc_1.get_version();
   
 
 
