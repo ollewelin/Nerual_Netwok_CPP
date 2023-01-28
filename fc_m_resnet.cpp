@@ -649,6 +649,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             if (use_softmax == 0)
             {
                 internal_delta[last_delta_layer_nr][i] = delta_activation_func((target_layer[i] - output_layer[i]), output_layer[i]);
+              //  cout << "internal_delta[last_delta_layer_nr][i] = "<< internal_delta[last_delta_layer_nr][i] << endl;
             }
             else
             {
@@ -743,7 +744,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
                 for (int k = 0; k < weight_size_3D; k++)
                 {
-                    change_weights[i][j][weight_size_3D] = learning_rate * input_layer[k] + momentum * change_weights[i][j][k];
+                    change_weights[i][j][k] = learning_rate * input_layer[k] * internal_delta[i][j] + momentum * change_weights[i][j][k];
                     all_weights[i][j][k] += change_weights[i][j][k];
                 }
             }
@@ -758,7 +759,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
                 for (int k = 0; k < weight_size_3D; k++)
                 {
-                    change_weights[i][j][weight_size_3D] = learning_rate * input_layer[k] + momentum * change_weights[i][j][k];
+                    change_weights[i][j][k] = learning_rate * hidden_layer[i-1][k] * internal_delta[i][j] + momentum * change_weights[i][j][k];
                     all_weights[i][j][k] += change_weights[i][j][k];
                 }
             }

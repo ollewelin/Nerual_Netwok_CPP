@@ -58,7 +58,7 @@ int main() {
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 1500;
+  const int hid_nodes_L1 = 1000;
   const int hid_nodes_L2 = 15;
   //const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
@@ -81,8 +81,8 @@ int main() {
 
   //=== Now setup the hyper parameters of the Neural Network ====
   basic_fc_nn.momentum = 0.9;
-  basic_fc_nn.learning_rate = 0.01;
-  basic_fc_nn.dropout_proportion = 0.35;
+  basic_fc_nn.learning_rate = 0.003;
+  basic_fc_nn.dropout_proportion = 0.15;
   double init_random_weight_propotion = 0.001;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
   char answer='N';
@@ -152,10 +152,10 @@ int main() {
     double linear_line = ((double)i / (double)training_dataset_size);
     training_input_data[i][0] = linear_line;// 0..1
     training_input_data[i][1] = -linear_line;// 0..1
-    training_input_data[i][2] = linear_line * 10.0;// 0..10
+    training_input_data[i][2] = linear_line * 1.0;// 0..10
     training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    training_target_data[i][0] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    training_target_data[i][0] = (linear_line * linear_line) * 0.5 + +0.5;
+    training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
+    training_target_data[i][2] = (linear_line * linear_line) * 0.5 + +0.5;
   }
   for(int i=0;i<verify_dataset_size;i++)
   {
@@ -164,8 +164,8 @@ int main() {
     verify_input_data[i][1] = -linear_line;// 0..1
     verify_input_data[i][2] = linear_line * 10.0;// 0..10
     verify_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    verify_target_data[i][0] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
-    verify_target_data[i][0] = (linear_line * linear_line) * 0.5 + +0.5;
+    verify_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + +0.5;
+    verify_target_data[i][3] = (linear_line * linear_line) * 0.5 + +0.5;
   }
   //------------------------- Toy example setup finnis -------------------------------------
 
@@ -182,19 +182,13 @@ int main() {
     
     if(kbhit())
     {
-      cout << "Pause training, start with hit SPACE " << endl;
+      cout << "Pause training, start with hit Enter " << endl;
       char key_press=' ';
       key_press=getchar();
       if(key_press == ' ')
       {
         key_press=getchar();
       }
-      /*
-      while (key_press != ' ')
-      {
-        key_press=getchar();
-      }
-      */
       cout << "Run training again " << endl;
      }
 
@@ -218,6 +212,11 @@ int main() {
     }
     cout << "Epoch " << epc << endl;
     cout << "input node [0] = " << basic_fc_nn.input_layer[0] <<endl;
+    for(int k=0;k<out_nodes;k++)
+    {
+      cout << "Output node [" << k << "] = " << basic_fc_nn.output_layer[k] << "  Target node [" << k << "] = " << basic_fc_nn.target_layer[k] <<endl;
+    }
+    
     cout << "Training loss = " << basic_fc_nn.loss <<endl;
   }
 
