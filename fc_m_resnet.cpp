@@ -32,6 +32,12 @@ fc_m_resnet::fc_m_resnet(/* args */)
     use_skip_connect_mode = 0;
     // 0 = turn OFF skip connections, ordinary fully connected nn block only
     // 1 = turn ON skip connectons
+    skip_conn_rest_part = 0;
+    skip_conn_multiple_part = 0;
+    skip_conn_in_out_relation = 0;
+    // 0 = same input/output
+    // 1 = input > output
+    // 2 = output > input
     training_mode = 0;
     // 0 = SGD Stocastic Gradient Decent
     // 1 = Batch Gradient Decent, not yet implemented
@@ -262,6 +268,52 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             cout << "Size of weight dimentions[][][] of weights for hidden layer number " << i << " is: " << weight_w_size << endl;
         }
     }
+    if (use_skip_connect_mode == 1)
+    {
+        int inp_l_size = input_layer.size();
+        int out_l_size = output_layer.size();
+        // skip_conn_in_out_relation
+        // 0 = same input/output
+        // 1 = input > output
+        // 2 = output > input
+        if (inp_l_size != out_l_size)
+        {
+            if (inp_l_size > 0 && out_l_size > 0)
+            {
+                skip_conn_rest_part = inp_l_size % out_l_size;
+                if (inp_l_size > out_l_size)
+                {
+                    skip_conn_in_out_relation = 1; // 1 = input > output
+                    skip_conn_multiple_part = inp_l_size / out_l_size;
+                }
+                else
+                {
+                    skip_conn_in_out_relation = 2; // 2 = output > input
+                    skip_conn_multiple_part = out_l_size / inp_l_size;
+                }
+                cout << "==== Skip connection is used ====" << endl;
+                cout << "input_layer.size() = " << input_layer.size() << endl;
+                cout << "output_layer.size() = " << output_layer.size() << endl;
+                cout << "skip_conn_multiple_part = " << skip_conn_multiple_part << endl;
+                cout << "skip_conn_rest_part = " << skip_conn_rest_part << endl;
+            }
+            else
+            {
+                cout << "Error input_layer.size() or output_layer.size() = 0 " << endl;
+                cout << "input_layer.size() = " << input_layer.size() << endl;
+                cout << "output_layer.size() = " << output_layer.size() << endl;
+                cout << "Exit program " << endl;
+                exit(0);
+            }
+        }
+        else
+        {
+            // input out are symetric
+            skip_conn_in_out_relation = 0; // 0 = same input/output
+            skip_conn_multiple_part = 1;
+            skip_conn_rest_part = 0;
+        }
+    }
 }
 double fc_m_resnet::activation_function(double input_data)
 {
@@ -407,6 +459,35 @@ void fc_m_resnet::forward_pass(void)
         // Make the activation function
         output_layer[dst_n_cnt] = activation_function(acc_dot_product);
     }
+    if (use_skip_connect_mode == 1)
+    {
+        int src_nodes = input_layer.size();
+        int dst_nodes = output_layer.size();
+        if (skip_conn_in_out_relation == 0)
+        {
+            // 0 = same input/output
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            {
+                output_layer[dst_n_cnt] += input_layer[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
+            }
+        }
+        else if (skip_conn_in_out_relation == 1)
+        {
+            // 1 = input > output
+            for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+            {
+                output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
+            }
+        }
+        else if (skip_conn_in_out_relation == 2)
+        {
+            // 2 = output > input
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            {
+                output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
+            }
+        }
+    }
 }
 
 void fc_m_resnet::only_loss_calculation(void)
@@ -454,7 +535,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
         }
     }
     //============ Backpropagate i_layer_delta ============
-    if(block_type > 0)
+    if (block_type > 0)//Skip backprop to i_layer_delta if this object is a start block. 0 = start block 
     {
         int nr_delta_nodes_dst_layer = i_layer_delta.size();
         int nr_delta_nodes_src_layer = internal_delta[0].size();
@@ -466,6 +547,35 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 accumulated_backprop += all_weights[0][src_n_cnt][dst_n_cnt] * internal_delta[0][src_n_cnt];
             }
             i_layer_delta[dst_n_cnt] = delta_activation_func(accumulated_backprop, input_layer[dst_n_cnt]);
+        }
+        if (use_skip_connect_mode == 1 && use_softmax == 0)
+        {
+            int src_nodes = input_layer.size();
+            int dst_nodes = output_layer.size();
+            if (skip_conn_in_out_relation == 0)
+            {
+                // 0 = same input/output
+                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                {
+                    i_layer_delta[dst_n_cnt] += o_layer_delta[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
+                }
+            }
+            else if (skip_conn_in_out_relation == 1)
+            {
+                // 1 = input > output
+                for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                {
+                    i_layer_delta[src_n_cnt] += o_layer_delta[src_n_cnt % dst_nodes];// Input nodes are > output nodes
+                }
+            }
+            else if (skip_conn_in_out_relation == 2)
+            {
+                // 2 = output > input
+                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                {
+                    i_layer_delta[dst_n_cnt % src_nodes] += o_layer_delta[dst_nodes];//
+                }
+            }
         }
     }
     //============ Backpropagate finish =================================
@@ -521,7 +631,7 @@ void fc_m_resnet::print_weights(void)
             int weight_size_3D = all_weights[i][j].size();
             for (int k = 0; k < weight_size_3D; k++)
             {
-               cout << " " << all_weights[i][j][k];
+                cout << " " << all_weights[i][j][k];
             }
             cout << endl;
         }
@@ -530,18 +640,18 @@ void fc_m_resnet::print_weights(void)
 }
 
 //==== Used or verify gradient calcualtion ======================
-double fc_m_resnet::verify_gradient(int l,int n,int w,double adjust_weight)
+double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
 {
     double gradient_return = 0.0;
     all_weights[l][n][w] += adjust_weight;
-    if(l > 0)
+    if (l > 0)
     {
-        //from hidden layer
+        // from hidden layer
         gradient_return = hidden_layer[l][w] * internal_delta[l][n];
     }
     else
     {
-        //from input layer
+        // from input layer
         gradient_return = input_layer[w] * internal_delta[l][n];
     }
     return gradient_return;
@@ -549,7 +659,7 @@ double fc_m_resnet::verify_gradient(int l,int n,int w,double adjust_weight)
 
 double fc_m_resnet::calc_error_verify_grad(void)
 {
-   int nr_out_nodes = output_layer.size();
+    int nr_out_nodes = output_layer.size();
     double error = 0;
     for (int i = 0; i < nr_out_nodes; i++)
     {

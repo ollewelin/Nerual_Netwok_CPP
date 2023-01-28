@@ -42,6 +42,13 @@ public:
     int use_skip_connect_mode;
     //0 = turn OFF skip connections, ordinary fully connected nn block only
     //1 = turn ON skip connectons
+    int skip_conn_rest_part;
+    int skip_conn_multiple_part;
+    int skip_conn_in_out_relation;
+    //0 = same input/output
+    //1 = input > output
+    //2 = output > input
+    
     int training_mode;
     //0 = SGD Stocastic Gradient Decent
     //1 = Batch Gradient Decent, not yet implemented
@@ -53,6 +60,7 @@ public:
     double learning_rate;
     double momentum;
     double dropout_proportion;
+
 
     vector<double> input_layer;//Always used, block type 0,1,2
     vector<double> output_layer;//Always used, block type 0,1,2
