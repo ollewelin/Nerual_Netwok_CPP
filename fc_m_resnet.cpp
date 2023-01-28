@@ -489,7 +489,7 @@ double fc_m_resnet::delta_activation_func(double delta_outside_function, double 
     if (activation_function_mode == 0)
     {
         // 0 = sigmoid activation function
-        delta_inside_func = delta_outside_function * value_from_node_outputs * (1.0 * value_from_node_outputs); // Sigmoid function and put it into
+        delta_inside_func = delta_outside_function * value_from_node_outputs * (1.0 - value_from_node_outputs); // Sigmoid function and put it into
     }
     else
     {

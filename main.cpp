@@ -58,7 +58,7 @@ int main() {
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 1000;
+  const int hid_nodes_L1 = 100;
   const int hid_nodes_L2 = 15;
   //const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
@@ -81,9 +81,9 @@ int main() {
 
   //=== Now setup the hyper parameters of the Neural Network ====
   basic_fc_nn.momentum = 0.9;
-  basic_fc_nn.learning_rate = 0.003;
+  basic_fc_nn.learning_rate = 0.001;
   basic_fc_nn.dropout_proportion = 0.15;
-  double init_random_weight_propotion = 0.001;
+  double init_random_weight_propotion = 0.0001;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
   char answer='N';
   cin >> answer;
