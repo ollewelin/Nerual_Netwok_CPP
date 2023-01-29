@@ -77,7 +77,7 @@ int main() {
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
   basic_fc_nn.use_softmax = 0;
-  basic_fc_nn.activation_function_mode = 0;
+  basic_fc_nn.activation_function_mode = 1;
   basic_fc_nn.use_skip_connect_mode = 0;
   basic_fc_nn.use_dopouts = 0;
   const int inp_nodes = 3;
@@ -195,8 +195,11 @@ int main() {
   //------------------------- Toy example setup finnis -------------------------------------
 
 
+//================= Checking gradient calculation =====================
+  int test_nr_hidden_layer = 0;//Test gradient decent of this layer 
+  int test_nr_hidden_delta = 5;//Test gradient decent of this node destination 
+  int test_nr_hidden_weight = 2;//Test gradient decent of this weight from source node
 
-  int test_nr_hidden_layer = 1;
   int check_n_Lx = 0;
   int check_n_src_Lx = 0;
   switch(test_nr_hidden_layer)
@@ -215,8 +218,6 @@ int main() {
     break;
 
   }
-  int test_nr_hidden_delta = 5; 
-  int test_nr_hidden_weight = 2; 
   if(hid_layers > test_nr_hidden_layer && test_nr_hidden_delta < check_n_Lx && test_nr_hidden_weight < check_n_src_Lx)
   {
   //check derivates 
@@ -234,6 +235,11 @@ int main() {
     training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
     training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
     training_target_data[i][2] = (linear_line * linear_line) * 0.5 + 0.5;
+
+  for(int n=0;n<inp_nodes;n++)
+  {
+    basic_fc_nn.input_layer[n] = training_input_data[i][n];
+  }
 
 
   //double loss_d1 = basic_fc_nn.loss;
@@ -258,15 +264,36 @@ int main() {
   
   double delta_error = error_d1 - error_d2;
   double deriv_numeric_test = delta_error / -epsion_adjust_weight_d2;
-  
   cout << "delta_error = " << delta_error << endl;
-  cout << "error_d1 = " << error_d1 << endl;
-  cout << "error_d2 = " << error_d2 << endl;
+  //cout << "error_d1 = " << error_d1 << endl;
+  //cout << "error_d2 = " << error_d2 << endl;
   cout << "gradient_d1 = " << gradient_d1 << endl;
   cout << "gradient_d2 = " << gradient_d2 << endl;
 //  cout << "deriv_numeric_test = " << deriv_numeric_test << endl;
   cout << "deriv_numeric_test / 2 = " << deriv_numeric_test / 2 << endl;
-  double dummy = basic_fc_nn.verify_gradient(1,0,1, - epsion_adjust_weight_d2);
+  cout << "deriv_numeric_test / 2 and gradient_d1 or gradient_d2 should be almost equal "  << endl;
+  double diff = (deriv_numeric_test / 2) - gradient_d1;
+  cout << "difference (deriv_numeric_test / 2) - gradient_d1 = " << (deriv_numeric_test / 2) - gradient_d1 << endl;
+  double diff_check_prop=0.0;
+  if(gradient_d1 != 0.0)
+  {
+    diff_check_prop = 100 * diff / gradient_d1;
+    cout << "diff_check_prop = " << diff_check_prop << "% off differance" << endl;
+    double max_min_precent_diff = 25.0;
+    if(diff_check_prop < max_min_precent_diff && diff_check_prop > -max_min_precent_diff)
+    {
+        cout << "OK! Auto Gradient verify looks GOOD! " << endl;
+    }
+    else
+    {
+       cout << "WARNING! Auto Gradient verify looks BAD! " << endl;
+    }
+  }
+  else
+  {
+    cout << "gradient_d1 = " << gradient_d1 << "No auto check done because zero div protection " << endl;
+  } 
+  double dummy = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,-epsion_adjust_weight_d2);//-epsion_adjust_weight_d2 Set back to orginal weigh 
   cout << "Hit Y/y to continue " << endl;
   cin >> answer;
   while (1)
@@ -288,7 +315,7 @@ int main() {
   {
     cout << "skip test verify hidden gradient test" << endl;
   }
-  
+  //================================ Finnish gradient calculation check verify =====================
   //Start trining 
   int do_verify_if_best_trained = 0;
   int stop_training = 0;
