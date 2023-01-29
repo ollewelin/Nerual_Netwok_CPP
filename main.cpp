@@ -16,11 +16,62 @@ using namespace std;
 #include <unistd.h>// kbhit linux
 #include <fcntl.h>// kbhit linux
 
+#include <cstdlib>
+#include <ctime>
+#include <math.h>  // exp
+#include <stdlib.h>// exit(0);
+
+using namespace std;
+#include <cstdlib>
 
 struct termios oldt, newt;
 int ch;
 int oldf;
 
+char MNIST_filename[100];
+#define USE_MNIST
+#ifdef USE_MNIST
+/// Input data from
+/// t10k-images-idx3-ubyte
+/// t10k-labels-idx1-ubyte
+/// train-images-idx3-ubyte
+/// train-labels-idx1-ubyte
+/// http://yann.lecun.com/exdb/mnist/
+int use_MNIST_verify_set=0;
+const int MNIST_height = 28;
+const int MNIST_width  = 28;
+int MNIST_nr_of_img_p_batch = 60000;
+///const int Const_nr_pic = 60000;
+const int MNIST_pix_size = MNIST_height*MNIST_width;
+const int MNIST_RGB_pixels = MNIST_pix_size;
+///char data_10k_MNIST[10000][MNIST_pix_size];
+///char data_60k_MNIST[60000][MNIST_pix_size];
+
+const int MNIST_header_offset = 16;
+const int MNIST_lable_offset = 8;
+/*
+TEST SET LABEL FILE (t10k-labels-idx1-ubyte):
+[offset] [type]          [value]          [description]
+0000     32 bit integer  0x00000801(2049) magic number (MSB first)
+0004     32 bit integer  10000            number of items
+0008     unsigned byte   ??               label
+0009     unsigned byte   ??               label
+........
+xxxx     unsigned byte   ??               label
+The labels values are 0 to 9.
+TEST SET IMAGE FILE (t10k-images-idx3-ubyte):
+[offset] [type]          [value]          [description]
+0000     32 bit integer  0x00000803(2051) magic number
+0004     32 bit integer  10000            number of images
+0008     32 bit integer  28               number of rows
+0012     32 bit integer  28               number of columns
+0016     unsigned byte   ??               pixel
+0017     unsigned byte   ??               pixel
+........
+xxxx     unsigned byte   ??               pixel
+Pixels are organized row-wise. Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).
+*/
+#endif
 
 
 int kbhit(void)
@@ -63,6 +114,9 @@ void run_pause(void)
 }
 
 vector<int> fisher_yates_shuffle(vector<int> table);
+int get_MNIST_lable_file_size(void);
+int get_MNIST_file_size(void);
+
 int main() {
 
   cout << "General Neural Network Beta version under work..." << endl;
@@ -70,22 +124,115 @@ int main() {
   char answer;
 
 
+//=====get MNIST ==
+    int MNIST_file_size=0;
+///Read database train-images-idx3-ubyte
+    MNIST_file_size = get_MNIST_file_size();
+//read_10k_MNIST();
+    char *MNIST_data;
+    MNIST_data = new char[MNIST_file_size];
+    FILE *fp;
+    char c_data=0;
+    if(use_MNIST_verify_set==0)
+    {
+        fp = fopen("train-images-idx3-ubyte","r");
+    }
+    else
+    {
+        fp = fopen("t10k-images-idx3-ubyte","r");
+    }
+    if(fp == NULL)
+    {
+        perror("Error in opening train-images-idx3-ubyte file");
+        return(-1);
+    }
+    int MN_index=0;
+    for(int i=0; i<MNIST_file_size; i++)
+    {
+        c_data = fgetc(fp);
+        if( feof(fp) )
+        {
+            break;
+        }
+        //printf("c_data %d\n", c_data);
+        MNIST_data[MN_index] = c_data;
+        if((MNIST_header_offset-1)<i)
+        {
+            MN_index++;
+        }
+    }
+    fclose(fp);
+    printf("train.. or t10k.. ..-images-idx3-ubyte file is successfully loaded in to MNIST_data[MN_index] memory\n");
+///Read lable
+///Read train-labels-idx1-ubyte
+    MNIST_file_size = get_MNIST_lable_file_size();
+//read_10k_MNIST();
+    char *MNIST_lable;
+    MNIST_lable = new char[MNIST_file_size];
+    // FILE *fp;
+    c_data=0;
+    if(use_MNIST_verify_set==0)
+    {
+        fp = fopen("train-labels-idx1-ubyte","r");
+    }
+    else
+    {
+        fp = fopen("t10k-labels-idx1-ubyte", "r");
+    }
+
+
+    if(fp == NULL)
+    {
+        if(use_MNIST_verify_set==0)
+        {
+            perror("Error in opening train-labels-idx1-ubyte file");
+        }
+        else
+        {
+            perror("Error in opening t10k-labels-idx1-ubyte file");
+        }
+
+        return(-1);
+    }
+    MN_index=0;
+    for(int i=0; i<MNIST_file_size; i++)
+    {
+
+        c_data = fgetc(fp);
+        if( feof(fp) )
+        {
+            break;
+        }
+        //printf("c_data %d\n", c_data);
+        MNIST_lable[MN_index] = c_data;
+        if((MNIST_lable_offset-1)<i)
+        {
+            MN_index++;
+        }
+    }
+    fclose(fp);
+    printf("train... or t10k...  ...-labels-idx1-ubyte file is successfully loaded in to MNIST_lable[MN_index] memory\n");
+
+//==========
+
   //=========== Test Neural Network size settings ==============
   fc_m_resnet basic_fc_nn;
   string weight_filename;
-  weight_filename = "weights.dat";
+ 
+  weight_filename = "weights2.dat";
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
   basic_fc_nn.use_softmax = 0;
-  basic_fc_nn.activation_function_mode = 1;
+  basic_fc_nn.activation_function_mode = 0;
   basic_fc_nn.use_skip_connect_mode = 0;
-  basic_fc_nn.use_dopouts = 0;
+  basic_fc_nn.use_dopouts = 1;
+  basic_fc_nn.dropout_proportion = 0.25;
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 10;
+  const int hid_nodes_L1 = 100;
   const int hid_nodes_L2 = 30;
-  const int hid_nodes_L3 = 7;
+  //const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
   {
     basic_fc_nn.input_layer.push_back(0.0);
@@ -195,128 +342,7 @@ int main() {
   //------------------------- Toy example setup finnis -------------------------------------
 
 
-//================= Checking gradient calculation =====================
-  int test_nr_hidden_layer = 0;//Test gradient decent of this layer 
-  int test_nr_hidden_delta = 5;//Test gradient decent of this node destination 
-  int test_nr_hidden_weight = 2;//Test gradient decent of this weight from source node
-
-  int check_n_Lx = 0;
-  int check_n_src_Lx = 0;
-  switch(test_nr_hidden_layer)
-  {
-    case(0):
-      check_n_Lx = hid_nodes_L1;
-      check_n_src_Lx = inp_nodes;
-    break;
-    case(1):
-      check_n_Lx = hid_nodes_L2;
-      check_n_src_Lx = hid_nodes_L1;
-    break;
-    case(2):
-      check_n_Lx = hid_nodes_L3;
-      check_n_src_Lx = hid_nodes_L2;
-    break;
-
-  }
-  if(hid_layers > test_nr_hidden_layer && test_nr_hidden_delta < check_n_Lx && test_nr_hidden_weight < check_n_src_Lx)
-  {
-  //check derivates 
-  basic_fc_nn.learning_rate = 0.0;
-  basic_fc_nn.use_dopouts = 0;
-  basic_fc_nn.use_softmax = 0;
-  basic_fc_nn.use_skip_connect_mode = 0;
-  basic_fc_nn.fix_leaky_proportion = 0.05;
-  basic_fc_nn.activation_function_mode = 0;//0= Sigmoid function 
-  int i = (training_dataset_size/2);
-    double linear_line = ((double)i / (double)training_dataset_size);
-    training_input_data[i][0] = linear_line;// 0..1
-    training_input_data[i][1] = -linear_line;// 0..1
-    training_input_data[i][2] = linear_line * 1.0;// 0..10
-    training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
-    training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
-    training_target_data[i][2] = (linear_line * linear_line) * 0.5 + 0.5;
-
-  for(int n=0;n<inp_nodes;n++)
-  {
-    basic_fc_nn.input_layer[n] = training_input_data[i][n];
-  }
-
-
-  //double loss_d1 = basic_fc_nn.loss;
-  //double epsion_adjust_weight_d1 = 0.0;
-  double epsion_adjust_weight_d2 = 0.015;
-  double gradient_d1 = 0.0;
-  double error_d1 = 0.0;
-  double gradient_d2 = 0.0;
-  double error_d2 = 0.0;
-
-  //gradient_d1 = basic_fc_nn.verify_gradient(0,0,1,0.0);
-  basic_fc_nn.forward_pass();
-  basic_fc_nn.backpropagtion_and_update();
-  gradient_d1 = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,0.0);
-  error_d1 = basic_fc_nn.calc_error_verify_grad();
-
-  gradient_d2 = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,epsion_adjust_weight_d2);
-  basic_fc_nn.forward_pass();
-  basic_fc_nn.backpropagtion_and_update();
-  error_d2 = basic_fc_nn.calc_error_verify_grad();
-  gradient_d2 = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,epsion_adjust_weight_d2);
-  
-  double delta_error = error_d1 - error_d2;
-  double deriv_numeric_test = delta_error / -epsion_adjust_weight_d2;
-  cout << "delta_error = " << delta_error << endl;
-  //cout << "error_d1 = " << error_d1 << endl;
-  //cout << "error_d2 = " << error_d2 << endl;
-  cout << "gradient_d1 = " << gradient_d1 << endl;
-  cout << "gradient_d2 = " << gradient_d2 << endl;
-//  cout << "deriv_numeric_test = " << deriv_numeric_test << endl;
-  cout << "deriv_numeric_test / 2 = " << deriv_numeric_test / 2 << endl;
-  cout << "deriv_numeric_test / 2 and gradient_d1 or gradient_d2 should be almost equal "  << endl;
-  double diff = (deriv_numeric_test / 2) - gradient_d1;
-  cout << "difference (deriv_numeric_test / 2) - gradient_d1 = " << (deriv_numeric_test / 2) - gradient_d1 << endl;
-  double diff_check_prop=0.0;
-  if(gradient_d1 != 0.0)
-  {
-    diff_check_prop = 100 * diff / gradient_d1;
-    cout << "diff_check_prop = " << diff_check_prop << "% off differance" << endl;
-    double max_min_precent_diff = 25.0;
-    if(diff_check_prop < max_min_precent_diff && diff_check_prop > -max_min_precent_diff)
-    {
-        cout << "OK! Auto Gradient verify looks GOOD! " << endl;
-    }
-    else
-    {
-       cout << "WARNING! Auto Gradient verify looks BAD! " << endl;
-    }
-  }
-  else
-  {
-    cout << "gradient_d1 = " << gradient_d1 << "No auto check done because zero div protection " << endl;
-  } 
-  double dummy = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,-epsion_adjust_weight_d2);//-epsion_adjust_weight_d2 Set back to orginal weigh 
-  cout << "Hit Y/y to continue " << endl;
-  cin >> answer;
-  while (1)
-  {
-      if(answer == 'Y' || answer == 'y')
-      {
-
-        break;
-      }
-      cin >> answer;
-  }
-  basic_fc_nn.momentum = 0.9;
-  basic_fc_nn.learning_rate = 0.001;
-  basic_fc_nn.dropout_proportion = 0.25;
-  basic_fc_nn.fix_leaky_proportion = 0.05;
-  basic_fc_nn.use_dopouts = 0;
-  }
-  else
-  {
-    cout << "skip test verify hidden gradient test" << endl;
-  }
-  //================================ Finnish gradient calculation check verify =====================
-  //Start trining 
+  //Start traning 
   int do_verify_if_best_trained = 0;
   int stop_training = 0;
 
@@ -407,9 +433,6 @@ int main() {
   verify_order_list.clear();
   dummy_one_target_data_point.clear();
   dummy_one_training_data_point.clear();
-
-
-
 }
 
 vector<int> fisher_yates_shuffle(vector<int> table) {
@@ -425,3 +448,169 @@ vector<int> fisher_yates_shuffle(vector<int> table) {
     }
     return table;
 }
+
+
+
+void check_file_exist(char *filename)
+{
+    FILE *fp2 = fopen(filename, "r");
+    if (fp2 == NULL)
+    {
+        cout << "Error " << filename << " file doesn't exist" << endl;;
+        cout << "Maybee download failure try restart program later download again" << endl;;
+        printf("Exit program\n");
+        exit(0);
+    }
+    else
+    {
+        cout << "OK " << filename << " file does exist" << endl;;
+    }
+    fclose(fp2);
+}
+#ifdef USE_MNIST
+int get_MNIST_file_size(void)
+{
+    char answer_character;
+    int file_size=0;
+    FILE *fp2;
+    if(use_MNIST_verify_set==0)
+    {
+        fp2 = fopen("train-images-idx3-ubyte", "r");
+    }
+    else
+    {
+        fp2 = fopen("t10k-images-idx3-ubyte", "r");
+    }
+    if (fp2 == NULL)
+    {
+        if(use_MNIST_verify_set==0)
+        {
+            puts("Error!  while opening file train-images-idx3-ubyte");
+
+        }
+        else
+        {
+            puts("Error! while opening file t10k-images-idx3-ubyte");
+        }
+        printf("Suggestions, download and extraxt dataset into program folder\n");
+        printf("Do you want to download MNIST data set from web Y/N ?\n");
+        printf("From web sites:\n");
+        printf("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz\n");
+        printf("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz\n");
+        printf("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz\n");
+        printf("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz\n");
+        answer_character = getchar();
+       // answer_character = getchar();
+        if(answer_character == 'Y' || answer_character == 'y')
+        {
+            printf("remove old MNIST dataset .gz files\n");
+            system("rm train-images-idx3-ubyte.gz");
+            system("rm train-labels-idx1-ubyte.gz");
+            system("rm t10k-images-idx3-ubyte.gz");
+            system("rm t10k-labels-idx1-ubyte.gz");
+            printf("Start download MNIST dataset .gz files\n");
+            system("wget http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz");
+            system("wget http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz");
+            system("wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz");
+            system("wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz");
+
+            /* try to open file to read */
+            sprintf(MNIST_filename, "train-images-idx3-ubyte.gz");
+            check_file_exist(MNIST_filename);
+            sprintf(MNIST_filename, "train-labels-idx1-ubyte.gz");
+            check_file_exist(MNIST_filename);
+            sprintf(MNIST_filename, "t10k-images-idx3-ubyte.gz");
+            check_file_exist(MNIST_filename);
+            sprintf(MNIST_filename, "t10k-labels-idx1-ubyte.gz");
+            check_file_exist(MNIST_filename);
+
+            printf("Do you want to unzip this files with gzip Y/N\n");
+            answer_character = getchar();
+            answer_character = getchar();
+            
+            if(answer_character == 'Y' || answer_character == 'y')
+            {
+                printf("Unzip MNIST datasets\n");
+                system("gzip -d train-images-idx3-ubyte.gz");
+                system("gzip -d train-labels-idx1-ubyte.gz");
+                system("gzip -d t10k-images-idx3-ubyte.gz");
+                system("gzip -d t10k-labels-idx1-ubyte.gz");
+                printf("...\n");
+            }
+            else
+            {
+                printf("You now may need to unzip all mnist....gz files\n");
+                printf("Try command:\n");
+                printf("$ gzip -d train-images-idx3-ubyte.gz\n");
+                printf("Exit program\n");
+                exit(0);
+            }
+        }
+        else
+        {
+            printf("OK you may need to download MNIST dataset\n");
+            printf("Exit program\n");
+            exit(0);
+        }
+
+        if (use_MNIST_verify_set == 0)
+        {
+            fp2 = fopen("train-images-idx3-ubyte", "r");
+        }
+        else
+        {
+            fp2 = fopen("t10k-images-idx3-ubyte", "r");
+        }
+        if (fp2 == NULL)
+        {
+            printf("exit program MNIST dataset failure to open\n");
+            exit(0);
+        }
+        else
+        {
+            printf("OK! MNIST dataset daownloade and extracted\n");
+        }
+    }
+
+    fseek(fp2, 0L, SEEK_END);
+    file_size = ftell(fp2);
+    printf("file_size %d\n", file_size);
+    rewind(fp2);
+    fclose(fp2);
+    return file_size;
+}
+
+int get_MNIST_lable_file_size(void)
+{
+    int file_size=0;
+    FILE *fp2;
+    if(use_MNIST_verify_set==0)
+    {
+        fp2 = fopen("train-labels-idx1-ubyte", "r");
+    }
+    else
+    {
+        fp2 = fopen("t10k-labels-idx1-ubyte", "r");
+    }
+
+    if (fp2 == NULL)
+    {
+        if(use_MNIST_verify_set==0)
+        {
+            puts("Error while opening file train-labels-idx1-ubyte");
+        }
+        else
+        {
+            puts("Error while opening file t10k-labels-idx1-ubyte");
+        }
+        exit(0);
+    }
+
+    fseek(fp2, 0L, SEEK_END);
+    file_size = ftell(fp2);
+    printf("file_size %d\n", file_size);
+    rewind(fp2);
+    fclose(fp2);
+    return file_size;
+}
+#endif // USE_MNIST
