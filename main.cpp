@@ -83,7 +83,7 @@ int main() {
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 1000;
+  const int hid_nodes_L1 = 10;
   const int hid_nodes_L2 = 30;
   const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
@@ -195,7 +195,30 @@ int main() {
   //------------------------- Toy example setup finnis -------------------------------------
 
 
-/*
+
+  int test_nr_hidden_layer = 1;
+  int check_n_Lx = 0;
+  int check_n_src_Lx = 0;
+  switch(test_nr_hidden_layer)
+  {
+    case(0):
+      check_n_Lx = hid_nodes_L1;
+      check_n_src_Lx = inp_nodes;
+    break;
+    case(1):
+      check_n_Lx = hid_nodes_L2;
+      check_n_src_Lx = hid_nodes_L1;
+    break;
+    case(2):
+      check_n_Lx = hid_nodes_L3;
+      check_n_src_Lx = hid_nodes_L2;
+    break;
+
+  }
+  int test_nr_hidden_delta = 5; 
+  int test_nr_hidden_weight = 2; 
+  if(hid_layers > test_nr_hidden_layer && test_nr_hidden_delta < check_n_Lx && test_nr_hidden_weight < check_n_src_Lx)
+  {
   //check derivates 
   basic_fc_nn.learning_rate = 0.0;
   basic_fc_nn.use_dopouts = 0;
@@ -203,7 +226,7 @@ int main() {
   basic_fc_nn.use_skip_connect_mode = 0;
   basic_fc_nn.fix_leaky_proportion = 0.05;
   basic_fc_nn.activation_function_mode = 0;//0= Sigmoid function 
-  int i = (training_dataset_size/3);
+  int i = (training_dataset_size/2);
     double linear_line = ((double)i / (double)training_dataset_size);
     training_input_data[i][0] = linear_line;// 0..1
     training_input_data[i][1] = -linear_line;// 0..1
@@ -212,9 +235,10 @@ int main() {
     training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
     training_target_data[i][2] = (linear_line * linear_line) * 0.5 + 0.5;
 
+
   //double loss_d1 = basic_fc_nn.loss;
-  double adjust_weight_d1 = 0.0;
-  double adjust_weight_d2 = 50.015;
+  //double epsion_adjust_weight_d1 = 0.0;
+  double epsion_adjust_weight_d2 = 0.015;
   double gradient_d1 = 0.0;
   double error_d1 = 0.0;
   double gradient_d2 = 0.0;
@@ -223,28 +247,26 @@ int main() {
   //gradient_d1 = basic_fc_nn.verify_gradient(0,0,1,0.0);
   basic_fc_nn.forward_pass();
   basic_fc_nn.backpropagtion_and_update();
-  gradient_d1 = basic_fc_nn.verify_gradient(1,2,1,0.0);
+  gradient_d1 = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,0.0);
   error_d1 = basic_fc_nn.calc_error_verify_grad();
 
-  gradient_d2 = basic_fc_nn.verify_gradient(1,2,1,adjust_weight_d2);
+  gradient_d2 = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,epsion_adjust_weight_d2);
   basic_fc_nn.forward_pass();
   basic_fc_nn.backpropagtion_and_update();
   error_d2 = basic_fc_nn.calc_error_verify_grad();
-  gradient_d2 = basic_fc_nn.verify_gradient(1,2,1,adjust_weight_d2);
+  gradient_d2 = basic_fc_nn.verify_gradient(test_nr_hidden_layer,test_nr_hidden_delta,test_nr_hidden_weight,epsion_adjust_weight_d2);
   
   double delta_error = error_d1 - error_d2;
-  double delta_e_t_err = delta_error * error_d1;
-  double deriv_numeric_test = delta_error / adjust_weight_d2;
+  double deriv_numeric_test = delta_error / -epsion_adjust_weight_d2;
   
   cout << "delta_error = " << delta_error << endl;
   cout << "error_d1 = " << error_d1 << endl;
   cout << "error_d2 = " << error_d2 << endl;
   cout << "gradient_d1 = " << gradient_d1 << endl;
   cout << "gradient_d2 = " << gradient_d2 << endl;
-  cout << "delta_e_t_err = " << delta_e_t_err << endl;
-  cout << "deriv_numeric_test = " << deriv_numeric_test << endl;
+//  cout << "deriv_numeric_test = " << deriv_numeric_test << endl;
   cout << "deriv_numeric_test / 2 = " << deriv_numeric_test / 2 << endl;
-  double dummy = basic_fc_nn.verify_gradient(1,0,1, - adjust_weight_d2);
+  double dummy = basic_fc_nn.verify_gradient(1,0,1, - epsion_adjust_weight_d2);
   cout << "Hit Y/y to continue " << endl;
   cin >> answer;
   while (1)
@@ -261,7 +283,11 @@ int main() {
   basic_fc_nn.dropout_proportion = 0.25;
   basic_fc_nn.fix_leaky_proportion = 0.05;
   basic_fc_nn.use_dopouts = 0;
-  */
+  }
+  else
+  {
+    cout << "skip test verify hidden gradient test" << endl;
+  }
   
   //Start trining 
   int do_verify_if_best_trained = 0;
