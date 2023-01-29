@@ -802,7 +802,7 @@ double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
     if (l > 0)
     {
         // from hidden layer
-        gradient_return = hidden_layer[l][w] * internal_delta[l][n];
+        gradient_return = hidden_layer[l-1][w] * internal_delta[l][n];
     }
     else
     {

@@ -1,7 +1,7 @@
 
 CC = g++ -std=c++14 -O3
 CFLAGS = -g -Wall
-SRCS = main.cpp fc_m_resnet.cpp
+SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
 PROG = main
 
 OPENCV = `pkg-config opencv --cflags --libs`

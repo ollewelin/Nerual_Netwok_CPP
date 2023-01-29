@@ -8,17 +8,20 @@
 #include<vector>
 #include<time.h>
 
+//using namespace cv;
+using namespace std;
+
+
 #include <termios.h>// kbhit linux
 #include <unistd.h>// kbhit linux
 #include <fcntl.h>// kbhit linux
 
 
-//using namespace cv;
-using namespace std;
-
 struct termios oldt, newt;
 int ch;
 int oldf;
+
+
 
 int kbhit(void)
 {
@@ -42,12 +45,30 @@ int kbhit(void)
     return 0;
 }
 
+void run_pause(void)
+{
+  
+    if(kbhit())
+    {
+      cout << "Pause training, start with hit Enter " << endl;
+      char key_press=' ';
+      key_press=getchar();
+      if(key_press == ' ')
+      {
+        key_press=getchar();
+      }
+      cout << "Run training again " << endl;
+     }
+  
+}
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main() {
 
   cout << "General Neural Network Beta version under work..." << endl;
   srand(time(NULL));
+  char answer;
+
 
   //=========== Test Neural Network size settings ==============
   fc_m_resnet basic_fc_nn;
@@ -56,14 +77,15 @@ int main() {
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
   basic_fc_nn.use_softmax = 0;
-  basic_fc_nn.activation_function_mode = 2;
+  basic_fc_nn.activation_function_mode = 0;
   basic_fc_nn.use_skip_connect_mode = 0;
+  basic_fc_nn.use_dopouts = 0;
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 30;
+  const int hid_nodes_L1 = 1000;
   const int hid_nodes_L2 = 30;
-  //const int hid_nodes_L3 = 7;
+  const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
   {
     basic_fc_nn.input_layer.push_back(0.0);
@@ -84,12 +106,11 @@ int main() {
 
   //=== Now setup the hyper parameters of the Neural Network ====
   basic_fc_nn.momentum = 0.9;
-  basic_fc_nn.learning_rate = 0.001;
+  basic_fc_nn.learning_rate = 0.01;
   basic_fc_nn.dropout_proportion = 0.15;
   basic_fc_nn.fix_leaky_proportion = 0.05;
-  double init_random_weight_propotion = 0.01;
+  double init_random_weight_propotion = 0.001;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
-  char answer='N';
   cin >> answer;
   if (answer == 'Y' || answer == 'y')
   {
@@ -100,8 +121,8 @@ int main() {
     basic_fc_nn.randomize_weights(init_random_weight_propotion);
   }
 
-  const int training_epocs = 100000;//One epocs go through the hole data set once
-  const int save_after_epcs = 400;
+  const int training_epocs = 10000;//One epocs go through the hole data set once
+  const int save_after_epcs = 100;
   int save_epoc_counter = 0;
   const int training_dataset_size = 1000;
   const int verify_dataset_size = 100;
@@ -173,10 +194,79 @@ int main() {
   }
   //------------------------- Toy example setup finnis -------------------------------------
 
+
+/*
+  //check derivates 
+  basic_fc_nn.learning_rate = 0.0;
+  basic_fc_nn.use_dopouts = 0;
+  basic_fc_nn.use_softmax = 0;
+  basic_fc_nn.use_skip_connect_mode = 0;
+  basic_fc_nn.fix_leaky_proportion = 0.05;
+  basic_fc_nn.activation_function_mode = 0;//0= Sigmoid function 
+  int i = (training_dataset_size/3);
+    double linear_line = ((double)i / (double)training_dataset_size);
+    training_input_data[i][0] = linear_line;// 0..1
+    training_input_data[i][1] = -linear_line;// 0..1
+    training_input_data[i][2] = linear_line * 1.0;// 0..10
+    training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
+    training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
+    training_target_data[i][2] = (linear_line * linear_line) * 0.5 + 0.5;
+
+  //double loss_d1 = basic_fc_nn.loss;
+  double adjust_weight_d1 = 0.0;
+  double adjust_weight_d2 = 50.015;
+  double gradient_d1 = 0.0;
+  double error_d1 = 0.0;
+  double gradient_d2 = 0.0;
+  double error_d2 = 0.0;
+
+  //gradient_d1 = basic_fc_nn.verify_gradient(0,0,1,0.0);
+  basic_fc_nn.forward_pass();
+  basic_fc_nn.backpropagtion_and_update();
+  gradient_d1 = basic_fc_nn.verify_gradient(1,2,1,0.0);
+  error_d1 = basic_fc_nn.calc_error_verify_grad();
+
+  gradient_d2 = basic_fc_nn.verify_gradient(1,2,1,adjust_weight_d2);
+  basic_fc_nn.forward_pass();
+  basic_fc_nn.backpropagtion_and_update();
+  error_d2 = basic_fc_nn.calc_error_verify_grad();
+  gradient_d2 = basic_fc_nn.verify_gradient(1,2,1,adjust_weight_d2);
+  
+  double delta_error = error_d1 - error_d2;
+  double delta_e_t_err = delta_error * error_d1;
+  double deriv_numeric_test = delta_error / adjust_weight_d2;
+  
+  cout << "delta_error = " << delta_error << endl;
+  cout << "error_d1 = " << error_d1 << endl;
+  cout << "error_d2 = " << error_d2 << endl;
+  cout << "gradient_d1 = " << gradient_d1 << endl;
+  cout << "gradient_d2 = " << gradient_d2 << endl;
+  cout << "delta_e_t_err = " << delta_e_t_err << endl;
+  cout << "deriv_numeric_test = " << deriv_numeric_test << endl;
+  cout << "deriv_numeric_test / 2 = " << deriv_numeric_test / 2 << endl;
+  double dummy = basic_fc_nn.verify_gradient(1,0,1, - adjust_weight_d2);
+  cout << "Hit Y/y to continue " << endl;
+  cin >> answer;
+  while (1)
+  {
+      if(answer == 'Y' || answer == 'y')
+      {
+
+        break;
+      }
+      cin >> answer;
+  }
+  basic_fc_nn.momentum = 0.9;
+  basic_fc_nn.learning_rate = 0.001;
+  basic_fc_nn.dropout_proportion = 0.25;
+  basic_fc_nn.fix_leaky_proportion = 0.05;
+  basic_fc_nn.use_dopouts = 0;
+  */
+  
+  //Start trining 
   int do_verify_if_best_trained = 0;
   int stop_training = 0;
 
-  //Start trining 
   for(int epc=0;epc<training_epocs;epc++)
   {
     if(stop_training == 1)
@@ -184,18 +274,7 @@ int main() {
       break;
     }
     
-    if(kbhit())
-    {
-      cout << "Pause training, start with hit Enter " << endl;
-      char key_press=' ';
-      key_press=getchar();
-      if(key_press == ' ')
-      {
-        key_press=getchar();
-      }
-      cout << "Run training again " << endl;
-     }
-
+    run_pause();
      //============ Traning ==================
 
     //verify_order_list = fisher_yates_shuffle(verify_order_list);
@@ -234,6 +313,8 @@ int main() {
     
   }
 
+  basic_fc_nn.~fc_m_resnet();
+
 
   cv::Mat test;
   test.create(200, 400, CV_32FC1);
@@ -253,6 +334,29 @@ int main() {
   }
   cv::imshow("diff", test);
   cv::waitKey(5000);
+
+
+  basic_fc_nn.~fc_m_resnet();
+  
+  for(int i=0;i<training_dataset_size;i++)
+  {
+    training_input_data[i].clear();
+    training_target_data[i].clear();
+  }
+    training_input_data.clear();
+    training_target_data.clear();
+  for(int i=0;i<verify_dataset_size;i++)
+  {
+    verify_input_data[i].clear();
+    verify_target_data[i].clear();
+  }
+  training_order_list.clear();
+  verify_order_list.clear();
+  dummy_one_target_data_point.clear();
+  dummy_one_training_data_point.clear();
+
+
+
 }
 
 vector<int> fisher_yates_shuffle(vector<int> table) {
