@@ -531,6 +531,7 @@ double fc_m_resnet::delta_activation_func(double delta_outside_function, double 
 }
 void fc_m_resnet::forward_pass(void)
 {
+    int nr_of_input_nodes = input_layer.size();
     for (int l_cnt = 0; l_cnt < nr_of_hidden_layers; l_cnt++) // Loop though all hidden layers
     {
         int dst_nodes = hidden_layer[l_cnt].size(); //
@@ -697,7 +698,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             {
                 accumulated_backprop += all_weights[0][src_n_cnt][dst_n_cnt] * internal_delta[0][src_n_cnt];
             }
-            i_layer_delta[dst_n_cnt] = delta_activation_func(accumulated_backprop, input_layer[dst_n_cnt]);
+            i_layer_delta[dst_n_cnt] = accumulated_backprop;
         }
         if (use_skip_connect_mode == 1 && use_softmax == 0)
         {
