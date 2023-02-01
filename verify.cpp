@@ -77,13 +77,13 @@ int main() {
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
   basic_fc_nn.use_softmax = 0;
-  basic_fc_nn.activation_function_mode = 1;
+  basic_fc_nn.activation_function_mode = 0;
   basic_fc_nn.use_skip_connect_mode = 0;
   basic_fc_nn.use_dopouts = 0;
   const int inp_nodes = 3;
   const int out_nodes = 3;
   const int hid_layers = 2;
-  const int hid_nodes_L1 = 10;
+  const int hid_nodes_L1 = 100;
   const int hid_nodes_L2 = 30;
   const int hid_nodes_L3 = 7;
   for (int i=0;i<inp_nodes;i++)
@@ -196,9 +196,9 @@ int main() {
 
 
 //================= Checking gradient calculation =====================
-  int test_nr_hidden_layer = 0;//Test gradient decent of this layer 
+  int test_nr_hidden_layer = 1;//Test gradient decent of this layer 
   int test_nr_hidden_delta = 5;//Test gradient decent of this node destination 
-  int test_nr_hidden_weight = 2;//Test gradient decent of this weight from source node
+  int test_nr_hidden_weight = 0;//Test gradient decent of this weight from source node
 
   int check_n_Lx = 0;
   int check_n_src_Lx = 0;
