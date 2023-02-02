@@ -75,6 +75,8 @@ int main()
   int MNIST_file_size = 0;
   /// Read database train-images-idx3-ubyte
   MNIST_file_size = get_MNIST_file_size();
+  cout << "MNIST_file_size = " << (int)MNIST_file_size << endl;
+
   // read_10k_MNIST();
   char *MNIST_data;
   MNIST_data = new char[MNIST_file_size];
@@ -82,11 +84,11 @@ int main()
   char c_data = 0;
   if (use_MNIST_verify_set == 0)
   {
-    fp = fopen("train-images-idx3-ubyte", "r");
+    fp = fopen("train-images-idx3-ubyte", "rb");
   }
   else
   {
-    fp = fopen("t10k-images-idx3-ubyte", "r");
+    fp = fopen("t10k-images-idx3-ubyte", "rb");
   }
   if (fp == NULL)
   {
@@ -97,17 +99,22 @@ int main()
   for (int i = 0; i < MNIST_file_size; i++)
   {
     c_data = fgetc(fp);
+   // cout << "c_data = " << (int)c_data << endl;
     if (feof(fp))
     {
       break;
     }
     // printf("c_data %d\n", c_data);
     MNIST_data[MN_index] = c_data;
+
     if ((MNIST_header_offset - 1) < i)
     {
       MN_index++;
     }
   }
+
+  //while(1){};
+
   fclose(fp);
   printf("train.. or t10k.. ..-images-idx3-ubyte file is successfully loaded in to MNIST_data[MN_index] memory\n");
   /// Read lable
@@ -120,11 +127,11 @@ int main()
   c_data = 0;
   if (use_MNIST_verify_set == 0)
   {
-    fp = fopen("train-labels-idx1-ubyte", "r");
+    fp = fopen("train-labels-idx1-ubyte", "rb");
   }
   else
   {
-    fp = fopen("t10k-labels-idx1-ubyte", "r");
+    fp = fopen("t10k-labels-idx1-ubyte", "rb");
   }
 
   if (fp == NULL)
@@ -263,7 +270,7 @@ int main()
   }
 
     int MNIST_nr = 0;
-    srand (static_cast <unsigned> (time(0)));//Seed the randomizer
+    srand (static_cast <unsigned> (time(NULL)));//Seed the randomizer
   // Start traning
   int do_verify_if_best_trained = 0;
   int stop_training = 0;
@@ -276,8 +283,12 @@ int main()
     for(int j=0;j<MNIST_pix_size;j++)
     {
     mnist_d = MNIST_data[(MNIST_pix_size * i) + j];
+  //  cout << " mnist_d = " << (int)mnist_d  << endl;
     mnist_uchar = (~(-mnist_d) + 1);
+  //  cout << " mnist_uchar = " <<  (int)mnist_uchar  << endl;
     mnist_f = ((double)mnist_uchar)/256.0;
+
+  //  cout << "mnist_f = " << mnist_f  << endl;
     training_input_data[i][j] = mnist_f;       // 0..1
     }
     target_lable = ((int) MNIST_lable[i]);
@@ -417,7 +428,7 @@ vector<int> fisher_yates_shuffle(vector<int> table)
 
 void check_file_exist(char *filename)
 {
-  FILE *fp2 = fopen(filename, "r");
+  FILE *fp2 = fopen(filename, "rb");
   if (fp2 == NULL)
   {
     cout << "Error " << filename << " file doesn't exist" << endl;
@@ -441,11 +452,11 @@ int get_MNIST_file_size(void)
   FILE *fp2;
   if (use_MNIST_verify_set == 0)
   {
-    fp2 = fopen("train-images-idx3-ubyte", "r");
+    fp2 = fopen("train-images-idx3-ubyte", "rb");
   }
   else
   {
-    fp2 = fopen("t10k-images-idx3-ubyte", "r");
+    fp2 = fopen("t10k-images-idx3-ubyte", "rb");
   }
   if (fp2 == NULL)
   {
@@ -520,11 +531,11 @@ int get_MNIST_file_size(void)
 
     if (use_MNIST_verify_set == 0)
     {
-      fp2 = fopen("train-images-idx3-ubyte", "r");
+      fp2 = fopen("train-images-idx3-ubyte", "rb");
     }
     else
     {
-      fp2 = fopen("t10k-images-idx3-ubyte", "r");
+      fp2 = fopen("t10k-images-idx3-ubyte", "rb");
     }
     if (fp2 == NULL)
     {
@@ -551,11 +562,11 @@ int get_MNIST_lable_file_size(void)
   FILE *fp2;
   if (use_MNIST_verify_set == 0)
   {
-    fp2 = fopen("train-labels-idx1-ubyte", "r");
+    fp2 = fopen("train-labels-idx1-ubyte", "rb");
   }
   else
   {
-    fp2 = fopen("t10k-labels-idx1-ubyte", "r");
+    fp2 = fopen("t10k-labels-idx1-ubyte", "rb");
   }
 
   if (fp2 == NULL)
