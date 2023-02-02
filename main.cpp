@@ -2,18 +2,12 @@
 #include <iostream>
 #include <stdio.h>
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp> // Basic OpenCV structures (cv::Mat, Scalar)
 #include "fc_m_resnet.hpp"
 #include <vector>
 #include <time.h>
 
- using namespace cv;
 using namespace std;
 
-#include <termios.h> // kbhit linux
-#include <unistd.h>  // kbhit linux
-#include <fcntl.h>   // kbhit linux
 
 #include <cstdlib>
 #include <ctime>
@@ -65,50 +59,8 @@ xxxx     unsigned byte   ??               pixel
 Pixels are organized row-wise. Pixel values are 0 to 255. 0 means background (white), 255 means foreground (black).
 */
 
-struct termios oldt, newt;
-int ch;
-int oldf;
-
 int get_MNIST_lable_file_size(void);
 int get_MNIST_file_size(void);
-
-int kbhit(void)
-{
-  tcgetattr(STDIN_FILENO, &oldt);
-  newt = oldt;
-  newt.c_lflag &= ~(ICANON | ECHO);
-  tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-  oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-  fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-  ch = getchar();
-
-  tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-  fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-  if (ch != EOF)
-  {
-    ungetc(ch, stdin);
-    return 1;
-  }
-  return 0;
-}
-
-void run_pause(void)
-{
-
-  if (kbhit())
-  {
-    cout << "Pause training, start with hit Enter " << endl;
-    char key_press = ' ';
-    key_press = getchar();
-    if (key_press == ' ')
-    {
-      key_press = getchar();
-    }
-    cout << "Run training again " << endl;
-  }
-}
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 
@@ -309,78 +261,9 @@ int main()
     verify_target_data.push_back(dummy_one_target_data_point);
     verify_input_data.push_back(dummy_one_training_data_point);
   }
-/*
-// --------- Toy training data example learning a sinus, cos and x^2 function ------------
-#define M_PI_local 3.14159265358979323846
-  for (int i = 0; i < training_dataset_size; i++)
-  {
-    double linear_line = ((double)i / (double)training_dataset_size);
-    training_input_data[i][0] = linear_line;       // 0..1
-    training_input_data[i][1] = -linear_line;      // 0..1
-    training_input_data[i][2] = linear_line * 1.0; // 0..10
-    training_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
-    training_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
-    training_target_data[i][2] = (linear_line * linear_line) * 0.5 + 0.5;
-  }
-  for (int i = 0; i < verify_dataset_size; i++)
-  {
-    double linear_line = ((double)i / (double)training_dataset_size);
-    verify_input_data[i][0] = linear_line;        // 0..1
-    verify_input_data[i][1] = -linear_line;       // 0..1
-    verify_input_data[i][2] = linear_line * 10.0; // 0..10
-    verify_target_data[i][0] = (sin(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
-    verify_target_data[i][1] = (cos(linear_line * 2.0 * M_PI_local)) * 0.5 + 0.5;
-    verify_target_data[i][3] = (linear_line * linear_line) * 0.5 + 0.5;
-  }
-  //------------------------- Toy example setup finnis -------------------------------------
-*/
-
-   Mat RGB_image, colour, local_norm_colour, noised_input, norm_32FC3_img, L1_patch_img, L1_noise_img, L1_autoenc_reconstructed, L1_autoenc_delta;
-    Mat norm_B_32FC1img, norm_G_32FC1img, norm_R_32FC1img;
-    RGB_image.create(MNIST_height, MNIST_width, CV_8UC3);
-    norm_32FC3_img.create(MNIST_height, MNIST_width, CV_32FC3);
-    norm_B_32FC1img.create(MNIST_height, MNIST_width, CV_32FC1);
-    norm_G_32FC1img.create(MNIST_height, MNIST_width, CV_32FC1);
-    norm_R_32FC1img.create(MNIST_height, MNIST_width, CV_32FC1);
-/*
-    printf("Would you like to use MNIST VERIFY set <Y>/<N> \n");
-    answer_character = getchar();
-    if(answer_character == 'Y' || answer_character == 'y')
-    {
-        use_MNIST_verify_set=1;
-        MNIST_nr_of_img_p_batch = 10000;
-    }
-    else
-    {
-        use_MNIST_verify_set=0;
-        MNIST_nr_of_img_p_batch = 60000;
-    }
-    printf("use_MNIST_verify_set =%d\n", use_MNIST_verify_set);
-  */
-
 
     int MNIST_nr = 0;
-    Mat gray;
-    gray.create(28,28,CV_8UC1);
-    char *zero_ptr_gray = gray.ptr<char>(0);
-    char *ptr_gray = gray.ptr<char>(0);
-
-
-    Mat read_image;
     srand (static_cast <unsigned> (time(0)));//Seed the randomizer
-    char *zero_ptr_RGB_image =      RGB_image.ptr<char>(0);
-    char *index_ptr_RGB_image =     RGB_image.ptr<char>(0);
-   
-    float *zero_ptr_norm_B_32FC1img  =   norm_B_32FC1img.ptr<float>(0);
-    float *zero_ptr_norm_G_32FC1img  =   norm_G_32FC1img.ptr<float>(0);
-    float *zero_ptr_norm_R_32FC1img  =   norm_R_32FC1img.ptr<float>(0);
-    float *index_ptr_norm_B_32FC1img  =  norm_B_32FC1img.ptr<float>(0);
-    float *index_ptr_norm_G_32FC1img  =  norm_G_32FC1img.ptr<float>(0);
-    float *index_ptr_norm_R_32FC1img  =  norm_R_32FC1img.ptr<float>(0);
-    float *zero_ptr_norm_32FC3_img =         local_norm_colour.ptr<float>(0);
-    float *index_ptr_norm_32FC3_img =        local_norm_colour.ptr<float>(0);
-
-
   // Start traning
   int do_verify_if_best_trained = 0;
   int stop_training = 0;
@@ -392,8 +275,6 @@ int main()
   {
     for(int j=0;j<MNIST_pix_size;j++)
     {
-   //   training_input_data[i][j] = ;       // 0..1
-   //   training_target_data[i][j] = ;
     mnist_d = MNIST_data[(MNIST_pix_size * i) + j];
     mnist_uchar = (~(-mnist_d) + 1);
     mnist_f = ((double)mnist_uchar)/256.0;
@@ -411,32 +292,17 @@ int main()
     }
   }
   MNIST_nr = (int)(rand() % MNIST_nr_of_img_p_batch);
-  zero_ptr_gray = gray.ptr<char>(0);
-  index_ptr_RGB_image = zero_ptr_RGB_image;
   
   for (int n = 0; n < MNIST_pix_size; n++)
   {
-    ptr_gray = zero_ptr_gray + n;
     mnist_d = MNIST_data[(MNIST_pix_size * MNIST_nr) + n];
     mnist_uchar = (~(-mnist_d) + 1);
     mnist_f = ((double)mnist_uchar)/256.0;
-  //  cout << "mnist_d = " << mnist_f << "mnist_uchar = " << (int)mnist_uchar <<" pixel nr = " << n << endl;
-  //  cout << "mnist_d = " << mnist_uchar << " pixel nr = " << n << endl;
-    *ptr_gray = mnist_d;
-
-
-    for (int i = 0; i < RGB_image.channels(); i++)
-    {
-      *index_ptr_RGB_image = *ptr_gray;
-      index_ptr_RGB_image++;
-    }
   }
 
 
   target_lable = ((int) MNIST_lable[MNIST_nr]);
   cout << "target_lable = " << target_lable  << endl;
-  imshow("RGB_image", RGB_image);
-  cv::waitKey(3000);
 
 
 
@@ -451,7 +317,6 @@ int main()
     cout << "Epoch ----" << epc << endl;
     cout << "input node --- [0] = " << basic_fc_nn.input_layer[0] << endl;
 
-   // run_pause();
     //============ Traning ==================
 
     MNIST_nr = (int)(rand() % MNIST_nr_of_img_p_batch);
@@ -513,27 +378,6 @@ int main()
   }
 
   basic_fc_nn.~fc_m_resnet();
-
-  cv::Mat test;
-  test.create(200, 400, CV_32FC1);
-  float *index_ptr_testGrapics = test.ptr<float>(0);
-  float pixel_level = 0.0f;
-  for (int i = 0; i < test.rows * test.cols; i++)
-  {
-    if (pixel_level < 1.0)
-    {
-      pixel_level = pixel_level + 0.00001f;
-    }
-    else
-    {
-      pixel_level = 0.0f;
-    }
-    *index_ptr_testGrapics = pixel_level;
-    index_ptr_testGrapics++;
-  }
-  cv::imshow("diff", test);
-  cv::waitKey(5000);
-
   basic_fc_nn.~fc_m_resnet();
 
   for (int i = 0; i < training_dataset_size; i++)

@@ -6,8 +6,9 @@ PROG = main
 #SRCS = verify.cpp fc_m_resnet.cpp simple_nn.cpp
 #PROG = verify
 
-OPENCV = `pkg-config opencv --cflags --libs`
-LIBS = $(OPENCV)
+#OPENCV = `pkg-config opencv --cflags --libs`
+#LIBS = $(OPENCV)
+LIBS =
 
 $(PROG):$(SRCS)
 	$(CC) $(CFLAGS) -o $(PROG) $(SRCS) $(LIBS)
