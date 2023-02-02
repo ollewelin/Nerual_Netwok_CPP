@@ -130,11 +130,11 @@ int main()
   char c_data = 0;
   if (use_MNIST_verify_set == 0)
   {
-    fp = fopen("train-images-idx3-ubyte", "r");
+    fp = fopen("train-images-idx3-ubyte", "rb");
   }
   else
   {
-    fp = fopen("t10k-images-idx3-ubyte", "r");
+    fp = fopen("t10k-images-idx3-ubyte", "rb");
   }
   if (fp == NULL)
   {
@@ -168,11 +168,11 @@ int main()
   c_data = 0;
   if (use_MNIST_verify_set == 0)
   {
-    fp = fopen("train-labels-idx1-ubyte", "r");
+    fp = fopen("train-labels-idx1-ubyte", "rb");
   }
   else
   {
-    fp = fopen("t10k-labels-idx1-ubyte", "r");
+    fp = fopen("t10k-labels-idx1-ubyte", "rb");
   }
 
   if (fp == NULL)
@@ -573,7 +573,7 @@ vector<int> fisher_yates_shuffle(vector<int> table)
 
 void check_file_exist(char *filename)
 {
-  FILE *fp2 = fopen(filename, "r");
+  FILE *fp2 = fopen(filename, "rb");
   if (fp2 == NULL)
   {
     cout << "Error " << filename << " file doesn't exist" << endl;
@@ -597,11 +597,11 @@ int get_MNIST_file_size(void)
   FILE *fp2;
   if (use_MNIST_verify_set == 0)
   {
-    fp2 = fopen("train-images-idx3-ubyte", "r");
+    fp2 = fopen("train-images-idx3-ubyte", "rb");
   }
   else
   {
-    fp2 = fopen("t10k-images-idx3-ubyte", "r");
+    fp2 = fopen("t10k-images-idx3-ubyte", "rb");
   }
   if (fp2 == NULL)
   {
@@ -676,11 +676,11 @@ int get_MNIST_file_size(void)
 
     if (use_MNIST_verify_set == 0)
     {
-      fp2 = fopen("train-images-idx3-ubyte", "r");
+      fp2 = fopen("train-images-idx3-ubyte", "rb");
     }
     else
     {
-      fp2 = fopen("t10k-images-idx3-ubyte", "r");
+      fp2 = fopen("t10k-images-idx3-ubyte", "rb");
     }
     if (fp2 == NULL)
     {
@@ -707,11 +707,11 @@ int get_MNIST_lable_file_size(void)
   FILE *fp2;
   if (use_MNIST_verify_set == 0)
   {
-    fp2 = fopen("train-labels-idx1-ubyte", "r");
+    fp2 = fopen("train-labels-idx1-ubyte", "rb");
   }
   else
   {
-    fp2 = fopen("t10k-labels-idx1-ubyte", "r");
+    fp2 = fopen("t10k-labels-idx1-ubyte", "rb");
   }
 
   if (fp2 == NULL)
