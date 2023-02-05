@@ -13,7 +13,6 @@ private:
     int nr_of_hidden_layers;//Numbers of hidden layers inside this m_resnet block object
     int setup_inc_layer_cnt;//Used during setup 
     int setup_state;
-    
     //0 = start up state, nothing done yet
     //1 = set_nr_of_hidden_layers() is set up
     //2 = set_nr_of_hid_nodeson_layer() is done
@@ -22,13 +21,10 @@ private:
     vector<int> number_of_hidden_nodes;
     vector<vector<double>> hidden_layer;//2D [layer_nr][node_nr]
     vector<vector<double>> internal_delta;//2D [layer_nr][node_nr] nr_of_hidden_layers + 2 for i_layer_delta and o_layer_delta as well
-    vector<vector<double>> dot_product;//2D [layer_nr][node_nr]
     vector<vector<vector<double>>> all_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
     vector<vector<vector<double>>> change_weights;//3D [layer_nr][node_nr][weights_from_previous_layer]
     double activation_function(double, int);
     double delta_activation_func(double,double);
-    void L1_norm(int);
-    vector<double> L1_norm_labda;
 
     int skip_conn_rest_part;
     int skip_conn_multiple_part;
@@ -47,9 +43,6 @@ public:
     int use_softmax;
     //0 = No softmax
     //1 = Use softmax at end. Only possible to enable if block_type = 2 end block
-    int normalize_mode;
-    //0 = no normalize
-    //1 = L1_norm on each layer before after each node before weights
     int activation_function_mode;
     //0 = sigmoid activation function
     //1 = Relu simple activation function
