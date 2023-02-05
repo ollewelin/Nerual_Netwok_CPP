@@ -11,7 +11,7 @@ simple_nn::simple_nn()
 {
     cout << "Constructor simple_nn" << endl;
     input_nodes = 784;
-    hidden_nodes = 100;
+    hidden_nodes = 400;
     output_nodes = 10;
     use_softmax = 0;
     vector<double> dummy_from_inp_node;
@@ -302,7 +302,7 @@ void simple_nn::backpropagtion_and_update(void)
     {
         hid_change_weights[dst_cnt][hidden_nodes] = learning_rate * output_delta[dst_cnt] + momentum * hid_change_weights[dst_cnt][hidden_nodes];//Start with update change Bias weight 
         hid_weights[dst_cnt][hidden_nodes] += hid_change_weights[dst_cnt][hidden_nodes];//Update bias weight
-        for(int src_cnt=0;src_cnt<hidden_nodes;src_cnt++)
+        for(int src_cnt=0;src_cnt<input_nodes;src_cnt++)
         {
             hid_change_weights[dst_cnt][src_cnt] = learning_rate * output_delta[dst_cnt] + momentum * hid_change_weights[dst_cnt][src_cnt];//update change weight 
             hid_weights[dst_cnt][src_cnt] += hid_change_weights[dst_cnt][src_cnt];//Update weight
