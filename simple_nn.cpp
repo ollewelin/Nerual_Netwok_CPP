@@ -14,6 +14,9 @@ simple_nn::simple_nn()
     hidden_nodes = 500;
     output_nodes = 10;
     use_softmax = 0;
+    filename_hid_L1 = "hid_weight_L1.dat";
+    filename_out = "out_weight.dat";
+
     vector<double> dummy_from_inp_node;
     dummy_from_inp_node.push_back(0.0); // Add one for Bias node
     for (int i = 0; i < input_nodes; i++)
@@ -71,14 +74,12 @@ void simple_nn::randomize_weights(double rand_proportion)
 }
 
 const int precision_to_text_file = 16;
-void simple_nn::save_weights(string filename)
+void simple_nn::save_weights(void)
 {
     cout << "Save data weights ..." << endl;
-    string filename_extenstion_hid = "_hid.dat";
-    string filename_extenstion_out = "_out.dat";
     ofstream outputFile;
     outputFile.precision(precision_to_text_file);
-    outputFile.open(filename + filename_extenstion_hid);
+    outputFile.open(filename_hid_L1);
     int nodes_on_this_layer = hid_weights.size();
     for (int n_cnt = 0; n_cnt < nodes_on_this_layer; n_cnt++)
     {
@@ -91,7 +92,7 @@ void simple_nn::save_weights(string filename)
     outputFile.close();
 
     outputFile.precision(precision_to_text_file);
-    outputFile.open(filename + filename_extenstion_out);
+    outputFile.open(filename_out);
     nodes_on_this_layer = out_weights.size();
     for (int n_cnt = 0; n_cnt < nodes_on_this_layer; n_cnt++)
     {
@@ -104,7 +105,7 @@ void simple_nn::save_weights(string filename)
     outputFile.close();
     cout << "Save data finnish !" << endl;
 }
-void simple_nn::load_weights(string filename)
+void simple_nn::load_weights(void)
 {
     cout << "Load data weights ..." << endl;
     ifstream inputFile;
@@ -112,7 +113,7 @@ void simple_nn::load_weights(string filename)
     string filename_extenstion_out = "_out.dat";
 
     inputFile.precision(precision_to_text_file);
-    inputFile.open(filename + filename_extenstion_hid);
+    inputFile.open(filename_hid_L1);
     double d_element = 0.0;
     int data_load_error = 0;
     int data_load_numbers = 0;
@@ -153,7 +154,7 @@ void simple_nn::load_weights(string filename)
     }
 
     inputFile.precision(precision_to_text_file);
-    inputFile.open(filename + filename_extenstion_out);
+    inputFile.open(filename_out);
     d_element = 0.0;
     data_load_error = 0;
     data_load_numbers = 0;
@@ -197,8 +198,7 @@ void simple_nn::load_weights(string filename)
 void simple_nn::forward_pass(void)
 {
     //Forward from input to to hidden node
-    int dst_nodes = hidden_layer.size();
-    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt++)
+    for(int dst_cnt=0;dst_cnt<hidden_nodes;dst_cnt++)
     {
         int src_nodes = input_layer.size();
         double acc_dot_product = hid_weights[dst_cnt][src_nodes];//Start with Bias weight 
@@ -212,8 +212,7 @@ void simple_nn::forward_pass(void)
     }
 
     //Forward from hidden to to output node
-    dst_nodes = output_layer.size();
-    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt++)
+    for(int dst_cnt=0;dst_cnt<output_nodes;dst_cnt++)
     {
         int src_nodes = hidden_layer.size();
         double acc_dot_product = out_weights[dst_cnt][src_nodes];//Start with Bias weight 
@@ -242,18 +241,21 @@ void simple_nn::forward_pass(void)
         {
             output_layer[out_cnt] = exp(output_layer[out_cnt]);
             sum_exp_input += output_layer[out_cnt];
-            if(sum_exp_input != 0.0)
-            {
-                output_layer[out_cnt] = output_layer[out_cnt] / sum_exp_input;
-            }
-            else
+            if(sum_exp_input == 0.0)
             {
                 //Zero div protection 
-                output_layer[out_cnt] = output_layer[out_cnt] / 0.000000000000001;
+                sum_exp_input = 0.000000000000001;
             }
         }
+        for(int out_cnt=0;out_cnt<output_nodes;out_cnt++)
+        {
+            output_layer[out_cnt] = output_layer[out_cnt] / sum_exp_input;
+        }
     }
-    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt++)
+}
+void simple_nn::backpropagtion_and_update(void)
+{
+    for(int dst_cnt=0;dst_cnt<output_nodes;dst_cnt++)
     {
         if(use_softmax == 0)
         {
@@ -265,10 +267,6 @@ void simple_nn::forward_pass(void)
         }
     }
 
-}
-
-void simple_nn::backpropagtion_and_update(void)
-{
     //Backpropagate over output nodes
     for(int n_cnt = 0;n_cnt<output_nodes;n_cnt++)
     {
