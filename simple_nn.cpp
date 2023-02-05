@@ -233,7 +233,6 @@ void simple_nn::forward_pass(void)
             //Just store dot product for softmax ouside for loop
             output_layer[dst_cnt] = acc_dot_product;//Compleat softmax calculation later need to be outside dst_cnt for loop
         }
-        loss += 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
     }
     if(use_softmax == 1)
     {
@@ -253,6 +252,10 @@ void simple_nn::forward_pass(void)
                 output_layer[out_cnt] = output_layer[out_cnt] / 0.000000000000001;
             }
         }
+    }
+    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt++)
+    {
+        loss += 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
     }
 }
 
