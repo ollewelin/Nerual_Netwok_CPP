@@ -11,7 +11,7 @@ simple_nn::simple_nn()
 {
     cout << "Constructor simple_nn" << endl;
     input_nodes = 784;
-    hidden_nodes = 100;
+    hidden_nodes = 500;
     output_nodes = 10;
     use_softmax = 0;
     vector<double> dummy_from_inp_node;
@@ -233,6 +233,7 @@ void simple_nn::forward_pass(void)
             //Just store dot product for softmax ouside for loop
             output_layer[dst_cnt] = acc_dot_product;//Compleat softmax calculation later need to be outside dst_cnt for loop
         }
+        loss += 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
     }
     if(use_softmax == 1)
     {
