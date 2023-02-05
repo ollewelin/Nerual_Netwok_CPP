@@ -11,7 +11,7 @@ simple_nn::simple_nn()
 {
     cout << "Constructor simple_nn" << endl;
     input_nodes = 784;
-    hidden_nodes = 500;
+    hidden_nodes = 100;
     output_nodes = 10;
     use_softmax = 0;
     vector<double> dummy_from_inp_node;
@@ -198,7 +198,7 @@ void simple_nn::forward_pass(void)
 {
     //Forward from input to to hidden node
     int dst_nodes = hidden_layer.size();
-    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt)
+    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt++)
     {
         int src_nodes = input_layer.size();
         double acc_dot_product = hid_weights[dst_cnt][src_nodes];//Start with Bias weight 
@@ -213,7 +213,7 @@ void simple_nn::forward_pass(void)
 
     //Forward from hidden to to output node
     dst_nodes = output_layer.size();
-    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt)
+    for(int dst_cnt=0;dst_cnt<dst_nodes;dst_cnt++)
     {
         int src_nodes = hidden_layer.size();
         double acc_dot_product = out_weights[dst_cnt][src_nodes];//Start with Bias weight 
@@ -238,7 +238,7 @@ void simple_nn::forward_pass(void)
     {
         //Make softmax activation function
         double sum_exp_input = 0.0;
-        for(int out_cnt=0;out_cnt<output_nodes;out_cnt)
+        for(int out_cnt=0;out_cnt<output_nodes;out_cnt++)
         {
             output_layer[out_cnt] = exp(output_layer[out_cnt]);
             sum_exp_input += output_layer[out_cnt];
@@ -286,7 +286,7 @@ void simple_nn::backpropagtion_and_update(void)
 
     //Update weights from the backpropated delta
     //Update output weights 
-    for(int dst_cnt=0;dst_cnt<output_nodes;dst_cnt)
+    for(int dst_cnt=0;dst_cnt<output_nodes;dst_cnt++)
     {
         out_change_weights[dst_cnt][output_nodes] = learning_rate * output_delta[dst_cnt] + momentum * out_change_weights[dst_cnt][output_nodes];//Start with update change Bias weight 
         out_weights[dst_cnt][output_nodes] += out_change_weights[dst_cnt][output_nodes];//Update bias weight
@@ -298,7 +298,7 @@ void simple_nn::backpropagtion_and_update(void)
     }
 
     //Update hidden weights 
-    for(int dst_cnt=0;dst_cnt<hidden_nodes;dst_cnt)
+    for(int dst_cnt=0;dst_cnt<hidden_nodes;dst_cnt++)
     {
         hid_change_weights[dst_cnt][hidden_nodes] = learning_rate * output_delta[dst_cnt] + momentum * hid_change_weights[dst_cnt][hidden_nodes];//Start with update change Bias weight 
         hid_weights[dst_cnt][hidden_nodes] += hid_change_weights[dst_cnt][hidden_nodes];//Update bias weight
