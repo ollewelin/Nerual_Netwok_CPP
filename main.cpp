@@ -175,7 +175,7 @@ int main()
   weight_filename = "weights2.dat";
   basic_fc_nn.get_version();
   basic_fc_nn.block_type = 2;
-  basic_fc_nn.use_softmax = 0;
+  basic_fc_nn.use_softmax = 1;
   basic_fc_nn.activation_function_mode = 0;
   basic_fc_nn.use_skip_connect_mode = 0;
   basic_fc_nn.use_dopouts = 1;
@@ -206,10 +206,10 @@ int main()
 
   //=== Now setup the hyper parameters of the Neural Network ====
   basic_fc_nn.momentum = 0.9;
-  basic_fc_nn.learning_rate = 0.01;
+  basic_fc_nn.learning_rate = 0.001;
   basic_fc_nn.dropout_proportion = 0.15;
   basic_fc_nn.fix_leaky_proportion = 0.05;
-  double init_random_weight_propotion = 0.001;
+  double init_random_weight_propotion = 0.05;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
   cin >> answer;
   if (answer == 'Y' || answer == 'y')
