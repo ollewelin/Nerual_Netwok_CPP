@@ -324,6 +324,29 @@ void simple_L2_nn::forward_pass(void)
         }
     }
 
+    if(use_softmax == 1)
+    {
+        //Make softmax activation function
+        double sum_exp_input = 0.0;
+        for(int out_cnt=0;out_cnt<output_nodes;out_cnt++)
+        {
+            output_layer[out_cnt] = exp(output_layer[out_cnt]);
+            sum_exp_input += output_layer[out_cnt];
+            if(sum_exp_input == 0.0)
+            {
+                //Zero div protection 
+                sum_exp_input = 0.000000000000001;
+            }
+        }
+        for(int out_cnt=0;out_cnt<output_nodes;out_cnt++)
+        {
+            output_layer[out_cnt] = output_layer[out_cnt] / sum_exp_input;
+        }
+    }
+}
+
+void simple_L2_nn::backpropagtion_and_update(void)
+{
     for(int dst_cnt=0;dst_cnt<output_nodes;dst_cnt++)
     {
         if(use_softmax == 0)
@@ -336,31 +359,6 @@ void simple_L2_nn::forward_pass(void)
         }
     }
 
-
-    if(use_softmax == 1)
-    {
-        //Make softmax activation function
-        double sum_exp_input = 0.0;
-        for(int out_cnt=0;out_cnt<output_nodes;out_cnt++)
-        {
-            output_layer[out_cnt] = exp(output_layer[out_cnt]);
-            sum_exp_input += output_layer[out_cnt];
-            if(sum_exp_input != 0.0)
-            {
-                output_layer[out_cnt] = output_layer[out_cnt] / sum_exp_input;
-            }
-            else
-            {
-                //Zero div protection 
-                output_layer[out_cnt] = output_layer[out_cnt] / 0.000000000000001;
-            }
-        }
-    }
-}
-
-void simple_L2_nn::backpropagtion_and_update(void)
-{
-    
     //Backpropagate over output nodes
     for(int n_cnt = 0;n_cnt<output_nodes;n_cnt++)
     {
