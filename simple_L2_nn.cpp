@@ -432,7 +432,7 @@ void simple_L2_nn::backpropagtion_and_update(void)
     //Update hidden weights L1
     for(int dst_cnt=0;dst_cnt<hidden_L1_nodes;dst_cnt++)
     {
-        hid_L1_change_weights[dst_cnt][input_nodes] = learning_rate * hidden_L1_layer[dst_cnt] + momentum * hid_L1_change_weights[dst_cnt][input_nodes];//Start with update change Bias weight 
+        hid_L1_change_weights[dst_cnt][input_nodes] = learning_rate * hidden_L1_delta[dst_cnt] + momentum * hid_L1_change_weights[dst_cnt][input_nodes];//Start with update change Bias weight 
         hid_L1_weights[dst_cnt][input_nodes] += hid_L1_change_weights[dst_cnt][input_nodes];//Update bias weight
         for(int src_cnt=0;src_cnt<input_nodes;src_cnt++)
         {
