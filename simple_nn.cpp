@@ -11,7 +11,7 @@ simple_nn::simple_nn()
 {
     cout << "Constructor simple_nn" << endl;
     input_nodes = 784;
-    hidden_nodes = 400;
+    hidden_nodes = 100;
     output_nodes = 10;
     use_softmax = 0;
     vector<double> dummy_from_inp_node;
@@ -292,7 +292,7 @@ void simple_nn::backpropagtion_and_update(void)
         out_weights[dst_cnt][output_nodes] += out_change_weights[dst_cnt][output_nodes];//Update bias weight
         for(int src_cnt=0;src_cnt<hidden_nodes;src_cnt++)
         {
-            out_change_weights[dst_cnt][src_cnt] = learning_rate * output_delta[dst_cnt] + momentum * out_change_weights[dst_cnt][src_cnt];//update change weight 
+            out_change_weights[dst_cnt][src_cnt] = learning_rate * input_layer[src_cnt] * output_delta[dst_cnt] + momentum * out_change_weights[dst_cnt][src_cnt];//update change weight 
             out_weights[dst_cnt][src_cnt] += out_change_weights[dst_cnt][src_cnt];//Update weight
         }
     }
@@ -304,7 +304,7 @@ void simple_nn::backpropagtion_and_update(void)
         hid_weights[dst_cnt][hidden_nodes] += hid_change_weights[dst_cnt][hidden_nodes];//Update bias weight
         for(int src_cnt=0;src_cnt<input_nodes;src_cnt++)
         {
-            hid_change_weights[dst_cnt][src_cnt] = learning_rate * output_delta[dst_cnt] + momentum * hid_change_weights[dst_cnt][src_cnt];//update change weight 
+            hid_change_weights[dst_cnt][src_cnt] = learning_rate * hidden_layer[src_cnt] * output_delta[dst_cnt] + momentum * hid_change_weights[dst_cnt][src_cnt];//update change weight 
             hid_weights[dst_cnt][src_cnt] += hid_change_weights[dst_cnt][src_cnt];//Update weight
         }
     }
