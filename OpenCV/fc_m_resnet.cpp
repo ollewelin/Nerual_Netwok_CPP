@@ -6,12 +6,12 @@
 #include <time.h>
 
 using namespace std;
-
+vector<double> L1_norm(vector<double> vector);
 fc_m_resnet::fc_m_resnet(/* args */)
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 1;
+    version_minor = 3;
 
     setup_state = 0;
     nr_of_hidden_layers = 0;
@@ -103,8 +103,12 @@ void fc_m_resnet::set_nr_of_hidden_layers(int nr_of_hid_layers)
         for (int i = 0; i < nr_of_hidden_layers; i++)
         {
             number_of_hidden_nodes.push_back(0); // Emty number of nodes yet. Then after this call is done. driver will fill this vector with numbers of nodes on each hidden layers
+            L1_norm_labda.push_back(0);
         }
         setup_state = 1;
+        L1_norm_labda.push_back(0); // for input layer as well
+        L1_norm_labda.push_back(0); //
+
         //====================== Vectors layer setup finnish =======================
     }
 }
@@ -196,7 +200,7 @@ void fc_m_resnet::load_weights(string filename)
                 int weights_to_this_node = all_weights[l_cnt][n_cnt].size();
                 for (int w_cnt = 0; w_cnt < weights_to_this_node; w_cnt++)
                 {
-                    if(inputFile >> d_element)
+                    if (inputFile >> d_element)
                     {
                         all_weights[l_cnt][n_cnt][w_cnt] = d_element;
                         data_load_numbers++;
@@ -205,14 +209,23 @@ void fc_m_resnet::load_weights(string filename)
                     {
                         data_load_error = 1;
                     }
-                    if(data_load_error !=0){break;}
+                    if (data_load_error != 0)
+                    {
+                        break;
+                    }
                 }
-                if(data_load_error !=0){break;}
+                if (data_load_error != 0)
+                {
+                    break;
+                }
             }
-            if(data_load_error !=0){break;}
+            if (data_load_error != 0)
+            {
+                break;
+            }
         }
         inputFile.close();
-        if(data_load_error == 0)
+        if (data_load_error == 0)
         {
             cout << "Load data finnish !" << endl;
         }
@@ -288,7 +301,7 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
     }
     hidden_layer.push_back(dummy_hidd_nodes_on_this_layer);
     internal_delta.push_back(dummy_hidd_nodes_on_this_layer);
-
+    dot_product.push_back(dummy_hidd_nodes_on_this_layer);
     number_of_hidden_nodes[setup_inc_layer_cnt] = nodes;
     cout << "Size of hidden_layer[" << setup_inc_layer_cnt << "][x] = " << hidden_layer[setup_inc_layer_cnt].size() << endl;
 
@@ -303,6 +316,7 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             temporary_dummy_output_vector.push_back(0.0);
         }
         internal_delta.push_back(temporary_dummy_output_vector);
+        dot_product.push_back(temporary_dummy_output_vector);
 
         // i_layer_delta and o_layer_delta data will NOT copy to last and first internal_delta data this are diffrent data
         // i_layer_delta is the delta data at the end point of thi input wires of this nn block
@@ -432,7 +446,7 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
 {
     double output_data = 0.0;
     int this_node_dopped_out = 0;
-    if (use_dopouts == 1 && end_layer == 0)
+    if (use_dopouts == 1)
     {
         double dropout_random = ((double)rand() / RAND_MAX);
         if (dropout_random < dropout_proportion)
@@ -440,9 +454,9 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
             this_node_dopped_out = 1;
         }
     }
-    if (this_node_dopped_out == 0)
+    if (this_node_dopped_out == 0 || (use_softmax == 1 && end_layer == 1))
     {
-        if (use_softmax == 0)
+        if (use_softmax == 0 || end_layer == 1)
         {
             if (activation_function_mode == 0)
             {
@@ -458,7 +472,7 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
                 {
                     // Positiv value go right though ar Relu (Rectify Linear)
                     output_data = input_data;
-                    //cout << "forward + output_data = " << output_data << endl;
+                    // cout << "forward + output_data = " << output_data << endl;
                 }
                 else
                 {
@@ -468,12 +482,12 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
                     case 1:
                         // 1 = Relu simple activation function
                         output_data = 0.0;
-                      //  cout << "forward - output_data = " << output_data << endl;
+                        //  cout << "forward - output_data = " << output_data << endl;
                         break;
                     case 2:
                         // 2 = Relu fix leaky activation function
                         output_data = input_data * fix_leaky_proportion;
-                      //  cout << "forward -2 output_data = " << output_data << endl;
+                        //  cout << "forward -2 output_data = " << output_data << endl;
                         break;
                     }
                 }
@@ -547,8 +561,15 @@ void fc_m_resnet::forward_pass(void)
                     acc_dot_product += input_layer[src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt]; // Add all to make the dot product
                 }
                 // Dot product finnished
-                // Make the activation function
-                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product, 0);
+                if (normalize_mode == 1)
+                {
+                    dot_product[l_cnt][dst_n_cnt] = acc_dot_product;
+                }
+                else
+                {
+                    // Make the activation function
+                    hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product, 0);
+                }
             }
         }
         else
@@ -558,13 +579,51 @@ void fc_m_resnet::forward_pass(void)
             for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
             {
                 double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes]; // Set the bias weight as the start value
+                if(isnan(acc_dot_product))
+                {
+                     cout << "l_cnt = " << l_cnt <<endl;
+                     cout << "dst_n_cnt = " << dst_n_cnt  <<endl;
+                    cout << "debug 0" << endl;
+                    exit(0);
+                }
+
                 for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
                 {
                     acc_dot_product += hidden_layer[l_cnt - 1][src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt]; // Add all to make the dot product
+                if(isnan(acc_dot_product))
+                {
+                     cout << "l_cnt = " << l_cnt <<endl;
+                     cout << "src_n_cnt = " << src_n_cnt  <<endl;
+                    cout << "debug 1123" << endl;
+                    exit(0);
+                }
+
+                }
+                if(isnan(acc_dot_product))
+                {
+                     cout << "l_cnt = " << l_cnt <<endl;
+                     cout << "dst_n_cnt = " << dst_n_cnt  <<endl;
+                    cout << "debug 1" << endl;
+                    exit(0);
                 }
                 // Dot product finnished
-                // Make the activation function
-                hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product, 0);
+                if (normalize_mode == 1)
+                {
+                    dot_product[l_cnt][dst_n_cnt] = acc_dot_product;
+                }
+                else
+                {
+                    // Make the activation function
+                    hidden_layer[l_cnt][dst_n_cnt] = activation_function(acc_dot_product, 0);
+                }
+            }
+        }
+        if (normalize_mode == 1)
+        {
+            L1_norm(l_cnt);
+            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            {
+                hidden_layer[l_cnt][dst_n_cnt] = activation_function(hidden_layer[l_cnt][dst_n_cnt], 0);
             }
         }
     }
@@ -573,7 +632,9 @@ void fc_m_resnet::forward_pass(void)
     int l_cnt = hidden_layer.size();
     int last_hidden_layer_nr = l_cnt - 1;
     int src_nodes = hidden_layer[last_hidden_layer_nr].size();
-    double sum_softmax_e_digits = 0.0f; // Softmax first clear sum of all exp(Accum)
+    double sum_softmax_e_digits = 0.0;     // Softmax first clear sum of all exp(Accum)
+    double invers_sum_softmax_e_dig = 0.0; // 1.0 / sum_softmax_e_digits for zero div protection
+    double max = 0.0;
     for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
     {
         double acc_dot_product = all_weights[l_cnt][dst_n_cnt][src_nodes]; // Set the bias weight as the start value
@@ -582,23 +643,70 @@ void fc_m_resnet::forward_pass(void)
             acc_dot_product += hidden_layer[l_cnt - 1][src_n_cnt] * all_weights[l_cnt][dst_n_cnt][src_n_cnt]; // Add all to make the dot product
         }
         // Dot product finnished
-        // Make the activation function
-        output_layer[dst_n_cnt] = activation_function(acc_dot_product, 1);
-        if (use_softmax == 1)
+//        if (normalize_mode == 1)
+//        {
+//            dot_product[l_cnt][dst_n_cnt] = acc_dot_product;
+//        }
+//        else
+//        {
+            // Make the activation function
+        
+//        }
+            if (use_softmax == 1)
+            {
+             
+                output_layer[dst_n_cnt] = exp(acc_dot_product);
+                sum_softmax_e_digits += output_layer[dst_n_cnt];
+            /*
+            output_layer[dst_n_cnt] = acc_dot_product;
+            if(acc_dot_product > max)
+            {
+                max = acc_dot_product;
+            }
+            */    
+            }
+            else
+            {
+                output_layer[dst_n_cnt] = activation_function(acc_dot_product, 1);
+            }
+
+       
+    }
+    /*
+            if (use_softmax == 1)
+            {
+    for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+    {
+        output_layer[dst_n_cnt] = exp(output_layer[dst_n_cnt] - max);
+        sum_softmax_e_digits += output_layer[dst_n_cnt];
+    }                
+            }
+*/
+ 
+/*
+    if (normalize_mode == 1)
+    {
+        L1_norm(l_cnt);
+        for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
         {
-            sum_softmax_e_digits += output_layer[dst_n_cnt];
+            output_layer[dst_n_cnt] = activation_function(output_layer[dst_n_cnt], 0);
         }
     }
+*/
     if (use_softmax == 1)
     {
         if (sum_softmax_e_digits == 0.0f)
         {
             // 0 div protection
-            sum_softmax_e_digits = 0.0000000000000001;
+            invers_sum_softmax_e_dig = 0.00000000000001;
+        }
+        else
+        {
+            invers_sum_softmax_e_dig = 1.0 / sum_softmax_e_digits;
         }
         for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
         {
-            output_layer[dst_n_cnt] = output_layer[dst_n_cnt] / sum_softmax_e_digits; // Make the softmax layer data
+            output_layer[dst_n_cnt] = (output_layer[dst_n_cnt]) * invers_sum_softmax_e_dig; // Make the softmax layer data
         }
     }
 
@@ -645,8 +753,9 @@ void fc_m_resnet::backpropagtion_and_update(void)
 {
     //============ Calculated and Backpropagate output delta and neural network loss ============
     int nr_out_nodes = output_layer.size();
-    int last_delta_layer_nr = internal_delta.size()-1;
-    
+    int last_delta_layer_nr = internal_delta.size() - 1;
+    double Error_level_softmax = 0.0;
+    double sum_target_modulo_softmax_output = 0.0;
     for (int i = 0; i < nr_out_nodes; i++)
     {
         if (block_type == 2)
@@ -654,22 +763,51 @@ void fc_m_resnet::backpropagtion_and_update(void)
             if (use_softmax == 0)
             {
                 internal_delta[last_delta_layer_nr][i] = delta_activation_func((target_layer[i] - output_layer[i]), output_layer[i]);
-              //  cout << "internal_delta[last_delta_layer_nr][i] = "<< internal_delta[last_delta_layer_nr][i] << endl;
             }
             else
             {
                 internal_delta[last_delta_layer_nr][i] = (target_layer[i] - output_layer[i]);
+                //mat d_input = softmax_output % (d_out - sum(d_out % softmax_output, 1));
+                /*
+                double sum_of_t_mod_softmax =0.0;
+                if(i==0)
+                {
+                    for (int m = 0; m < nr_out_nodes; m++)
+                    {
+                        sum_of_t_mod_softmax += fmod(target_layer[m], output_layer[m]);
+                    }
+                }
+                internal_delta[last_delta_layer_nr][i] = fmod(target_layer[i], sum_of_t_mod_softmax);
+                */
+                if(target_layer[i] == 0.0)
+                {
+                    Error_level_softmax += -(internal_delta[last_delta_layer_nr][i]);
+                }
+                else
+                {
+                    Error_level_softmax += internal_delta[last_delta_layer_nr][i];
+                }
             }
-            loss += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
+            loss += 0.5 * (Error_level_softmax * Error_level_softmax); // Squared error * 0.5
         }
         else
         {
             internal_delta[last_delta_layer_nr][i] = delta_activation_func(o_layer_delta[i], output_layer[i]);
+            if (normalize_mode == 1)
+            {
+                if (dot_product[last_delta_layer_nr][i] > 0.0)
+                {
+                    internal_delta[last_delta_layer_nr][i] += L1_norm_labda[last_delta_layer_nr];
+                }
+                else
+                {
+                    internal_delta[last_delta_layer_nr][i] -= L1_norm_labda[last_delta_layer_nr];
+                }
+            }
         }
     }
     //============================================================================================
-    
-   
+
     //============ Backpropagate hidden layer errors ============
     for (int i = last_delta_layer_nr - 1; i > -1; i--) // last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
     {
@@ -683,9 +821,20 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 accumulated_backprop += all_weights[i + 1][src_n_cnt][dst_n_cnt] * internal_delta[i + 1][src_n_cnt];
             }
             internal_delta[i][dst_n_cnt] = delta_activation_func(accumulated_backprop, hidden_layer[i][dst_n_cnt]);
+            if (normalize_mode == 1)
+            {
+                if (dot_product[i][dst_n_cnt] > 0.0)
+                {
+                    internal_delta[i][dst_n_cnt] += L1_norm_labda[i + 1];
+                }
+                else
+                {
+                    internal_delta[i][dst_n_cnt] -= L1_norm_labda[i + 1];
+                }
+            }
         }
     }
-   
+
     //============ Backpropagate i_layer_delta ============
     if (block_type > 0) // Skip backprop to i_layer_delta if this object is a start block. 0 = start block
     {
@@ -730,7 +879,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
             }
         }
     }
-    
+
     //============ Backpropagate finish =================================
 
     // ======== Update weights ========================
@@ -764,14 +913,13 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 all_weights[i][j][weight_size_3D] += change_weights[i][j][weight_size_3D];                                                     // Update Bias wheight
                 for (int k = 0; k < weight_size_3D; k++)
                 {
-                    change_weights[i][j][k] = learning_rate * hidden_layer[i-1][k] * internal_delta[i][j] + momentum * change_weights[i][j][k];
+                    change_weights[i][j][k] = learning_rate * hidden_layer[i - 1][k] * internal_delta[i][j] + momentum * change_weights[i][j][k];
                     all_weights[i][j][k] += change_weights[i][j][k];
                 }
             }
         }
     }
     // ===============================================
-    
 }
 void fc_m_resnet::print_weights(void)
 {
@@ -803,7 +951,7 @@ double fc_m_resnet::verify_gradient(int l, int n, int w, double adjust_weight)
     if (l > 0)
     {
         // from hidden layer
-        gradient_return = hidden_layer[l-1][w] * internal_delta[l][n];
+        gradient_return = hidden_layer[l - 1][w] * internal_delta[l][n];
     }
     else
     {
@@ -834,3 +982,59 @@ double fc_m_resnet::calc_error_verify_grad(void)
 }
 //=========================================================================================================
 //=========================================================================================================
+
+void fc_m_resnet::L1_norm(int layer)
+{
+    int size = 0;
+    double sum_of_abs_values = 0.0;
+    double near_zero = 0.00000000000000000001;
+    int outp_layer_number = hidden_layer.size();
+
+
+    if (layer < outp_layer_number)
+    {
+        size = dot_product[layer].size();
+        for (int i = 0; i < size; i++)
+        {
+            sum_of_abs_values += fabs(dot_product[layer][i]);
+        }
+        if (sum_of_abs_values == 0.0)
+        {
+            sum_of_abs_values = near_zero;
+        }
+        for (int i = 0; i < size; i++)
+        {
+            hidden_layer[layer][i] = hidden_layer[layer][i] / sum_of_abs_values;//This value is before activation function and will change later in forward pass to with the activation function
+        }
+        L1_norm_labda[0] = sum_of_abs_values;
+    }
+    else
+    {
+        //Last layer
+        size = dot_product[layer].size();//Same size as output layer
+        
+        //TODO remove this later ==========
+        //debug
+        int check_outp_size = output_layer.size();
+        if(check_outp_size !=  size)
+        {
+            cout << "debugging check_outp_size !=  size. exit program " << endl;
+            exit(0);
+        }
+        //=============remove debug this =========
+        
+        for (int i = 0; i < size; i++)
+        {
+            sum_of_abs_values += fabs(output_layer[i]);
+        }
+        if (sum_of_abs_values == 0.0)
+        {
+            sum_of_abs_values = near_zero;
+        }
+        for (int i = 0; i < size; i++)
+        {
+            output_layer[i] = output_layer[i] / sum_of_abs_values;
+        }
+        L1_norm_labda[layer + 1] = sum_of_abs_values;
+    }
+}
