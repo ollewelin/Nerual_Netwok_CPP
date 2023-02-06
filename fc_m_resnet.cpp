@@ -11,8 +11,9 @@ fc_m_resnet::fc_m_resnet(/* args */)
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 4;
+    version_minor = 5;
     // 0.0.4 fix softmax bugs
+    // 0.0.5 fix bug when block type < 2 remove loss calclulation in backprop if not end block
 
     setup_state = 0;
     nr_of_hidden_layers = 0;
@@ -656,16 +657,20 @@ void fc_m_resnet::only_loss_calculation(void)
 }
 void fc_m_resnet::backpropagtion_and_update(void)
 {
+
     int output_nodes = output_layer.size();
-    for (int dst_cnt = 0; dst_cnt < output_nodes; dst_cnt++)
+    if (block_type == 2)
     {
-        if (use_softmax == 0)
+        for (int dst_cnt = 0; dst_cnt < output_nodes; dst_cnt++)
         {
-            loss += 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
-        }
-        else
-        {
-            loss -= target_layer[dst_cnt] * log(output_layer[dst_cnt]);
+            if (use_softmax == 0)
+            {
+                loss += 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
+            }
+            else
+            {
+                loss -= target_layer[dst_cnt] * log(output_layer[dst_cnt]);
+            }
         }
     }
 
@@ -795,6 +800,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
         }
     }
     // ===============================================
+    
 }
 void fc_m_resnet::print_weights(void)
 {
