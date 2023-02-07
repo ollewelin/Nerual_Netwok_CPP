@@ -11,10 +11,11 @@ fc_m_resnet::fc_m_resnet(/* args */)
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 5;
+    version_minor = 6;
     // 0.0.4 fix softmax bugs
     // 0.0.5 fix bug when block type < 2 remove loss calclulation in backprop if not end block
-
+    // 0.0.6 fix bug at  if (block_type < 2){} add else{ .... for end block } at  void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
+    // before 0.0.6 (block_type < 2){ use_skip_connect_mode = 0; } bug always remove use_skip_connect_mode = 1
     setup_state = 0;
     nr_of_hidden_layers = 0;
     setup_inc_layer_cnt = 0;
@@ -283,6 +284,9 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             cout << "Exit program !" << endl;
             exit(0);
         }
+    }
+    else
+    {
         if (use_skip_connect_mode == 1)
         {
             cout << "ERROR! Setup error. use_skip_connect_mode ON is not allowed at End block" << endl;
@@ -677,7 +681,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
     //============ Calculated and Backpropagate output delta and neural network loss ============
     int nr_out_nodes = output_layer.size();
     int last_delta_layer_nr = internal_delta.size() - 1;
-
+    
     for (int i = 0; i < nr_out_nodes; i++)
     {
         if (block_type == 2)
@@ -685,7 +689,6 @@ void fc_m_resnet::backpropagtion_and_update(void)
             if (use_softmax == 0)
             {
                 internal_delta[last_delta_layer_nr][i] = delta_activation_func((target_layer[i] - output_layer[i]), output_layer[i]);
-                //  cout << "internal_delta[last_delta_layer_nr][i] = "<< internal_delta[last_delta_layer_nr][i] << endl;
             }
             else
             {
@@ -700,6 +703,7 @@ void fc_m_resnet::backpropagtion_and_update(void)
     //============================================================================================
 
     //============ Backpropagate hidden layer errors ============
+    int ix = 0; 
     for (int i = last_delta_layer_nr - 1; i > -1; i--) // last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
     {
         int nr_delta_nodes_dst_layer = internal_delta[i].size();
@@ -728,9 +732,11 @@ void fc_m_resnet::backpropagtion_and_update(void)
                 accumulated_backprop += all_weights[0][src_n_cnt][dst_n_cnt] * internal_delta[0][src_n_cnt];
             }
             i_layer_delta[dst_n_cnt] = accumulated_backprop;
+
         }
         if (use_skip_connect_mode == 1 && use_softmax == 0)
         {
+           // cout << "debug1" << endl;
             int src_nodes = input_layer.size();
             int dst_nodes = output_layer.size();
             if (skip_conn_in_out_relation == 0)

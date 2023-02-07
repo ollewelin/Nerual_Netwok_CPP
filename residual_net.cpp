@@ -188,33 +188,32 @@ int main()
   fc_nn_top_block.activation_function_mode = 0;
   fc_nn_top_block.use_skip_connect_mode = 1;//1 for residual network architetcture
   fc_nn_top_block.use_dopouts = 1;
-  fc_nn_top_block.dropout_proportion = 0.25;
+  fc_nn_top_block.dropout_proportion = 0.15;
 
   fc_nn_mid_block.block_type = 1;
   fc_nn_mid_block.use_softmax = 0;
   fc_nn_mid_block.activation_function_mode = 0;
   fc_nn_mid_block.use_skip_connect_mode = 1;//1 for residual network architetcture
   fc_nn_mid_block.use_dopouts = 1;
-  fc_nn_mid_block.dropout_proportion = 0.25;
+  fc_nn_mid_block.dropout_proportion = 0.15;
 
   fc_nn_end_block.block_type = 2;
   fc_nn_end_block.use_softmax = 1;
   fc_nn_end_block.activation_function_mode = 0;
-  fc_nn_end_block.use_skip_connect_mode = 1;//1 for residual network architetcture
+  fc_nn_end_block.use_skip_connect_mode = 0;//1 for residual network architetcture
   fc_nn_end_block.use_dopouts = 1;
-  fc_nn_end_block.dropout_proportion = 0.25;
+  fc_nn_end_block.dropout_proportion = 0.15;
 
   const int top_inp_nodes = MNIST_pix_size;
-  const int top_out_nodes = 20;
-  const int mid_out_nodes = 50;
+  const int top_out_nodes = 50;
+  const int mid_out_nodes = 20;
   const int end_out_nodes = 10;
-
   const int top_hid_layers = 1;
-  const int top_hid_nodes_L1 = 200;
+  const int top_hid_nodes_L1 = 300;
   const int mid_hid_layers = 1;
-  const int mid_hid_nodes_L1 = 50;
+  const int mid_hid_nodes_L1 = 20;
   const int end_hid_layers = 1;
-  const int end_hid_nodes_L1 = 25;
+  const int end_hid_nodes_L1 = 15;
   //const int end_hid_nodes_L2 = 15;
   //const int hid_nodes_L3 = 7;
   for (int i = 0; i < top_inp_nodes; i++)
@@ -236,7 +235,6 @@ int main()
     fc_nn_end_block.input_layer.push_back(0.0);
     fc_nn_mid_block.o_layer_delta.push_back(0.0);
     fc_nn_mid_block.output_layer.push_back(0.0);
-   // fc_nn_mid_block.target_layer.push_back(0.0);
     fc_nn_end_block.i_layer_delta.push_back(0.0);
   }
 
@@ -245,7 +243,6 @@ int main()
   {
     fc_nn_end_block.output_layer.push_back(0.0);
     fc_nn_end_block.target_layer.push_back(0.0);
-    fc_nn_end_block.o_layer_delta.push_back(0.0); // Not need for End block
   }
   fc_nn_top_block.set_nr_of_hidden_layers(top_hid_layers);
   fc_nn_top_block.set_nr_of_hidden_nodes_on_layer_nr(top_hid_nodes_L1);
@@ -260,17 +257,17 @@ int main()
 
   //=== Now setup the hyper parameters of the Neural Network ====
   fc_nn_top_block.momentum = 0.9;
-  fc_nn_top_block.learning_rate = 0.001;
+  fc_nn_top_block.learning_rate = 0.08;
   fc_nn_top_block.dropout_proportion = 0.15;
   fc_nn_top_block.fix_leaky_proportion = 0.05;
 
   fc_nn_mid_block.momentum = 0.9;
-  fc_nn_mid_block.learning_rate = 0.001;
+  fc_nn_mid_block.learning_rate = 0.04;
   fc_nn_mid_block.dropout_proportion = 0.15;
   fc_nn_mid_block.fix_leaky_proportion = 0.05;
 
   fc_nn_end_block.momentum = 0.9;
-  fc_nn_end_block.learning_rate = 0.001;
+  fc_nn_end_block.learning_rate = 0.01;
   fc_nn_end_block.dropout_proportion = 0.15;
   fc_nn_end_block.fix_leaky_proportion = 0.05;
 
@@ -385,6 +382,8 @@ int main()
   cout << "target_lable = " << target_lable  << endl;
 
 
+double test_one_i_delta = 0.0;
+double pre_test_one_i_delta = 0.0;
 
 //=================
 
@@ -456,7 +455,11 @@ int main()
       {
         fc_nn_top_block.o_layer_delta[j] = fc_nn_mid_block.i_layer_delta[j];
       }
-      
+      test_one_i_delta = fc_nn_top_block.o_layer_delta[0];
+      if(test_one_i_delta != pre_test_one_i_delta)
+      {
+   //     cout << "test_one_i_delta = " << test_one_i_delta << endl;
+      }
       fc_nn_top_block.backpropagtion_and_update();
       //Backpropagation though all 3 nn blocks finnish here
 
