@@ -9,7 +9,9 @@ This network consist of 3 blocks och 3 fc_m_resnet object tacked on each other
 
 `
   fc_m_resnet fc_nn_top_block;
+  
   fc_m_resnet fc_nn_mid_block;
+  
   fc_m_resnet fc_nn_end_block;
 `
 
