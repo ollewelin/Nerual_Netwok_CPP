@@ -257,12 +257,12 @@ int main()
 
   //=== Now setup the hyper parameters of the Neural Network ====
   fc_nn_top_block.momentum = 0.9;
-  fc_nn_top_block.learning_rate = 0.08;
+  fc_nn_top_block.learning_rate = 0.01;
   fc_nn_top_block.dropout_proportion = 0.15;
   fc_nn_top_block.fix_leaky_proportion = 0.05;
 
   fc_nn_mid_block.momentum = 0.9;
-  fc_nn_mid_block.learning_rate = 0.04;
+  fc_nn_mid_block.learning_rate = 0.01;
   fc_nn_mid_block.dropout_proportion = 0.15;
   fc_nn_mid_block.fix_leaky_proportion = 0.05;
 
