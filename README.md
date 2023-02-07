@@ -20,7 +20,9 @@ This network consist of 3 blocks och 3 fc_m_resnet object tacked on each other
  
  `use_skip_connect_mode = 1` enable skip residulal connections
  
- `fc_nn_end_bloc` dont have skip capability yet in version 0.0.6 will be added later 
+ `block_type` set if the `fc_m_resnet` is a top, mid or end block. It is possible to stack many mid blocks with residual skip connections
+ 
+ `fc_nn_end_block` dont have skip capability yet in version 0.0.6 will be added later 
 
 ![](residual_net_7_layer_in_total_c.png)
 
