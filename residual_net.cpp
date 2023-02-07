@@ -488,8 +488,8 @@ double pre_test_one_i_delta = 0.0;
     {
       save_epoc_counter = 0;
       fc_nn_end_block.save_weights(weight_filename_end);
-      fc_nn_end_block.save_weights(weight_filename_mid);
-      fc_nn_end_block.save_weights(weight_filename_top);
+      fc_nn_mid_block.save_weights(weight_filename_mid);
+      fc_nn_top_block.save_weights(weight_filename_top);
     }
   }
 
