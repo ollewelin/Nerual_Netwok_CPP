@@ -23,7 +23,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  There are skip residual connection betwheen the input side of `fc_nn_end_block` and output side of `fc_nn_top_block` 
  to make a residual connection for not vanishing gradient esspecial if many mid blocks are stacked 
  
- The residual_net.cpp net seems to works and stady converge during training.
+ The residual_net.cpp net seems to works and steady converge during training.
  The could be arbriatary size of input output nodes of all blocks even when use skip residual connection enabled
  `o_layer_delta`and `i_layer_delta` link the backpropagation betwheen each `fc_m_resnet` object block 
  
