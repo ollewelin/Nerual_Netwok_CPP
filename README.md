@@ -11,7 +11,13 @@ This network consist of 3 blocks och 3 fc_m_resnet object tacked on each other
     fc_m_resnet fc_nn_mid_block;
     fc_m_resnet fc_nn_end_block;
 
-### Change Makefile 
+### Change Makefile to residual_net.cpp
+
+    #SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
+    #PROG = main
+
+    SRCS = residual_net.cpp fc_m_resnet.cpp 
+    PROG = residual_net
 
 
  There are skip residual connection betwheen the input side of `fc_nn_end_block` and output side of `fc_nn_top_block` 
