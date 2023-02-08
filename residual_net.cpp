@@ -188,22 +188,19 @@ int main()
   fc_nn_top_block.activation_function_mode = 0;
   fc_nn_top_block.use_skip_connect_mode = 1;//1 for residual network architetcture
   fc_nn_top_block.use_dopouts = 1;
-  fc_nn_top_block.dropout_proportion = 0.15;
-
+ 
   fc_nn_mid_block.block_type = 1;
   fc_nn_mid_block.use_softmax = 0;
   fc_nn_mid_block.activation_function_mode = 0;
   fc_nn_mid_block.use_skip_connect_mode = 1;//1 for residual network architetcture
   fc_nn_mid_block.use_dopouts = 1;
-  fc_nn_mid_block.dropout_proportion = 0.15;
-
+ 
   fc_nn_end_block.block_type = 2;
   fc_nn_end_block.use_softmax = 1;
   fc_nn_end_block.activation_function_mode = 0;
   fc_nn_end_block.use_skip_connect_mode = 0;//1 for residual network architetcture
   fc_nn_end_block.use_dopouts = 1;
-  fc_nn_end_block.dropout_proportion = 0.15;
-
+ 
   const int top_inp_nodes = MNIST_pix_size;
   const int top_out_nodes = 50;
   const int mid_out_nodes = 20;
@@ -257,19 +254,16 @@ int main()
 
   //=== Now setup the hyper parameters of the Neural Network ====
   fc_nn_top_block.momentum = 0.9;
-  fc_nn_top_block.learning_rate = 0.01;
+  fc_nn_top_block.learning_rate = 0.02;
   fc_nn_top_block.dropout_proportion = 0.15;
-  fc_nn_top_block.fix_leaky_proportion = 0.05;
 
   fc_nn_mid_block.momentum = 0.9;
-  fc_nn_mid_block.learning_rate = 0.01;
+  fc_nn_mid_block.learning_rate = 0.004;
   fc_nn_mid_block.dropout_proportion = 0.15;
-  fc_nn_mid_block.fix_leaky_proportion = 0.05;
 
   fc_nn_end_block.momentum = 0.9;
-  fc_nn_end_block.learning_rate = 0.01;
-  fc_nn_end_block.dropout_proportion = 0.15;
-  fc_nn_end_block.fix_leaky_proportion = 0.05;
+  fc_nn_end_block.learning_rate = 0.001;
+  fc_nn_end_block.dropout_proportion = 0.10;
 
   double init_random_weight_propotion = 0.05;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
