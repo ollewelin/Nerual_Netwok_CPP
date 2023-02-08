@@ -255,9 +255,9 @@ int main()
   //=== Now setup the hyper parameters of the Neural Network ====
 
   int use_constraint_block_training = 0;
-  const double learning_rate_top = 0.08;
-  const double learning_rate_mid = 0.01;
-  const double learning_rate_end = 0.002;
+  const double learning_rate_top = 0.02;
+  const double learning_rate_mid = 0.005;
+  const double learning_rate_end = 0.001;
 
   fc_nn_top_block.momentum = 0.9;
   fc_nn_top_block.learning_rate = learning_rate_top;
