@@ -25,7 +25,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  The residual_net.cpp net seems to works and steady converge during training.
  The could be arbriatary size of input output nodes of all blocks even when use skip residual connection enabled
- `o_layer_delta`and `i_layer_delta` link the backpropagation betwheen each `fc_m_resnet` object block 
+ `o_layer_delta`and `i_layer_delta` link the backpropagation between each `fc_m_resnet` object block 
  
  `use_skip_connect_mode = 1` enable skip residulal connections
  
