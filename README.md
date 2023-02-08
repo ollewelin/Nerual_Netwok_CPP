@@ -33,25 +33,35 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  `fc_nn_end_block` dont have skip capability yet in version 0.0.6 will be added later 
  
-    Epoch ----7
-    input node --- [0] = 4
-    Epoch 7
-    input node [0] = 3.99999
-    Output node [0] = 1.77957e-12  Target node [0] = 0
-    Output node [1] = 0.996692  Target node [1] = 1
-    Output node [2] = 0.000245848  Target node [2] = 0
-    Output node [3] = 5.00665e-06  Target node [3] = 0
-    Output node [4] = 2.49884e-06  Target node [4] = 0
-    Output node [5] = 3.09979e-11  Target node [5] = 0
-    Output node [6] = 8.42957e-12  Target node [6] = 0
-    Output node [7] = 0.00284546  Target node [7] = 0
-    Output node [8] = 0.000163695  Target node [8] = 0
-    Output node [9] = 4.53285e-05  Target node [9] = 0
-    Training loss = 20016.3
-    correct_classify_cnt = 54752
-    correct_ratio = 91.2533
-    Epoch ----8
-    input node --- [0] = 3.99999
+ ## Here trained on MNIST Fashion dataset not the downloaded MNIST digits 
+ 
+    Training loss = 21671.6
+    correct_classify_cnt = 52173
+    correct_ratio = 86.955
+    Epoch ----19
+    input node --- [0] = 0.795827
+    Epoch 19
+    input node [0] = 0.151538
+    Output node [0] = 0.0851303  Target node [0] = 0
+    Output node [1] = 0.00915264  Target node [1] = 0
+    Output node [2] = 0.691792  Target node [2] = 1
+    Output node [3] = 0.0190685  Target node [3] = 0
+    Output node [4] = 0.120822  Target node [4] = 0
+    Output node [5] = 6.02811e-05  Target node [5] = 0
+    Output node [6] = 0.0738069  Target node [6] = 0
+    Output node [7] = 3.25776e-05  Target node [7] = 0
+    Output node [8] = 7.37132e-05  Target node [8] = 0
+    Output node [9] = 6.13079e-05  Target node [9] = 0
+    Training loss = 21475.6
+    correct_classify_cnt = 52252
+    correct_ratio = 87.0867
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Epoch ----20
 
 ![](residual_net_7_layer_in_total_c.png)
 
