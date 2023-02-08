@@ -186,7 +186,7 @@ int main()
   fc_nn_top_block.block_type = 0;
   fc_nn_top_block.use_softmax = 0;
   fc_nn_top_block.activation_function_mode = 0;
-  fc_nn_top_block.use_skip_connect_mode = 1;//1 for residual network architetcture
+  fc_nn_top_block.use_skip_connect_mode = 0;//1 for residual network architetcture
   fc_nn_top_block.use_dopouts = 1;
  
   fc_nn_mid_block.block_type = 1;
@@ -255,19 +255,19 @@ int main()
   //=== Now setup the hyper parameters of the Neural Network ====
 
   int use_constraint_block_training = 0;
-  const double learning_rate_top = 0.02;
-  const double learning_rate_mid = 0.005;
+  const double learning_rate_top = 0.01;
+  const double learning_rate_mid = 0.002;
   const double learning_rate_end = 0.001;
 
-  fc_nn_top_block.momentum = 0.9;
+  fc_nn_top_block.momentum = 0.95;
   fc_nn_top_block.learning_rate = learning_rate_top;
   fc_nn_top_block.dropout_proportion = 0.15;
 
-  fc_nn_mid_block.momentum = 0.9;
+  fc_nn_mid_block.momentum = 0.95;
   fc_nn_mid_block.learning_rate = learning_rate_mid;
   fc_nn_mid_block.dropout_proportion = 0.15;
 
-  fc_nn_end_block.momentum = 0.9;
+  fc_nn_end_block.momentum = 0.95;
   fc_nn_end_block.learning_rate = learning_rate_end;
   fc_nn_end_block.dropout_proportion = 0.10;
 
