@@ -199,16 +199,18 @@ int main()
   fc_nn_end_block.use_softmax = 1;
   fc_nn_end_block.activation_function_mode = 0;
   fc_nn_end_block.use_skip_connect_mode = 0;//1 for residual network architetcture
-  fc_nn_end_block.use_dopouts = 1;
+  fc_nn_end_block.use_dopouts = 0;
  
   const int top_inp_nodes = MNIST_pix_size;
-  const int top_out_nodes = 50;
-  const int mid_out_nodes = 20;
+  const int top_out_nodes = 30;
+  const int mid_out_nodes = 30;
   const int end_out_nodes = 10;
   const int top_hid_layers = 1;
   const int top_hid_nodes_L1 = 300;
-  const int mid_hid_layers = 1;
-  const int mid_hid_nodes_L1 = 20;
+  const int mid_hid_layers = 3;
+  const int mid_hid_nodes_L1 = 30;
+  const int mid_hid_nodes_L2 = 50;
+  const int mid_hid_nodes_L3 = 30;
   const int end_hid_layers = 1;
   const int end_hid_nodes_L1 = 15;
   //const int end_hid_nodes_L2 = 15;
@@ -245,6 +247,8 @@ int main()
   fc_nn_top_block.set_nr_of_hidden_nodes_on_layer_nr(top_hid_nodes_L1);
   fc_nn_mid_block.set_nr_of_hidden_layers(mid_hid_layers);
   fc_nn_mid_block.set_nr_of_hidden_nodes_on_layer_nr(mid_hid_nodes_L1);
+  fc_nn_mid_block.set_nr_of_hidden_nodes_on_layer_nr(mid_hid_nodes_L2);  
+  fc_nn_mid_block.set_nr_of_hidden_nodes_on_layer_nr(mid_hid_nodes_L3);
   fc_nn_end_block.set_nr_of_hidden_layers(end_hid_layers);
   fc_nn_end_block.set_nr_of_hidden_nodes_on_layer_nr(end_hid_nodes_L1);
   //fc_nn_end_block.set_nr_of_hidden_nodes_on_layer_nr(end_hid_nodes_L2);
@@ -256,18 +260,18 @@ int main()
 
   int use_constraint_block_training = 0;
   const double learning_rate_top = 0.01;
-  const double learning_rate_mid = 0.002;
-  const double learning_rate_end = 0.001;
+  const double learning_rate_mid = 0.01;
+  const double learning_rate_end = 0.01;
 
-  fc_nn_top_block.momentum = 0.95;
+  fc_nn_top_block.momentum = 0.3;
   fc_nn_top_block.learning_rate = learning_rate_top;
   fc_nn_top_block.dropout_proportion = 0.15;
 
-  fc_nn_mid_block.momentum = 0.95;
+  fc_nn_mid_block.momentum = 0.3;
   fc_nn_mid_block.learning_rate = learning_rate_mid;
   fc_nn_mid_block.dropout_proportion = 0.15;
 
-  fc_nn_end_block.momentum = 0.95;
+  fc_nn_end_block.momentum = 0.3;
   fc_nn_end_block.learning_rate = learning_rate_end;
   fc_nn_end_block.dropout_proportion = 0.10;
 
@@ -416,11 +420,13 @@ double pre_test_one_i_delta = 0.0;
       {
         fc_nn_mid_block.input_layer[j] = fc_nn_top_block.output_layer[j];
       }
+      
       fc_nn_mid_block.forward_pass();
       for (int j = 0; j < mid_out_nodes; j++)
       {
         fc_nn_end_block.input_layer[j] = fc_nn_mid_block.output_layer[j];
       }
+      
       fc_nn_end_block.forward_pass();
       //Forward pass though all 3 nn blocks finnish
 
@@ -485,6 +491,7 @@ double pre_test_one_i_delta = 0.0;
       {
         fc_nn_top_block.o_layer_delta[j] = fc_nn_mid_block.i_layer_delta[j];
       }
+
       fc_nn_top_block.backpropagtion_and_update();
       //Backpropagation though all 3 nn blocks finnish here
 
