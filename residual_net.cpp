@@ -253,16 +253,22 @@ int main()
   //============ Neural Network Size setup is finnish ! ==================
 
   //=== Now setup the hyper parameters of the Neural Network ====
+
+  int use_constraint_block_training = 1;
+  const double learning_rate_top = 0.02;
+  const double learning_rate_mid = 0.004;
+  const double learning_rate_end = 0.001;
+
   fc_nn_top_block.momentum = 0.9;
-  fc_nn_top_block.learning_rate = 0.02;
+  fc_nn_top_block.learning_rate = learning_rate_top;
   fc_nn_top_block.dropout_proportion = 0.15;
 
   fc_nn_mid_block.momentum = 0.9;
-  fc_nn_mid_block.learning_rate = 0.004;
+  fc_nn_mid_block.learning_rate = learning_rate_mid;
   fc_nn_mid_block.dropout_proportion = 0.15;
 
   fc_nn_end_block.momentum = 0.9;
-  fc_nn_end_block.learning_rate = 0.001;
+  fc_nn_end_block.learning_rate = learning_rate_end;
   fc_nn_end_block.dropout_proportion = 0.10;
 
   double init_random_weight_propotion = 0.05;
@@ -438,6 +444,36 @@ double pre_test_one_i_delta = 0.0;
       }
       
       //Backpropagation though all 3 nn blocks
+      int learn_block_nr = 0;
+      if(use_constraint_block_training == 1)
+      {
+        if(learn_block_nr > 1)
+        {
+          learn_block_nr = 0;
+        }
+        else
+        {
+          learn_block_nr++;
+        }
+        fc_nn_top_block.learning_rate = 0.0;
+        fc_nn_mid_block.learning_rate = 0.0;
+        fc_nn_end_block.learning_rate = 0.0;
+
+        if(learn_block_nr == 0)
+        {
+          fc_nn_top_block.learning_rate = learning_rate_top;
+        }
+        if(learn_block_nr == 1)
+        {
+          fc_nn_mid_block.learning_rate = learning_rate_mid;
+        }
+        if(learn_block_nr == 2)
+        {
+          fc_nn_end_block.learning_rate = learning_rate_end;
+        }
+
+      }
+
       fc_nn_end_block.backpropagtion_and_update();
       for (int j = 0; j < mid_out_nodes; j++)
       {
@@ -448,11 +484,6 @@ double pre_test_one_i_delta = 0.0;
       for (int j = 0; j < top_out_nodes; j++)
       {
         fc_nn_top_block.o_layer_delta[j] = fc_nn_mid_block.i_layer_delta[j];
-      }
-      test_one_i_delta = fc_nn_top_block.o_layer_delta[0];
-      if(test_one_i_delta != pre_test_one_i_delta)
-      {
-   //     cout << "test_one_i_delta = " << test_one_i_delta << endl;
       }
       fc_nn_top_block.backpropagtion_and_update();
       //Backpropagation though all 3 nn blocks finnish here
