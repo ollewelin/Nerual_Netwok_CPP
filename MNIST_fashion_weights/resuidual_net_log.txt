@@ -269,6 +269,357 @@ Save data weights ...
 Save data finnish !
 Epoch ----10
 input node --- [0] = 0.0132451
+Epoch 10
+input node [0] = 0.650152
+Output node [0] = 0.000392187  Target node [0] = 0
+Output node [1] = 0.00107542  Target node [1] = 0
+Output node [2] = 0.109649  Target node [2] = 0
+Output node [3] = 0.0161796  Target node [3] = 0
+Output node [4] = 0.852122  Target node [4] = 1
+Output node [5] = 0.000416337  Target node [5] = 0
+Output node [6] = 0.0145991  Target node [6] = 0
+Output node [7] = 0.000767254  Target node [7] = 0
+Output node [8] = 0.00472532  Target node [8] = 0
+Output node [9] = 7.40088e-05  Target node [9] = 0
+Training loss = 21806.9
+correct_classify_cnt = 52284
+correct_ratio = 87.14
+Epoch ----11
+input node --- [0] = 0.650152
+Epoch 11
+input node [0] = 0.0081181
+Output node [0] = 2.97629e-06  Target node [0] = 0
+Output node [1] = 2.47026e-06  Target node [1] = 0
+Output node [2] = 4.74876e-06  Target node [2] = 0
+Output node [3] = 0.000299717  Target node [3] = 0
+Output node [4] = 2.95841e-05  Target node [4] = 0
+Output node [5] = 0.998535  Target node [5] = 1
+Output node [6] = 4.63131e-06  Target node [6] = 0
+Output node [7] = 0.000248731  Target node [7] = 0
+Output node [8] = 0.000441077  Target node [8] = 0
+Output node [9] = 0.000431241  Target node [9] = 0
+Training loss = 21112.1
+correct_classify_cnt = 52467
+correct_ratio = 87.445
+Epoch ----12
+input node --- [0] = 0.0081181
+Epoch 12
+input node [0] = 0.0151863
+Output node [0] = 1.11982e-08  Target node [0] = 0
+Output node [1] = 1.27205e-08  Target node [1] = 0
+Output node [2] = 1.13294e-08  Target node [2] = 0
+Output node [3] = 1.4855e-06  Target node [3] = 0
+Output node [4] = 1.42857e-07  Target node [4] = 0
+Output node [5] = 2.85281e-05  Target node [5] = 0
+Output node [6] = 6.40843e-08  Target node [6] = 0
+Output node [7] = 0.00233354  Target node [7] = 0
+Output node [8] = 2.60025e-06  Target node [8] = 0
+Output node [9] = 0.997634  Target node [9] = 1
+Training loss = 20434.1
+correct_classify_cnt = 52670
+correct_ratio = 87.7833
+Epoch ----13
+input node --- [0] = 0.0151863
+Epoch 13
+input node [0] = 0.0289202
+Output node [0] = 4.21817e-08  Target node [0] = 0
+Output node [1] = 4.09253e-08  Target node [1] = 0
+Output node [2] = 3.02775e-08  Target node [2] = 0
+Output node [3] = 4.32927e-06  Target node [3] = 0
+Output node [4] = 4.50124e-07  Target node [4] = 0
+Output node [5] = 0.00028005  Target node [5] = 0
+Output node [6] = 1.56859e-07  Target node [6] = 0
+Output node [7] = 0.014702  Target node [7] = 0
+Output node [8] = 8.13311e-06  Target node [8] = 0
+Output node [9] = 0.985005  Target node [9] = 1
+Training loss = 20006
+correct_classify_cnt = 52764
+correct_ratio = 87.94
+Epoch ----14
+input node --- [0] = 0.0289202
+Epoch 14
+input node [0] = 0.631948
+Output node [0] = 0.00253419  Target node [0] = 0
+Output node [1] = 0.0013524  Target node [1] = 0
+Output node [2] = 0.368543  Target node [2] = 0
+Output node [3] = 0.00395566  Target node [3] = 0
+Output node [4] = 0.270979  Target node [4] = 1
+Output node [5] = 0.000133813  Target node [5] = 0
+Output node [6] = 0.343014  Target node [6] = 0
+Output node [7] = 0.000112685  Target node [7] = 0
+Output node [8] = 0.00936941  Target node [8] = 0
+Output node [9] = 5.72666e-06  Target node [9] = 0
+Training loss = 19380.6
+correct_classify_cnt = 53023
+correct_ratio = 88.3717
+Epoch ----15
+input node --- [0] = 0.631948
+Epoch 15
+input node [0] = 1.44497
+Output node [0] = 0.000230183  Target node [0] = 0
+Output node [1] = 0.000837489  Target node [1] = 0
+Output node [2] = 0.316785  Target node [2] = 0
+Output node [3] = 0.00630915  Target node [3] = 0
+Output node [4] = 0.667426  Target node [4] = 1
+Output node [5] = 6.6975e-06  Target node [5] = 0
+Output node [6] = 0.00811728  Target node [6] = 0
+Output node [7] = 5.94672e-05  Target node [7] = 0
+Output node [8] = 0.000225318  Target node [8] = 0
+Output node [9] = 3.05107e-06  Target node [9] = 0
+Training loss = 19022.3
+correct_classify_cnt = 53152
+correct_ratio = 88.5867
+Epoch ----16
+input node --- [0] = 1.44497
+Epoch 16
+input node [0] = 1.87022
+Output node [0] = 0.000681392  Target node [0] = 0
+Output node [1] = 0.998282  Target node [1] = 1
+Output node [2] = 0.00012074  Target node [2] = 0
+Output node [3] = 0.000755392  Target node [3] = 0
+Output node [4] = 1.13621e-05  Target node [4] = 0
+Output node [5] = 2.83569e-07  Target node [5] = 0
+Output node [6] = 0.00014391  Target node [6] = 0
+Output node [7] = 4.12152e-07  Target node [7] = 0
+Output node [8] = 4.02551e-06  Target node [8] = 0
+Output node [9] = 2.88032e-07  Target node [9] = 0
+Training loss = 18584
+correct_classify_cnt = 53306
+correct_ratio = 88.8433
+Epoch ----17
+input node --- [0] = 1.87022
+Epoch 17
+input node [0] = 0.0225262
+Output node [0] = 1.42738e-05  Target node [0] = 0
+Output node [1] = 2.72439e-06  Target node [1] = 0
+Output node [2] = 7.95874e-06  Target node [2] = 0
+Output node [3] = 0.000190915  Target node [3] = 0
+Output node [4] = 1.12691e-05  Target node [4] = 0
+Output node [5] = 0.999145  Target node [5] = 1
+Output node [6] = 1.13121e-05  Target node [6] = 0
+Output node [7] = 0.000154787  Target node [7] = 0
+Output node [8] = 0.000343899  Target node [8] = 0
+Output node [9] = 0.000117554  Target node [9] = 0
+Training loss = 18176.3
+correct_classify_cnt = 53422
+correct_ratio = 89.0367
+Epoch ----18
+input node --- [0] = 0.0225262
+Epoch 18
+input node [0] = 0.394221
+Output node [0] = 0.0881166  Target node [0] = 0
+Output node [1] = 0.0202338  Target node [1] = 0
+Output node [2] = 0.0375733  Target node [2] = 0
+Output node [3] = 0.399185  Target node [3] = 0
+Output node [4] = 0.129516  Target node [4] = 0
+Output node [5] = 0.000283651  Target node [5] = 0
+Output node [6] = 0.304563  Target node [6] = 1
+Output node [7] = 0.000367764  Target node [7] = 0
+Output node [8] = 0.0199879  Target node [8] = 0
+Output node [9] = 0.000173308  Target node [9] = 0
+Training loss = 17885.2
+correct_classify_cnt = 53506
+correct_ratio = 89.1767
+Epoch ----19
+input node --- [0] = 0.394221
+Epoch 19
+input node [0] = 0.244456
+Output node [0] = 0.00162881  Target node [0] = 0
+Output node [1] = 8.03862e-05  Target node [1] = 0
+Output node [2] = 0.000404643  Target node [2] = 0
+Output node [3] = 0.00019639  Target node [3] = 0
+Output node [4] = 0.000182164  Target node [4] = 0
+Output node [5] = 0.000209808  Target node [5] = 0
+Output node [6] = 0.00203273  Target node [6] = 0
+Output node [7] = 4.60761e-05  Target node [7] = 0
+Output node [8] = 0.994589  Target node [8] = 1
+Output node [9] = 0.000629997  Target node [9] = 0
+Training loss = 17565.2
+correct_classify_cnt = 53589
+correct_ratio = 89.315
+Save data weights ...
+Save data finnish !
+Save data weights ...
+Save data finnish !
+Save data weights ...
+Save data finnish !
+Epoch ----20
+input node --- [0] = 0.244456
+Epoch 20
+input node [0] = 1.75113
+Output node [0] = 0.00028441  Target node [0] = 0
+Output node [1] = 0.998513  Target node [1] = 1
+Output node [2] = 7.44641e-05  Target node [2] = 0
+Output node [3] = 0.000991455  Target node [3] = 0
+Output node [4] = 2.99628e-05  Target node [4] = 0
+Output node [5] = 2.84374e-07  Target node [5] = 0
+Output node [6] = 0.000101318  Target node [6] = 0
+Output node [7] = 4.30303e-07  Target node [7] = 0
+Output node [8] = 4.46497e-06  Target node [8] = 0
+Output node [9] = 2.17576e-07  Target node [9] = 0
+Training loss = 17328.1
+correct_classify_cnt = 53714
+correct_ratio = 89.5233
+Epoch ----21
+input node --- [0] = 1.75113
+Epoch 21
+input node [0] = 1.75708
+Output node [0] = 0.000271332  Target node [0] = 0
+Output node [1] = 0.998778  Target node [1] = 1
+Output node [2] = 8.46536e-05  Target node [2] = 0
+Output node [3] = 0.000732666  Target node [3] = 0
+Output node [4] = 2.36e-05  Target node [4] = 0
+Output node [5] = 2.74501e-07  Target node [5] = 0
+Output node [6] = 0.000104635  Target node [6] = 0
+Output node [7] = 3.83439e-07  Target node [7] = 0
+Output node [8] = 4.36951e-06  Target node [8] = 0
+Output node [9] = 1.97461e-07  Target node [9] = 0
+Training loss = 17033.2
+correct_classify_cnt = 53822
+correct_ratio = 89.7033
+Epoch ----22
+input node --- [0] = 1.75708
+Epoch 22
+input node [0] = 1.06606
+Output node [0] = 1.37747e-05  Target node [0] = 0
+Output node [1] = 0.000162615  Target node [1] = 0
+Output node [2] = 0.0304322  Target node [2] = 0
+Output node [3] = 0.00378873  Target node [3] = 0
+Output node [4] = 0.962916  Target node [4] = 1
+Output node [5] = 3.77458e-06  Target node [5] = 0
+Output node [6] = 0.0021242  Target node [6] = 0
+Output node [7] = 0.00021395  Target node [7] = 0
+Output node [8] = 0.000336056  Target node [8] = 0
+Output node [9] = 8.44952e-06  Target node [9] = 0
+Training loss = 16769.6
+correct_classify_cnt = 53868
+correct_ratio = 89.78
+Epoch ----23
+input node --- [0] = 1.06606
+Epoch 23
+input node [0] = 0.0407969
+Output node [0] = 1.30107e-07  Target node [0] = 0
+Output node [1] = 1.20336e-06  Target node [1] = 0
+Output node [2] = 1.80971e-06  Target node [2] = 0
+Output node [3] = 1.50464e-05  Target node [3] = 0
+Output node [4] = 6.88017e-05  Target node [4] = 0
+Output node [5] = 0.0137134  Target node [5] = 0
+Output node [6] = 1.33828e-06  Target node [6] = 0
+Output node [7] = 0.984099  Target node [7] = 1
+Output node [8] = 0.000459663  Target node [8] = 0
+Output node [9] = 0.00163971  Target node [9] = 0
+Training loss = 16507.5
+correct_classify_cnt = 53987
+correct_ratio = 89.9783
+Epoch ----24
+input node --- [0] = 0.0407969
+Epoch 24
+input node [0] = 0.0739151
+Output node [0] = 0.954745  Target node [0] = 1
+Output node [1] = 0.000626423  Target node [1] = 0
+Output node [2] = 0.00303654  Target node [2] = 0
+Output node [3] = 0.00225403  Target node [3] = 0
+Output node [4] = 1.92776e-05  Target node [4] = 0
+Output node [5] = 3.5288e-07  Target node [5] = 0
+Output node [6] = 0.0392541  Target node [6] = 0
+Output node [7] = 6.63877e-08  Target node [7] = 0
+Output node [8] = 5.84314e-05  Target node [8] = 0
+Output node [9] = 5.88532e-06  Target node [9] = 0
+Training loss = 16203.7
+correct_classify_cnt = 54055
+correct_ratio = 90.0917
+Epoch ----25
+input node --- [0] = 0.0739151
+Epoch 25
+input node [0] = 0.521843
+Output node [0] = 0.982523  Target node [0] = 1
+Output node [1] = 0.00044287  Target node [1] = 0
+Output node [2] = 0.0030596  Target node [2] = 0
+Output node [3] = 0.0012354  Target node [3] = 0
+Output node [4] = 1.01816e-05  Target node [4] = 0
+Output node [5] = 9.98035e-08  Target node [5] = 0
+Output node [6] = 0.0126998  Target node [6] = 0
+Output node [7] = 3.56056e-08  Target node [7] = 0
+Output node [8] = 2.65913e-05  Target node [8] = 0
+Output node [9] = 2.89063e-06  Target node [9] = 0
+Training loss = 15984.2
+correct_classify_cnt = 54180
+correct_ratio = 90.3
+Epoch ----26
+input node --- [0] = 0.521843
+Epoch 26
+input node [0] = 0.260985
+Output node [0] = 0.00171317  Target node [0] = 0
+Output node [1] = 7.92125e-05  Target node [1] = 0
+Output node [2] = 0.0044318  Target node [2] = 0
+Output node [3] = 0.000387511  Target node [3] = 0
+Output node [4] = 0.00485659  Target node [4] = 0
+Output node [5] = 7.26556e-06  Target node [5] = 0
+Output node [6] = 0.988036  Target node [6] = 1
+Output node [7] = 5.10449e-07  Target node [7] = 0
+Output node [8] = 0.000168152  Target node [8] = 0
+Output node [9] = 0.000319667  Target node [9] = 0
+Training loss = 15764.7
+correct_classify_cnt = 54252
+correct_ratio = 90.42
+Epoch ----27
+input node --- [0] = 0.260985
+Epoch 27
+input node [0] = 0.0932509
+Output node [0] = 0.00103626  Target node [0] = 0
+Output node [1] = 0.000624966  Target node [1] = 0
+Output node [2] = 0.00224347  Target node [2] = 0
+Output node [3] = 0.00374628  Target node [3] = 0
+Output node [4] = 0.00052374  Target node [4] = 0
+Output node [5] = 0.986677  Target node [5] = 1
+Output node [6] = 0.00290526  Target node [6] = 0
+Output node [7] = 0.00173864  Target node [7] = 0
+Output node [8] = 0.000486144  Target node [8] = 0
+Output node [9] = 1.85395e-05  Target node [9] = 0
+Training loss = 15502.5
+correct_classify_cnt = 54307
+correct_ratio = 90.5117
+Epoch ----28
+input node --- [0] = 0.0932509
+Epoch 28
+input node [0] = 0.108294
+Output node [0] = 0.0393516  Target node [0] = 0
+Output node [1] = 0.00813377  Target node [1] = 0
+Output node [2] = 0.000666988  Target node [2] = 0
+Output node [3] = 0.907445  Target node [3] = 1
+Output node [4] = 0.00256446  Target node [4] = 0
+Output node [5] = 0.00333684  Target node [5] = 0
+Output node [6] = 0.0262215  Target node [6] = 0
+Output node [7] = 0.000154383  Target node [7] = 0
+Output node [8] = 0.011071  Target node [8] = 0
+Output node [9] = 0.00105497  Target node [9] = 0
+Training loss = 15314.1
+correct_classify_cnt = 54348
+correct_ratio = 90.58
+Epoch ----29
+input node --- [0] = 0.108294
+Epoch 29
+input node [0] = 0.113033
+Output node [0] = 1.63473e-05  Target node [0] = 0
+Output node [1] = 6.14188e-06  Target node [1] = 0
+Output node [2] = 7.39088e-05  Target node [2] = 0
+Output node [3] = 2.77774e-05  Target node [3] = 0
+Output node [4] = 1.61317e-05  Target node [4] = 0
+Output node [5] = 0.998971  Target node [5] = 1
+Output node [6] = 2.79496e-05  Target node [6] = 0
+Output node [7] = 0.000640066  Target node [7] = 0
+Output node [8] = 0.000217415  Target node [8] = 0
+Output node [9] = 3.73026e-06  Target node [9] = 0
+Training loss = 15042.7
+correct_classify_cnt = 54433
+correct_ratio = 90.7217
+Save data weights ...
+Save data finnish !
+Save data weights ...
+Save data finnish !
+Save data weights ...
+Save data finnish !
+Epoch ----30
 
 
 
