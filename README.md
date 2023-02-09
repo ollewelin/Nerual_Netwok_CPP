@@ -77,7 +77,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  ## Examples of diffrent input / output skip connections of a mid block.
  
- Note that this is only ilustation of `fc_nn_mid_block` 
+ Note that this is only illustation of `fc_nn_mid_block` 
  You can stack arbitrary numbers of skip connected mid `fc_nn_mid_block`.
  `fc_nn_end_block` and `fc_nn_top_block` dont have skip capability. 
  
