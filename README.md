@@ -50,79 +50,79 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
 
 ### test structure of residual_net in MNIST_fasshion_weights
 
-General Neural Network Residual net test Beta version under work...
-3 stackaed nn blocks with residual connections 
-file_size 47040016
-MNIST_file_size = 47040016
-train.. or t10k.. ..-images-idx3-ubyte file is successfully loaded in to MNIST_data[MN_index] memory
-file_size 60008
-train... or t10k...  ...-labels-idx1-ubyte file is successfully loaded in to MNIST_lable[MN_index] memory
-fc_m_resnet Constructor
-Seed radomizer done
-fc_m_resnet Constructor
-Seed radomizer done
-fc_m_resnet Constructor
-Seed radomizer done
-Fully connected residual neural network object
-fc_m_resnet object version : 0.0.6
- Number of hidden layers is set to = 1
-Size of hidden_layer[0][x] = 300
-hidden_layer vector is now set up
-Now setup all_weight, change_weights vectors size of this fc block
-Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 785
-Size of temporary dummy_1D_weight_vector last hidden layer connection[0] is = 301
-The size of all_weight and change_weights in now setup OK !
-Note that the program how call this object could only set this size once. No protections against change size of the public vectors
-Setup state = 2
-Size of layer dimentions[] of weights at the this nn block = 2
-Size of node dimentions[][] of weights for hidden layer number 0 is: 300
-Size of weight dimentions[][][] of weights for hidden layer number 0 is: 785
-Size of node dimentions[][] of weights for hidden layer number 1 is: 50
-Size of weight dimentions[][][] of weights for hidden layer number 1 is: 301
- Number of hidden layers is set to = 3
-Size of hidden_layer[0][x] = 50
-==== Skip connection is used ====
-input_layer.size() = 50
-output_layer.size() = 30
-skip_conn_multiple_part = 1
-skip_conn_rest_part = 20
-Size of hidden_layer[1][x] = 50
-==== Skip connection is used ====
-input_layer.size() = 50
-output_layer.size() = 30
-skip_conn_multiple_part = 1
-skip_conn_rest_part = 20
-Size of hidden_layer[2][x] = 30
-hidden_layer vector is now set up
-Now setup all_weight, change_weights vectors size of this fc block
-Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 51
-Size of temporary dummy_1D_weight_vector from hidden layer connection[1] is = 51
-Size of temporary dummy_1D_weight_vector from hidden layer connection[2] is = 51
-Size of temporary dummy_1D_weight_vector last hidden layer connection[2] is = 31
-The size of all_weight and change_weights in now setup OK !
-Note that the program how call this object could only set this size once. No protections against change size of the public vectors
-Setup state = 2
-Size of layer dimentions[] of weights at the this nn block = 4
-Size of node dimentions[][] of weights for hidden layer number 0 is: 50
-Size of weight dimentions[][][] of weights for hidden layer number 0 is: 51
-Size of node dimentions[][] of weights for hidden layer number 1 is: 50
-Size of weight dimentions[][][] of weights for hidden layer number 1 is: 51
-Size of node dimentions[][] of weights for hidden layer number 2 is: 30
-Size of weight dimentions[][][] of weights for hidden layer number 2 is: 51
-Size of node dimentions[][] of weights for hidden layer number 3 is: 30
-Size of weight dimentions[][][] of weights for hidden layer number 3 is: 31
-==== Skip connection is used ====
-input_layer.size() = 50
-output_layer.size() = 30
-skip_conn_multiple_part = 1
-skip_conn_rest_part = 20
- Number of hidden layers is set to = 1
-Size of hidden_layer[0][x] = 15
-hidden_layer vector is now set up
-Now setup all_weight, change_weights vectors size of this fc block
-Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 31
-Size of temporary dummy_1D_weight_vector last hidden layer connection[0] is = 16
-The size of all_weight and change_weights in now setup OK !
-Note that the program how call this object could only set this size once. No protections against change size of the public vectors
-Setup state = 2
-
+    General Neural Network Residual net test Beta version under work...
+    3 stackaed nn blocks with residual connections 
+    file_size 47040016
+    MNIST_file_size = 47040016
+    train.. or t10k.. ..-images-idx3-ubyte file is successfully loaded in to MNIST_data[MN_index] memory
+    file_size 60008
+    train... or t10k...  ...-labels-idx1-ubyte file is successfully loaded in to MNIST_lable[MN_index] memory
+    fc_m_resnet Constructor
+    Seed radomizer done
+    fc_m_resnet Constructor
+    Seed radomizer done
+    fc_m_resnet Constructor
+    Seed radomizer done
+    Fully connected residual neural network object
+    fc_m_resnet object version : 0.0.6
+    Number of hidden layers is set to = 1
+    Size of hidden_layer[0][x] = 300
+    hidden_layer vector is now set up
+    Now setup all_weight, change_weights vectors size of this fc block
+    Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 785
+    Size of temporary dummy_1D_weight_vector last hidden layer connection[0] is = 301
+    The size of all_weight and change_weights in now setup OK !
+    Note that the program how call this object could only set this size once. No protections against change size of the public vectors
+    Setup state = 2
+    Size of layer dimentions[] of weights at the this nn block = 2
+    Size of node dimentions[][] of weights for hidden layer number 0 is: 300
+    Size of weight dimentions[][][] of weights for hidden layer number 0 is: 785
+    Size of node dimentions[][] of weights for hidden layer number 1 is: 50
+    Size of weight dimentions[][][] of weights for hidden layer number 1 is: 301
+    Number of hidden layers is set to = 3
+    Size of hidden_layer[0][x] = 50
+    ==== Skip connection is used ====
+    input_layer.size() = 50
+    output_layer.size() = 30
+    skip_conn_multiple_part = 1
+    skip_conn_rest_part = 20
+    Size of hidden_layer[1][x] = 50
+    ==== Skip connection is used ====
+    input_layer.size() = 50
+    output_layer.size() = 30
+    skip_conn_multiple_part = 1
+    skip_conn_rest_part = 20
+    Size of hidden_layer[2][x] = 30
+    hidden_layer vector is now set up
+    Now setup all_weight, change_weights vectors size of this fc block
+    Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 51
+    Size of temporary dummy_1D_weight_vector from hidden layer connection[1] is = 51
+    Size of temporary dummy_1D_weight_vector from hidden layer connection[2] is = 51
+    Size of temporary dummy_1D_weight_vector last hidden layer connection[2] is = 31
+    The size of all_weight and change_weights in now setup OK !
+    Note that the program how call this object could only set this size once. No protections against change size of the public vectors
+    Setup state = 2
+    Size of layer dimentions[] of weights at the this nn block = 4
+    Size of node dimentions[][] of weights for hidden layer number 0 is: 50
+    Size of weight dimentions[][][] of weights for hidden layer number 0 is: 51
+    Size of node dimentions[][] of weights for hidden layer number 1 is: 50
+    Size of weight dimentions[][][] of weights for hidden layer number 1 is: 51
+    Size of node dimentions[][] of weights for hidden layer number 2 is: 30
+    Size of weight dimentions[][][] of weights for hidden layer number 2 is: 51
+    Size of node dimentions[][] of weights for hidden layer number 3 is: 30
+    Size of weight dimentions[][][] of weights for hidden layer number 3 is: 31
+    ==== Skip connection is used ====
+    input_layer.size() = 50
+    output_layer.size() = 30
+    skip_conn_multiple_part = 1
+    skip_conn_rest_part = 20
+    Number of hidden layers is set to = 1
+    Size of hidden_layer[0][x] = 15
+    hidden_layer vector is now set up
+    Now setup all_weight, change_weights vectors size of this fc block
+    Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 31
+    Size of temporary dummy_1D_weight_vector last hidden layer connection[0] is = 16
+    The size of all_weight and change_weights in now setup OK !
+    Note that the program how call this object could only set this size once. No protections against change size of the public vectors
+    Setup state = 2
+    
