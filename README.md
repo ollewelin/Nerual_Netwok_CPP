@@ -75,6 +75,10 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Epoch ----250
     input node --- [0] = 0.0845584
  
+ ## Examples of diffrent input / output skip connections of a mid block.
+ 
+![](fc_m_resnet_example_6-in_3-out.png)
+ 
  ## Here trained on MNIST Fashion dataset not the downloaded MNIST digits 
  
     const int top_inp_nodes = MNIST_pix_size;
