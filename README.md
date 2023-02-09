@@ -33,6 +33,48 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  `fc_nn_end_block` dont have skip capability yet in version 0.0.6 will be added later 
  
+    input node --- [0] = 0.0325749
+    Epoch 248
+    input node [0] = 0.00308202
+    Output node [0] = 5.69056e-11  Target node [0] = 0
+    Output node [1] = 1.23192e-10  Target node [1] = 0
+    Output node [2] = 5.05007e-08  Target node [2] = 0
+    Output node [3] = 1  Target node [3] = 1
+    Output node [4] = 1.01169e-12  Target node [4] = 0
+    Output node [5] = 1.97978e-07  Target node [5] = 0
+    Output node [6] = 5.45044e-15  Target node [6] = 0
+    Output node [7] = 6.12513e-08  Target node [7] = 0
+    Output node [8] = 1.33977e-07  Target node [8] = 0
+    Output node [9] = 5.31416e-08  Target node [9] = 0
+    Training loss = 104.309
+    correct_classify_cnt = 59967
+    correct_ratio = 99.945
+    Epoch ----249
+    input node --- [0] = 0.00308202
+    Epoch 249
+    input node [0] = 0.0845584
+    Output node [0] = 7.38656e-15  Target node [0] = 0
+    Output node [1] = 0.999995  Target node [1] = 1
+    Output node [2] = 2.59181e-10  Target node [2] = 0
+    Output node [3] = 1.09584e-13  Target node [3] = 0
+    Output node [4] = 5.48093e-06  Target node [4] = 0
+    Output node [5] = 2.14505e-12  Target node [5] = 0
+    Output node [6] = 2.43188e-12  Target node [6] = 0
+    Output node [7] = 8.15445e-09  Target node [7] = 0
+    Output node [8] = 2.52214e-10  Target node [8] = 0
+    Output node [9] = 1.81921e-13  Target node [9] = 0
+    Training loss = 109.82
+    correct_classify_cnt = 59964
+    correct_ratio = 99.94
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Epoch ----250
+    input node --- [0] = 0.0845584
+ 
  ## Here trained on MNIST Fashion dataset not the downloaded MNIST digits 
  
     const int top_inp_nodes = MNIST_pix_size;
