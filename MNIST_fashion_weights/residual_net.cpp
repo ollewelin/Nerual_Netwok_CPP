@@ -202,13 +202,13 @@ int main()
   fc_nn_end_block.use_dopouts = 0;
  
   const int top_inp_nodes = MNIST_pix_size;
-  const int top_out_nodes = 30;
+  const int top_out_nodes = 50;
   const int mid_out_nodes = 30;
   const int end_out_nodes = 10;
   const int top_hid_layers = 1;
   const int top_hid_nodes_L1 = 300;
   const int mid_hid_layers = 3;
-  const int mid_hid_nodes_L1 = 30;
+  const int mid_hid_nodes_L1 = 50;
   const int mid_hid_nodes_L2 = 50;
   const int mid_hid_nodes_L3 = 30;
   const int end_hid_layers = 1;
