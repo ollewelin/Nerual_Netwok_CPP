@@ -1,6 +1,9 @@
 # Nerual_Netwok_CPP
 Neural Network
 
+Youtube
+https://www.youtube.com/watch?v=nnH4r4lRVmo&t=146s
+
 Update with softmax
 ![](MNIST_with_softmax.png)
 
