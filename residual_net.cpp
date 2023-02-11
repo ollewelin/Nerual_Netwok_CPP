@@ -183,10 +183,10 @@ int main()
   fc_nn_top_block.get_version();
 
 
-  fc_nn_top_block.block_type = 0;
+  fc_nn_top_block.block_type = 1;
   fc_nn_top_block.use_softmax = 0;
   fc_nn_top_block.activation_function_mode = 0;
-  fc_nn_top_block.use_skip_connect_mode = 0;//1 for residual network architetcture
+  fc_nn_top_block.use_skip_connect_mode = 1;//1 for residual network architetcture
   fc_nn_top_block.use_dopouts = 1;
  
   fc_nn_mid_block.block_type = 1;
