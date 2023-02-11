@@ -11,12 +11,13 @@ fc_m_resnet::fc_m_resnet(/* args */)
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 7;
+    version_minor = 8;
     // 0.0.4 fix softmax bugs
     // 0.0.5 fix bug when block type < 2 remove loss calclulation in backprop if not end block
     // 0.0.6 fix bug at  if (block_type < 2){} add else{ .... for end block } at  void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
     // before 0.0.6 (block_type < 2){ use_skip_connect_mode = 0; } bug always remove use_skip_connect_mode = 1
     // 0.0.7 use_skip_connect_mode = 0 forced on top block as well as end block. Remove several printout ==== Skip connection is used ====
+    // 0.0.8 fix use_skip_connect_mode printout no mater if (inp_l_size != out_l_size)
     setup_state = 0;
     nr_of_hidden_layers = 0;
     setup_inc_layer_cnt = 0;
@@ -79,7 +80,7 @@ void fc_m_resnet::set_nr_of_hidden_layers(int nr_of_hid_layers)
 {
     cout << endl;
     cout << endl;
-    
+
     const int MAX_LAYERS = 100;
     if (nr_of_hid_layers < 1)
     {
@@ -433,14 +434,6 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
                     skip_conn_in_out_relation = 2; // 2 = output > input
                     skip_conn_multiple_part = out_l_size / inp_l_size;
                 }
-                if (setup_inc_layer_cnt == 1)//Only print out 1 time 
-                {
-                    cout << "==== Skip connection is used ====" << endl;
-                    cout << "input_layer.size() = " << input_layer.size() << endl;
-                    cout << "output_layer.size() = " << output_layer.size() << endl;
-                    cout << "skip_conn_multiple_part = " << skip_conn_multiple_part << endl;
-                    cout << "skip_conn_rest_part = " << skip_conn_rest_part << endl;
-                }
             }
             else
             {
@@ -457,6 +450,14 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             skip_conn_in_out_relation = 0; // 0 = same input/output
             skip_conn_multiple_part = 1;
             skip_conn_rest_part = 0;
+        }
+        if (setup_inc_layer_cnt == 1) // Only print out 1 time
+        {
+            cout << "==== Skip connection is used ====" << endl;
+            cout << "input_layer.size() = " << input_layer.size() << endl;
+            cout << "output_layer.size() = " << output_layer.size() << endl;
+            cout << "skip_conn_multiple_part = " << skip_conn_multiple_part << endl;
+            cout << "skip_conn_rest_part = " << skip_conn_rest_part << endl;
         }
     }
 }
