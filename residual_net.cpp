@@ -258,7 +258,7 @@ int main()
 
   //=== Now setup the hyper parameters of the Neural Network ====
 
-  int use_constraint_block_training = 0;
+ 
   const double learning_rate_top = 0.01;
   const double learning_rate_mid = 0.01;
   const double learning_rate_end = 0.01;
@@ -449,37 +449,6 @@ double pre_test_one_i_delta = 0.0;
         }
       }
       
-      //Backpropagation though all 3 nn blocks
-      int learn_block_nr = 0;
-      if(use_constraint_block_training == 1)
-      {
-        if(learn_block_nr > 1)
-        {
-          learn_block_nr = 0;
-        }
-        else
-        {
-          learn_block_nr++;
-        }
-        fc_nn_top_block.learning_rate = 0.0;
-        fc_nn_mid_block.learning_rate = 0.0;
-        fc_nn_end_block.learning_rate = 0.0;
-
-        if(learn_block_nr == 0)
-        {
-          fc_nn_top_block.learning_rate = learning_rate_top;
-        }
-        if(learn_block_nr == 1)
-        {
-          fc_nn_mid_block.learning_rate = learning_rate_mid;
-        }
-        if(learn_block_nr == 2)
-        {
-          fc_nn_end_block.learning_rate = learning_rate_end;
-        }
-
-      }
-
       fc_nn_end_block.backpropagtion_and_update();
       for (int j = 0; j < mid_out_nodes; j++)
       {
