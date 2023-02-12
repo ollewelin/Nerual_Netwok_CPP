@@ -203,7 +203,7 @@ int main()
   double train_loss = best_training_loss;
   double verify_loss = best_training_loss;
  
-  const double stop_training_when_verify_rise_propotion = 0.02;
+  const double stop_training_when_verify_rise_propotion = 0.04;
   vector<int> training_order_list;
   vector<int> verify_order_list;
   for (int i = 0; i < training_dataset_size; i++)
@@ -383,7 +383,7 @@ if(do_verify_if_best_trained == 1)
     cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
     double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)verify_dataset_size);
     cout << "Verify correct_ratio = " << correct_ratio << endl;
-    if(verify_loss > best_verify_loss)
+    if(verify_loss > (best_verify_loss + stop_training_when_verify_rise_propotion * best_verify_loss))
     {
       cout << "Stop training verfy loss increase "  << endl;
       cout << "best_verify_loss = " << best_verify_loss << endl;
