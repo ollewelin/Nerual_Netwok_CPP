@@ -274,3 +274,16 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Epoch ----35
     input node --- [0] = 2.29262
     Epoch 35
+
+# MNIST Fashion verify correct classify 88.84% at Epoch ----66
+
+    Verify loss = 833.033
+    Verify correct_classify_cnt = 8884
+    Verify correct_ratio = 88.84
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Epoch ----66
