@@ -59,10 +59,21 @@ double convert_mnist_data(char indata)
   return outdata;
 }
 
-vector<vector<double>> load_mnist_dataset::load_training_data(vector<vector<double>> train_dat)
+vector<vector<double>> load_mnist_dataset::load_input_data(vector<vector<double>> train_dat, int verify_mode)
 {
   streampos size;
-  ifstream file("train-images-idx3-ubyte", ios::in | ios::binary | ios::ate);
+  string filename;
+  if(verify_mode == 0)
+  {
+    // training mode
+    filename = "train-images-idx3-ubyte";
+  }
+  else
+  {
+    // verify mode
+    filename = "t10k-images-idx3-ubyte";
+  }
+  ifstream file(filename, ios::in | ios::binary | ios::ate);
   if (file.is_open())
   {
     size = file.tellg();
@@ -70,28 +81,28 @@ vector<vector<double>> load_mnist_dataset::load_training_data(vector<vector<doub
     file.seekg(0, ios::beg);
     file.read(memblock, size);
     file.close();
-    cout << "train-images-idx3-ubyte is in memory" << endl;
+    cout << filename << " is in memory" << endl;
   }
   else
   {
     cout << "Unable to open file";
   }
 
-  int training_dataset_size = train_dat.size();
+  int dataset_size = train_dat.size();
   int one_sample_data_size = train_dat[0].size();
   int MN_index = mnist_header_offset;
 
-  for (int i = 0; i < training_dataset_size; i++)
+  for (int i = 0; i < dataset_size; i++)
   {
     for (int j = 0; j < one_sample_data_size; j++)
     {
-      if ((MN_index - mnist_header_offset) < training_dataset_size * one_sample_data_size)
+      if ((MN_index - mnist_header_offset) < dataset_size * one_sample_data_size)
       {
         train_dat[i][j] = convert_mnist_data(memblock[MN_index]);
       }
       else
       {
-        cout << "Error data from file is larger then training_dataset vector exit program" << endl;
+        cout << "Error data from file is larger then dataset vector exit program" << endl;
         exit(0);
       }
       MN_index++;
@@ -100,6 +111,59 @@ vector<vector<double>> load_mnist_dataset::load_training_data(vector<vector<doub
   return train_dat;
 }
 
+
+vector<vector<double>> load_mnist_dataset::load_lable_data(vector<vector<double>> target_dat, int verify_mode)
+{
+  streampos size;
+  string filename;
+  if(verify_mode == 0)
+  {
+    // training mode
+    filename = "train-labels-idx1-ubyte";
+  }
+  else
+  {
+    // verify mode
+    filename = "t10k-labels-idx1-ubyte";
+  }
+
+  ifstream file(filename, ios::in | ios::binary | ios::ate);
+  if (file.is_open())
+  {
+    size = file.tellg();
+    memblock = new char[size];
+    file.seekg(0, ios::beg);
+    file.read(memblock, size);
+    file.close();
+    cout << filename << " is in memory" << endl;
+  }
+  else
+  {
+    cout << "Unable to open file";
+  }
+
+  int training_lable_size = target_dat.size();
+  int one_sample_lable_size = target_dat[0].size();
+  int MN_index = mnist_lable_offset;
+
+  for (int i = 0; i < training_lable_size; i++)
+  {
+    for (int j = 0; j < one_sample_lable_size; j++)
+    {
+      if ((MN_index - mnist_header_offset) < training_lable_size * one_sample_lable_size)
+      {
+        target_dat[i][j] = convert_mnist_data(memblock[MN_index]);
+      }
+      else
+      {
+        cout << "Error data from file is larger then lable vector exit program" << endl;
+        exit(0);
+      }
+      MN_index++;
+    }
+  }
+  return target_dat;
+}
 int load_mnist_dataset::get_training_data_set_size(void)
 {
   return mnist_training_size;

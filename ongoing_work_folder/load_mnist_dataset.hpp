@@ -11,7 +11,8 @@ private:
   char * memblock;
 
 public:
-    vector<vector<double>> load_training_data(vector<vector<double>> train_dat);
+    vector<vector<double>> load_input_data(vector<vector<double>> input_dat, int verify_mode);
+    vector<vector<double>> load_lable_data(vector<vector<double>> target_dat, int verify_mode);
     
     int get_training_data_set_size(void);
     int get_verify_data_set_size(void);

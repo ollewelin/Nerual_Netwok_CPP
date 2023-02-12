@@ -251,7 +251,7 @@ int main()
     verify_input_data.push_back(dummy_one_training_data_point);
   }
 
-  training_input_data = l_mnist_data.load_training_data(training_input_data);
+  training_input_data = l_mnist_data.load_input_data(training_input_data, 0);//last argument 0 = training, 1 = verify
   
   l_mnist_data.~load_mnist_dataset();
 
