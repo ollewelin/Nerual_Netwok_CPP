@@ -53,7 +53,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  `fc_nn_end_block` and `fc_nn_top_block` dont have skip capability  
  
- ## MNIST with verify dataset 98.04 % correction ratio.
+ ## MNIST digits with verify dataset 98.04 % correction ratio.
  
     Epoch 95
     input node [0] = 2.02286
