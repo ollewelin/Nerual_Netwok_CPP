@@ -381,7 +381,7 @@ if(do_verify_if_best_trained == 1)
     verify_loss = fc_nn_end_block.loss;
     cout << "Verify loss = " << verify_loss << endl;
     cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
-    double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)training_dataset_size);
+    double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)verify_dataset_size);
     cout << "Verify correct_ratio = " << correct_ratio << endl;
     if(verify_loss > best_verify_loss)
     {
