@@ -11,7 +11,6 @@
 
 using namespace std;
 
-
 #include <cstdlib>
 #include <ctime>
 #include <math.h>   // exp
