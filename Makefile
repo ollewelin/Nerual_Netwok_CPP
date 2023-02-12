@@ -2,11 +2,11 @@
 CC = g++ -std=c++14 -O3
 CFLAGS = -g -Wall
 
-SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
-PROG = main
+#SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
+#PROG = main
 
-#SRCS = residual_net.cpp fc_m_resnet.cpp 
-#PROG = residual_net
+SRCS = residual_net.cpp fc_m_resnet.cpp load_mnist_dataset.cpp 
+PROG = residual_net
 
 #SRCS = verify.cpp fc_m_resnet.cpp simple_nn.cpp
 #PROG = verify
