@@ -200,6 +200,9 @@ int main()
   int verify_after_epc_cnt = 0;
   double best_training_loss = 1000000000;
   double best_verify_loss = best_training_loss;
+  double train_loss = best_training_loss;
+  double verify_loss = best_training_loss;
+ 
   const double stop_training_when_verify_rise_propotion = 0.02;
   vector<int> training_order_list;
   vector<int> verify_order_list;
@@ -220,12 +223,7 @@ int main()
 
   int do_verify_if_best_trained = 0;
   int stop_training = 0;
-  
-
-
-double test_one_i_delta = 0.0;
-double pre_test_one_i_delta = 0.0;
-  // Start traning
+ // Start traning
 //=================
 
   for (int epc = 0; epc < training_epocs; epc++)
@@ -239,7 +237,6 @@ double pre_test_one_i_delta = 0.0;
 
     //============ Traning ==================
 
-    // verify_order_list = fisher_yates_shuffle(verify_order_list);
     training_order_list = fisher_yates_shuffle(training_order_list);
     fc_nn_end_block.loss = 0.0;
     int correct_classify_cnt = 0;
@@ -269,13 +266,13 @@ double pre_test_one_i_delta = 0.0;
 
       double highest_output = 0.0;
       int highest_out_class = 0;
-      int taget = 0;
+      int target = 0;
       for (int j = 0; j < end_out_nodes; j++)
       {
         fc_nn_end_block.target_layer[j] = training_target_data[training_order_list[i]][j];
         if(fc_nn_end_block.target_layer[j] > 0.5)
         {
-          taget = j;
+          target = j;
         }
         if(fc_nn_end_block.output_layer[j] > highest_output)
         {
@@ -300,7 +297,7 @@ double pre_test_one_i_delta = 0.0;
       //Backpropagation though all 3 nn blocks finnish here
 
       //cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
-      if(highest_out_class == taget)
+      if(highest_out_class == target)
       {
         correct_classify_cnt++;
       }
@@ -311,11 +308,95 @@ double pre_test_one_i_delta = 0.0;
     {
       cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
     }
-
-    cout << "Training loss = " << fc_nn_end_block.loss << endl;
+    train_loss = fc_nn_end_block.loss;
+    if(best_training_loss > train_loss)
+    {
+      best_training_loss = train_loss;
+      do_verify_if_best_trained = 1;
+    }
+    else
+    {
+      do_verify_if_best_trained = 0;
+    }
+    cout << "Training loss = " << train_loss << endl;
     cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
     double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)training_dataset_size);
     cout << "correct_ratio = " << correct_ratio << endl;
+
+//=========== verify ===========
+if(do_verify_if_best_trained == 1)
+{
+    verify_order_list = fisher_yates_shuffle(verify_order_list);
+    fc_nn_end_block.loss = 0.0;
+    correct_classify_cnt = 0;
+    for (int i = 0; i < verify_dataset_size; i++)
+    {
+      //Start Forward pass though all 3 nn blocks 
+      for (int j = 0; j < top_inp_nodes; j++)
+      {
+        fc_nn_top_block.input_layer[j] = verify_input_data[verify_order_list[i]][j];
+      }
+      fc_nn_top_block.forward_pass();
+      for (int j = 0; j < top_out_nodes; j++)
+      {
+        fc_nn_mid_block.input_layer[j] = fc_nn_top_block.output_layer[j];
+      }
+      
+      fc_nn_mid_block.forward_pass();
+      for (int j = 0; j < mid_out_nodes; j++)
+      {
+        fc_nn_end_block.input_layer[j] = fc_nn_mid_block.output_layer[j];
+      }
+      
+      fc_nn_end_block.forward_pass();
+      //Forward pass though all 3 nn blocks finnish
+      double highest_output = 0.0;
+      int highest_out_class = 0;
+      int target = 0;
+      for (int j = 0; j < end_out_nodes; j++)
+      {
+        fc_nn_end_block.target_layer[j] = verify_target_data[verify_order_list[i]][j];
+        if(fc_nn_end_block.target_layer[j] > 0.5)
+        {
+          target = j;
+        }
+        if(fc_nn_end_block.output_layer[j] > highest_output)
+        {
+          highest_output = fc_nn_end_block.output_layer[j];
+          highest_out_class = j;
+        }
+      }
+      
+      fc_nn_end_block.only_loss_calculation();
+      //cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
+      if(highest_out_class == target)
+      {
+        correct_classify_cnt++;
+      }
+    }
+    for (int k = 0; k < end_out_nodes; k++)
+    {
+      cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
+    }
+    verify_loss = fc_nn_end_block.loss;
+    cout << "Verify loss = " << verify_loss << endl;
+    cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
+    double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)training_dataset_size);
+    cout << "Verify correct_ratio = " << correct_ratio << endl;
+    if(verify_loss > best_verify_loss)
+    {
+      cout << "Stop training verfy loss increase "  << endl;
+      cout << "best_verify_loss = " << best_verify_loss << endl;
+      break;
+    }
+      if(verify_loss < best_verify_loss)
+    {
+      best_verify_loss = verify_loss;
+    }
+
+//=========== verify finnish ====
+}
+
     if (save_epoc_counter < save_after_epcs - 1)
     {
       save_epoc_counter++;
