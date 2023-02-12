@@ -36,47 +36,42 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  `fc_nn_end_block` and `fc_nn_top_block` dont have skip capability  
  
-    input node --- [0] = 0.0325749
-    Epoch 248
-    input node [0] = 0.00308202
-    Output node [0] = 5.69056e-11  Target node [0] = 0
-    Output node [1] = 1.23192e-10  Target node [1] = 0
-    Output node [2] = 5.05007e-08  Target node [2] = 0
-    Output node [3] = 1  Target node [3] = 1
-    Output node [4] = 1.01169e-12  Target node [4] = 0
-    Output node [5] = 1.97978e-07  Target node [5] = 0
-    Output node [6] = 5.45044e-15  Target node [6] = 0
-    Output node [7] = 6.12513e-08  Target node [7] = 0
-    Output node [8] = 1.33977e-07  Target node [8] = 0
-    Output node [9] = 5.31416e-08  Target node [9] = 0
-    Training loss = 104.309
-    correct_classify_cnt = 59967
-    correct_ratio = 99.945
-    Epoch ----249
-    input node --- [0] = 0.00308202
-    Epoch 249
-    input node [0] = 0.0845584
-    Output node [0] = 7.38656e-15  Target node [0] = 0
-    Output node [1] = 0.999995  Target node [1] = 1
-    Output node [2] = 2.59181e-10  Target node [2] = 0
-    Output node [3] = 1.09584e-13  Target node [3] = 0
-    Output node [4] = 5.48093e-06  Target node [4] = 0
-    Output node [5] = 2.14505e-12  Target node [5] = 0
-    Output node [6] = 2.43188e-12  Target node [6] = 0
-    Output node [7] = 8.15445e-09  Target node [7] = 0
-    Output node [8] = 2.52214e-10  Target node [8] = 0
-    Output node [9] = 1.81921e-13  Target node [9] = 0
-    Training loss = 109.82
-    correct_classify_cnt = 59964
-    correct_ratio = 99.94
+    Epoch 95
+    input node [0] = 2.02286
+    Output node [0] = 3.53664e-07  Target node [0] = 0
+    Output node [1] = 2.13882e-08  Target node [1] = 0
+    Output node [2] = 2.20148e-08  Target node [2] = 0
+    Output node [3] = 2.33942e-05  Target node [3] = 0
+    Output node [4] = 3.23943e-07  Target node [4] = 0
+    Output node [5] = 0.99996  Target node [5] = 1
+    Output node [6] = 1.09631e-05  Target node [6] = 0
+    Output node [7] = 1.07777e-07  Target node [7] = 0
+    Output node [8] = 1.49558e-06  Target node [8] = 0
+    Output node [9] = 3.30948e-06  Target node [9] = 0
+    Training loss = 242.69
+    correct_classify_cnt = 59927
+    correct_ratio = 99.8783
+    Output node [0] = 2.34294e-06  Target node [0] = 0
+    Output node [1] = 5.30512e-07  Target node [1] = 0
+    Output node [2] = 1.31461e-08  Target node [2] = 0
+    Output node [3] = 1.93634e-06  Target node [3] = 0
+    Output node [4] = 9.31552e-07  Target node [4] = 0
+    Output node [5] = 3.2332e-07  Target node [5] = 0
+    Output node [6] = 3.172e-12  Target node [6] = 0
+    Output node [7] = 0.000113953  Target node [7] = 0
+    Output node [8] = 0.000332674  Target node [8] = 0
+    Output node [9] = 0.999547  Target node [9] = 1
+    Verify loss = 162.315
+    Verify correct_classify_cnt = 9804
+    Verify correct_ratio = 98.04
     Save data weights ...
     Save data finnish !
     Save data weights ...
     Save data finnish !
     Save data weights ...
     Save data finnish !
-    Epoch ----250
-    input node --- [0] = 0.0845584
+    Epoch ----96
+    input node --- [0] = 0.772168
  
  Note that correct_ratio = 99.94 is overfitting on only training dataset.
  Next version will stop before overfitting use verify dataset to stop training.
@@ -91,18 +86,18 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
  ## Here trained on MNIST Fashion dataset not the downloaded MNIST digits 
  
-    const int top_inp_nodes = MNIST_pix_size;
-    const int top_out_nodes = 50;
-    const int mid_out_nodes = 30;
-    const int end_out_nodes = 10;
-    const int top_hid_layers = 1;
-    const int top_hid_nodes_L1 = 300;
-    const int mid_hid_layers = 3;
-    const int mid_hid_nodes_L1 = 50;
-    const int mid_hid_nodes_L2 = 50;
-    const int mid_hid_nodes_L3 = 30;
-    const int end_hid_layers = 1;
-    const int end_hid_nodes_L1 = 15;
+  const int top_inp_nodes = data_size_one_sample;
+  const int top_out_nodes = 100;
+  const int mid_out_nodes = 30;
+  const int end_out_nodes = 10;
+  const int top_hid_layers = 1;
+  const int top_hid_nodes_L1 = 300;
+  const int mid_hid_layers = 3;
+  const int mid_hid_nodes_L1 = 50;
+  const int mid_hid_nodes_L2 = 50;
+  const int mid_hid_nodes_L3 = 30;
+  const int end_hid_layers = 1;
+  const int end_hid_nodes_L1 = 15;
 
 ### test structure of residual_net in MNIST_fasshion_weights
 
