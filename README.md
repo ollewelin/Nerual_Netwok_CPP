@@ -102,16 +102,10 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
 ![](fc_m_resnet_example_6-in_3-out.png)
  
 
-### test structure of residual_net in MNIST_fasshion_weights
+### test structure of residual_net in MNIST_fasshion_weights Verify correct_ratio = 87.67 % epoch 34
 
-    olle@olle-TUF-Gaming-FX505DT-FX505DT:~/pytorch_cpp/t14/Nerual_Netwok_CPP$ ./residual_net 
     General Neural Network Residual net test Beta version under work...
     3 stackaed nn blocks with residual connections 
-    file_size 7840016
-    MNIST_file_size = 7840016
-    train.. or t10k.. ..-images-idx3-ubyte file is successfully loaded in to MNIST_data[MN_index] memory
-    file_size 10008
-    train... or t10k...  ...-labels-idx1-ubyte file is successfully loaded in to MNIST_lable[MN_index] memory
     fc_m_resnet Constructor
     Seed radomizer done
     fc_m_resnet Constructor
@@ -119,10 +113,20 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     fc_m_resnet Constructor
     Seed radomizer done
     Fully connected residual neural network object
-    fc_m_resnet object version : 0.0.7
-
-
-     Number of hidden layers is set to = 1
+    fc_m_resnet object version : 0.0.8
+    Constructor load_mnist_dataset 
+    train-images-idx3-ubyte is in memory
+    train-labels-idx1-ubyte is in memory
+    lable_size = 60000
+    one_sample_lable_size = 10
+    t10k-images-idx3-ubyte is in memory
+    t10k-labels-idx1-ubyte is in memory
+    lable_size = 10000
+    one_sample_lable_size = 10
+    Destructor load_mnist_dataset 
+    
+    
+    Number of hidden layers is set to = 1
     Size of hidden_layer[0][x] = 300
     hidden_layer vector is now set up
     Now setup all_weight, change_weights vectors size of this fc block
@@ -134,22 +138,22 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Size of layer dimentions[] of weights at the this nn block = 2
     Size of node dimentions[][] of weights for hidden layer number 0 is: 300
     Size of weight dimentions[][][] of weights for hidden layer number 0 is: 785
-    Size of node dimentions[][] of weights for hidden layer number 1 is: 50
+    Size of node dimentions[][] of weights for hidden layer number 1 is: 100
     Size of weight dimentions[][][] of weights for hidden layer number 1 is: 301
     
-
-     Number of hidden layers is set to = 3
+    
+    Number of hidden layers is set to = 3
     Size of hidden_layer[0][x] = 50
     ==== Skip connection is used ====
-    input_layer.size() = 50
+    input_layer.size() = 100
     output_layer.size() = 30
-    skip_conn_multiple_part = 1
-    skip_conn_rest_part = 20
+    skip_conn_multiple_part = 3
+    skip_conn_rest_part = 10
     Size of hidden_layer[1][x] = 50
     Size of hidden_layer[2][x] = 30
     hidden_layer vector is now set up
     Now setup all_weight, change_weights vectors size of this fc block
-    Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 51
+    Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 101
     Size of temporary dummy_1D_weight_vector from hidden layer connection[1] is = 51
     Size of temporary dummy_1D_weight_vector from hidden layer connection[2] is = 51
     Size of temporary dummy_1D_weight_vector last hidden layer connection[2] is = 31
@@ -158,7 +162,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Setup state = 2
     Size of layer dimentions[] of weights at the this nn block = 4
     Size of node dimentions[][] of weights for hidden layer number 0 is: 50
-    Size of weight dimentions[][][] of weights for hidden layer number 0 is: 51
+    Size of weight dimentions[][][] of weights for hidden layer number 0 is: 101
     Size of node dimentions[][] of weights for hidden layer number 1 is: 50
     Size of weight dimentions[][][] of weights for hidden layer number 1 is: 51
     Size of node dimentions[][] of weights for hidden layer number 2 is: 30
@@ -167,7 +171,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Size of weight dimentions[][][] of weights for hidden layer number 3 is: 31
 
 
-     Number of hidden layers is set to = 1
+    Number of hidden layers is set to = 1
     Size of hidden_layer[0][x] = 15
     hidden_layer vector is now set up
     Now setup all_weight, change_weights vectors size of this fc block
@@ -182,4 +186,91 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Size of node dimentions[][] of weights for hidden layer number 1 is: 10
     Size of weight dimentions[][][] of weights for hidden layer number 1 is: 16
     Do you want to load weights from saved weight file = Y/N 
-    
+    n
+    Randomize weights 3D vector all weights of fc_resnet object....
+    Randomize weights is DONE!
+    setup_state = 3
+    Randomize weights 3D vector all weights of fc_resnet object....
+    Randomize weights is DONE!
+    setup_state = 3
+    Randomize weights 3D vector all weights of fc_resnet object....
+    Randomize weights is DONE!
+    setup_state = 3
+    Epoch ----0
+    input node --- [0] = 0
+    Epoch 0
+    input node [0] = 2.67658
+    Output node [0] = 0.098834  Target node [0] = 0
+    Output node [1] = 0.0948093  Target node [1] = 0
+    Output node [2] = 0.105569  Target node [2] = 0
+    Output node [3] = 0.111629  Target node [3] = 0
+    Output node [4] = 0.0918349  Target node [4] = 0
+    Output node [5] = 0.0949475  Target node [5] = 0
+    Output node [6] = 0.106768  Target node [6] = 0
+    Output node [7] = 0.100578  Target node [7] = 0
+    Output node [8] = 0.104195  Target node [8] = 1
+    Output node [9] = 0.0908353  Target node [9] = 0
+    Training loss = 138371
+    correct_classify_cnt = 5903
+    correct_ratio = 9.83833
+    Output node [0] = 0.098691  Target node [0] = 0
+    Output node [1] = 0.0946723  Target node [1] = 1
+    Output node [2] = 0.105404  Target node [2] = 0
+    Output node [3] = 0.111457  Target node [3] = 0
+    Output node [4] = 0.0917076  Target node [4] = 0
+    Output node [5] = 0.0948131  Target node [5] = 0
+    Output node [6] = 0.106599  Target node [6] = 0
+    Output node [7] = 0.100734  Target node [7] = 0
+    Output node [8] = 0.105214  Target node [8] = 0
+    Output node [9] = 0.0907091  Target node [9] = 0
+    Verify loss = 4502.22
+    Verify correct_classify_cnt = 1000
+    Verify correct_ratio = 10
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Epoch ----1
+
+   ........
+   ........
+   
+    Epoch 34
+    input node [0] = 1.56752
+    Output node [0] = 0.00010089  Target node [0] = 0
+    Output node [1] = 0.000233262  Target node [1] = 0
+    Output node [2] = 2.89292e-05  Target node [2] = 0
+    Output node [3] = 0.000116886  Target node [3] = 0
+    Output node [4] = 6.16322e-06  Target node [4] = 0
+    Output node [5] = 0.994423  Target node [5] = 1
+    Output node [6] = 2.53142e-05  Target node [6] = 0
+    Output node [7] = 0.00391709  Target node [7] = 0
+    Output node [8] = 0.000596092  Target node [8] = 0
+    Output node [9] = 0.000552843  Target node [9] = 0
+    Training loss = 15769.4
+    correct_classify_cnt = 54263
+    correct_ratio = 90.4383
+    Output node [0] = 2.74223e-07  Target node [0] = 0
+    Output node [1] = 3.00427e-05  Target node [1] = 0
+    Output node [2] = 1.30786e-06  Target node [2] = 0
+    Output node [3] = 4.17474e-05  Target node [3] = 0
+    Output node [4] = 3.4027e-05  Target node [4] = 0
+    Output node [5] = 0.000592961  Target node [5] = 0
+    Output node [6] = 2.72837e-07  Target node [6] = 0
+    Output node [7] = 0.00320812  Target node [7] = 0
+    Output node [8] = 0.000103024  Target node [8] = 0
+    Output node [9] = 0.995988  Target node [9] = 1
+    Verify loss = 881.659
+    Verify correct_classify_cnt = 8767
+    Verify correct_ratio = 87.67
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Save data weights ...
+    Save data finnish !
+    Epoch ----35
+    input node --- [0] = 2.29262
+    Epoch 35
