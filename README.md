@@ -92,8 +92,6 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Epoch ----96
     input node --- [0] = 0.772168
  
- Note that correct_ratio = 99.94 is overfitting on only training dataset.
- Next version will stop before overfitting use verify dataset to stop training.
  
  ## Examples of diffrent input / output skip connections of a mid block.
  
