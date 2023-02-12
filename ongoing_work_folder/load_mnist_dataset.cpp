@@ -142,25 +142,35 @@ vector<vector<double>> load_mnist_dataset::load_lable_data(vector<vector<double>
     cout << "Unable to open file";
   }
 
-  int training_lable_size = target_dat.size();
+  int lable_size = target_dat.size();
   int one_sample_lable_size = target_dat[0].size();
+  cout << "lable_size = " << lable_size << endl;
+  cout << "one_sample_lable_size = " << one_sample_lable_size << endl;
   int MN_index = mnist_lable_offset;
 
-  for (int i = 0; i < training_lable_size; i++)
+  for (int i = 0; i < lable_size; i++)
   {
     for (int j = 0; j < one_sample_lable_size; j++)
     {
-      if ((MN_index - mnist_header_offset) < training_lable_size * one_sample_lable_size)
+      if ((MN_index - mnist_header_offset) < lable_size * one_sample_lable_size)
       {
-        target_dat[i][j] = convert_mnist_data(memblock[MN_index]);
+        if(j == (int)memblock[MN_index])
+        {
+          target_dat[i][j] = (float)1.0;
+        }
+        else
+        {
+          target_dat[i][j] = (float)0.0;
+        }
       }
       else
       {
         cout << "Error data from file is larger then lable vector exit program" << endl;
         exit(0);
       }
-      MN_index++;
+      
     }
+    MN_index++;
   }
   return target_dat;
 }
