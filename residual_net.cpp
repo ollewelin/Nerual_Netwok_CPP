@@ -202,7 +202,7 @@ int main()
   double best_verify_loss = best_training_loss;
   double train_loss = best_training_loss;
   double verify_loss = best_training_loss;
- 
+  
   const double stop_training_when_verify_rise_propotion = 0.04;
   vector<int> training_order_list;
   vector<int> verify_order_list;
@@ -387,6 +387,7 @@ if(do_verify_if_best_trained == 1)
     {
       cout << "Stop training verfy loss increase "  << endl;
       cout << "best_verify_loss = " << best_verify_loss << endl;
+      stop_training = 1;
       break;
     }
       if(verify_loss < best_verify_loss)
@@ -396,6 +397,8 @@ if(do_verify_if_best_trained == 1)
 
 //=========== verify finnish ====
 }
+
+
 
     if (save_epoc_counter < save_after_epcs - 1)
     {
@@ -408,6 +411,15 @@ if(do_verify_if_best_trained == 1)
       fc_nn_mid_block.save_weights(weight_filename_mid);
       fc_nn_top_block.save_weights(weight_filename_top);
     }
+  }
+
+  if(stop_training == 1)
+  {
+
+      fc_nn_end_block.save_weights(weight_filename_end);
+      fc_nn_mid_block.save_weights(weight_filename_mid);
+      fc_nn_top_block.save_weights(weight_filename_top);
+
   }
 
   fc_nn_end_block.~fc_m_resnet();
