@@ -74,13 +74,13 @@ int main()
   int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
 
   const int top_inp_nodes = data_size_one_sample;
-  const int top_out_nodes = 30;
+  const int top_out_nodes = 100;
   const int mid_out_nodes = 30;
   const int end_out_nodes = 10;
   const int top_hid_layers = 1;
   const int top_hid_nodes_L1 = 300;
   const int mid_hid_layers = 3;
-  const int mid_hid_nodes_L1 = 30;
+  const int mid_hid_nodes_L1 = 50;
   const int mid_hid_nodes_L2 = 50;
   const int mid_hid_nodes_L3 = 30;
   const int end_hid_layers = 1;
@@ -387,12 +387,16 @@ if(do_verify_if_best_trained == 1)
     {
       cout << "Stop training verfy loss increase "  << endl;
       cout << "best_verify_loss = " << best_verify_loss << endl;
-      stop_training = 1;
+      //stop_training = 1;
       break;
     }
-      if(verify_loss < best_verify_loss)
+    if(verify_loss < best_verify_loss)
     {
       best_verify_loss = verify_loss;
+      fc_nn_end_block.save_weights(weight_filename_end);
+      fc_nn_mid_block.save_weights(weight_filename_mid);
+      fc_nn_top_block.save_weights(weight_filename_top);
+
     }
 
 //=========== verify finnish ====
@@ -407,20 +411,12 @@ if(do_verify_if_best_trained == 1)
     else
     {
       save_epoc_counter = 0;
-      fc_nn_end_block.save_weights(weight_filename_end);
-      fc_nn_mid_block.save_weights(weight_filename_mid);
-      fc_nn_top_block.save_weights(weight_filename_top);
+    //  fc_nn_end_block.save_weights(weight_filename_end);
+    //  fc_nn_mid_block.save_weights(weight_filename_mid);
+    //  fc_nn_top_block.save_weights(weight_filename_top);
     }
   }
 
-  if(stop_training == 1)
-  {
-
-      fc_nn_end_block.save_weights(weight_filename_end);
-      fc_nn_mid_block.save_weights(weight_filename_mid);
-      fc_nn_top_block.save_weights(weight_filename_top);
-
-  }
 
   fc_nn_end_block.~fc_m_resnet();
   fc_nn_end_block.~fc_m_resnet();
