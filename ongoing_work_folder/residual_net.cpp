@@ -71,7 +71,7 @@ int main()
   vector<vector<double>> verify_input_data;
   int data_size_one_sample = l_mnist_data.get_one_sample_data_size();
   int training_dataset_size = l_mnist_data.get_training_data_set_size();
- 
+  int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
 
   const int top_inp_nodes = data_size_one_sample;
   const int top_out_nodes = 30;
@@ -195,7 +195,7 @@ int main()
   const int training_epocs = 10000; // One epocs go through the hole data set once
   const int save_after_epcs = 10;
   int save_epoc_counter = 0;
-  const int verify_dataset_size = 100;
+
   const int verify_after_x_nr_epocs = 10;
   int verify_after_epc_cnt = 0;
   double best_training_loss = 1000000000;
