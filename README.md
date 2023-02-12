@@ -14,14 +14,31 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     fc_m_resnet fc_nn_mid_block;
     fc_m_resnet fc_nn_end_block;
 
-### Change Makefile to residual_net.cpp
+### Change Makefile to residual_net.cpp example
 
     #SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
     #PROG = main
 
-    SRCS = residual_net.cpp fc_m_resnet.cpp 
+    SRCS = residual_net.cpp fc_m_resnet.cpp load_mnist_dataset.cpp 
     PROG = residual_net
 
+    #SRCS = verify.cpp fc_m_resnet.cpp simple_nn.cpp
+    #PROG = verify
+   
+ ## Here trained on MNIST digits
+    
+    const int top_inp_nodes = data_size_one_sample;
+    const int top_out_nodes = 100;
+    const int mid_out_nodes = 30;
+    const int end_out_nodes = 10;
+    const int top_hid_layers = 1;
+    const int top_hid_nodes_L1 = 300;
+    const int mid_hid_layers = 3;
+    const int mid_hid_nodes_L1 = 50;
+    const int mid_hid_nodes_L2 = 50;
+    const int mid_hid_nodes_L3 = 30;
+    const int end_hid_layers = 1;
+    const int end_hid_nodes_L1 = 15;
 
  There are skip residual connection betwheen the input side of `fc_nn_end_block` and output side of `fc_nn_top_block` 
  to make a residual connection for not vanishing gradient esspecial if many mid blocks are stacked 
@@ -84,20 +101,6 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
  
 ![](fc_m_resnet_example_6-in_3-out.png)
  
- ## Here trained on MNIST digits
-    
-    const int top_inp_nodes = data_size_one_sample;
-    const int top_out_nodes = 100;
-    const int mid_out_nodes = 30;
-    const int end_out_nodes = 10;
-    const int top_hid_layers = 1;
-    const int top_hid_nodes_L1 = 300;
-    const int mid_hid_layers = 3;
-    const int mid_hid_nodes_L1 = 50;
-    const int mid_hid_nodes_L2 = 50;
-    const int mid_hid_nodes_L3 = 30;
-    const int end_hid_layers = 1;
-    const int end_hid_nodes_L1 = 15;
 
 ### test structure of residual_net in MNIST_fasshion_weights
 
