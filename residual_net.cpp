@@ -388,7 +388,7 @@ if(do_verify_if_best_trained == 1)
       cout << "Stop training verfy loss increase "  << endl;
       cout << "best_verify_loss = " << best_verify_loss << endl;
       //stop_training = 1;
-      break;
+      //break;
     }
     if(verify_loss < best_verify_loss)
     {
