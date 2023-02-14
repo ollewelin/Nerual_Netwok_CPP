@@ -166,15 +166,10 @@ int main()
 
   fc_nn_top_block.momentum = 0.3;
   fc_nn_top_block.learning_rate = learning_rate_top;
-  fc_nn_top_block.dropout_proportion = 0.15;
-
   fc_nn_mid_block.momentum = 0.3;
   fc_nn_mid_block.learning_rate = learning_rate_mid;
-  fc_nn_mid_block.dropout_proportion = 0.15;
-
   fc_nn_end_block.momentum = 0.3;
   fc_nn_end_block.learning_rate = learning_rate_end;
-  fc_nn_end_block.dropout_proportion = 0.10;
 
   double init_random_weight_propotion = 0.05;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
@@ -240,6 +235,10 @@ int main()
     training_order_list = fisher_yates_shuffle(training_order_list);
     fc_nn_end_block.loss = 0.0;
     int correct_classify_cnt = 0;
+    fc_nn_top_block.dropout_proportion = 0.25;
+    fc_nn_mid_block.dropout_proportion = 0.25;
+    fc_nn_end_block.dropout_proportion = 0.20;
+
     for (int i = 0; i < training_dataset_size; i++)
     {
       //Start Forward pass though all 3 nn blocks 
@@ -309,6 +308,8 @@ int main()
       cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
     }
     train_loss = fc_nn_end_block.loss;
+    do_verify_if_best_trained = 1;
+ /* 
     if(best_training_loss > train_loss)
     {
       best_training_loss = train_loss;
@@ -318,14 +319,20 @@ int main()
     {
       do_verify_if_best_trained = 0;
     }
+*/
     cout << "Training loss = " << train_loss << endl;
     cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
     double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)training_dataset_size);
     cout << "correct_ratio = " << correct_ratio << endl;
 
 //=========== verify ===========
+
 if(do_verify_if_best_trained == 1)
 {
+    fc_nn_top_block.dropout_proportion = 0.0;
+    fc_nn_mid_block.dropout_proportion = 0.0;
+    fc_nn_end_block.dropout_proportion = 0.0;
+
     verify_order_list = fisher_yates_shuffle(verify_order_list);
     fc_nn_end_block.loss = 0.0;
     correct_classify_cnt = 0;
@@ -385,7 +392,7 @@ if(do_verify_if_best_trained == 1)
     cout << "Verify correct_ratio = " << correct_ratio << endl;
     if(verify_loss > (best_verify_loss + stop_training_when_verify_rise_propotion * best_verify_loss))
     {
-      cout << "Stop training verfy loss increase "  << endl;
+      cout << "Verfy loss increase !! "  << endl;
       cout << "best_verify_loss = " << best_verify_loss << endl;
       //stop_training = 1;
       //break;
