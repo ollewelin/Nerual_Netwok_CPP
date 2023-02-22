@@ -3,6 +3,11 @@ CC = g++ -std=c++14 -O3
 CFLAGS = -g -Wall
 
 LIBS = -I/usr/local/include/opencv4 -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs
+## set path 
+## export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+## set parh permanent
+## nano ~/.bashrc
+##
 
 ######## Alternative if cmake with argument #########
 #  	-D OPENCV_GENERATE_PKGCONFIG=ON
