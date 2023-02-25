@@ -2,23 +2,21 @@
 CC = g++ -std=c++14 -O3
 CFLAGS = -g -Wall
 
-LIBS = -I/usr/local/include/opencv4 -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs
-## set path 
-## export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-## set parh permanent
-## nano ~/.bashrc
-##
+#SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
+#PROG = main
 
-######## Alternative if cmake with argument #########
-#  	-D OPENCV_GENERATE_PKGCONFIG=ON
-#
+#SRCS = convolution_nn.cpp fc_m_resnet.cpp load_mnist_dataset.cpp convolution.cpp
+#PROG = convolution_nn
+
+SRCS = residual_net.cpp fc_m_resnet.cpp load_mnist_dataset.cpp convolution.cpp
+PROG = residual_net
+
+#SRCS = verify.cpp fc_m_resnet.cpp simple_nn.cpp
+#PROG = verify
+
 #OPENCV = `pkg-config opencv --cflags --libs`
 #LIBS = $(OPENCV)
-#
-#####################################################
-
-SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp 
-PROG = main
+LIBS =
 
 $(PROG):$(SRCS)
 	$(CC) $(CFLAGS) -o $(PROG) $(SRCS) $(LIBS)

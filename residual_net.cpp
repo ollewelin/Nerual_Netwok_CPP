@@ -30,7 +30,6 @@ int main()
   cout << "3 stackaed nn blocks with residual connections " << endl;
   srand(time(NULL));
   char answer;
-  char answer_character;
 
   //=========== Test Neural Network size settings ==============
   fc_m_resnet fc_nn_top_block;
@@ -191,8 +190,8 @@ int main()
   const int save_after_epcs = 10;
   int save_epoc_counter = 0;
 
-  const int verify_after_x_nr_epocs = 10;
-  int verify_after_epc_cnt = 0;
+  //const int verify_after_x_nr_epocs = 10;
+  //int verify_after_epc_cnt = 0;
   double best_training_loss = 1000000000;
   double best_verify_loss = best_training_loss;
   double train_loss = best_training_loss;
@@ -213,7 +212,7 @@ int main()
   training_order_list = fisher_yates_shuffle(training_order_list);
 
 
-  int MNIST_nr = 0;
+  //int MNIST_nr = 0;
   srand (static_cast <unsigned> (time(NULL)));//Seed the randomizer
 
   int do_verify_if_best_trained = 0;
