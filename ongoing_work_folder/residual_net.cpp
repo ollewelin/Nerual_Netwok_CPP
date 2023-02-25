@@ -30,7 +30,6 @@ int main()
   cout << "3 stackaed nn blocks with residual connections " << endl;
   srand(time(NULL));
   char answer;
-  char answer_character;
 
   //=========== Test Neural Network size settings ==============
   fc_m_resnet fc_nn_top_block;
@@ -56,6 +55,7 @@ int main()
   fc_nn_mid_block.use_softmax = 0;
   fc_nn_mid_block.activation_function_mode = 0;
   fc_nn_mid_block.use_skip_connect_mode = 1;//1 for residual network architetcture
+  fc_nn_mid_block.shift_ununiform_skip_connection_after_samp_n = 1;//Switch skip connections 1 = each data sample 
   fc_nn_mid_block.use_dopouts = 1;
  
   fc_nn_end_block.block_type = 2;
@@ -74,13 +74,13 @@ int main()
   int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
 
   const int top_inp_nodes = data_size_one_sample;
-  const int top_out_nodes = 30;
+  const int top_out_nodes = 100;
   const int mid_out_nodes = 30;
   const int end_out_nodes = 10;
   const int top_hid_layers = 1;
   const int top_hid_nodes_L1 = 300;
   const int mid_hid_layers = 3;
-  const int mid_hid_nodes_L1 = 30;
+  const int mid_hid_nodes_L1 = 50;
   const int mid_hid_nodes_L2 = 50;
   const int mid_hid_nodes_L3 = 30;
   const int end_hid_layers = 1;
@@ -166,15 +166,10 @@ int main()
 
   fc_nn_top_block.momentum = 0.3;
   fc_nn_top_block.learning_rate = learning_rate_top;
-  fc_nn_top_block.dropout_proportion = 0.15;
-
   fc_nn_mid_block.momentum = 0.3;
   fc_nn_mid_block.learning_rate = learning_rate_mid;
-  fc_nn_mid_block.dropout_proportion = 0.15;
-
   fc_nn_end_block.momentum = 0.3;
   fc_nn_end_block.learning_rate = learning_rate_end;
-  fc_nn_end_block.dropout_proportion = 0.10;
 
   double init_random_weight_propotion = 0.05;
   cout << "Do you want to load weights from saved weight file = Y/N " << endl;
@@ -196,8 +191,8 @@ int main()
   const int save_after_epcs = 10;
   int save_epoc_counter = 0;
 
-  const int verify_after_x_nr_epocs = 10;
-  int verify_after_epc_cnt = 0;
+  //const int verify_after_x_nr_epocs = 10;
+  //int verify_after_epc_cnt = 0;
   double best_training_loss = 1000000000;
   double best_verify_loss = best_training_loss;
   double train_loss = best_training_loss;
@@ -218,7 +213,7 @@ int main()
   training_order_list = fisher_yates_shuffle(training_order_list);
 
 
-  int MNIST_nr = 0;
+  //int MNIST_nr = 0;
   srand (static_cast <unsigned> (time(NULL)));//Seed the randomizer
 
   int do_verify_if_best_trained = 0;
@@ -240,6 +235,10 @@ int main()
     training_order_list = fisher_yates_shuffle(training_order_list);
     fc_nn_end_block.loss = 0.0;
     int correct_classify_cnt = 0;
+    fc_nn_top_block.dropout_proportion = 0.25;
+    fc_nn_mid_block.dropout_proportion = 0.25;
+    fc_nn_end_block.dropout_proportion = 0.20;
+
     for (int i = 0; i < training_dataset_size; i++)
     {
       //Start Forward pass though all 3 nn blocks 
@@ -309,6 +308,8 @@ int main()
       cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
     }
     train_loss = fc_nn_end_block.loss;
+    do_verify_if_best_trained = 1;
+ /* 
     if(best_training_loss > train_loss)
     {
       best_training_loss = train_loss;
@@ -318,14 +319,20 @@ int main()
     {
       do_verify_if_best_trained = 0;
     }
+*/
     cout << "Training loss = " << train_loss << endl;
     cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
     double correct_ratio = (((double)correct_classify_cnt) * 100.0)/((double)training_dataset_size);
     cout << "correct_ratio = " << correct_ratio << endl;
 
 //=========== verify ===========
+
 if(do_verify_if_best_trained == 1)
 {
+    fc_nn_top_block.dropout_proportion = 0.0;
+    fc_nn_mid_block.dropout_proportion = 0.0;
+    fc_nn_end_block.dropout_proportion = 0.0;
+
     verify_order_list = fisher_yates_shuffle(verify_order_list);
     fc_nn_end_block.loss = 0.0;
     correct_classify_cnt = 0;
@@ -385,14 +392,18 @@ if(do_verify_if_best_trained == 1)
     cout << "Verify correct_ratio = " << correct_ratio << endl;
     if(verify_loss > (best_verify_loss + stop_training_when_verify_rise_propotion * best_verify_loss))
     {
-      cout << "Stop training verfy loss increase "  << endl;
+      cout << "Verfy loss increase !! "  << endl;
       cout << "best_verify_loss = " << best_verify_loss << endl;
-      stop_training = 1;
-      break;
+      //stop_training = 1;
+      //break;
     }
-      if(verify_loss < best_verify_loss)
+    if(verify_loss < best_verify_loss)
     {
       best_verify_loss = verify_loss;
+      fc_nn_end_block.save_weights(weight_filename_end);
+      fc_nn_mid_block.save_weights(weight_filename_mid);
+      fc_nn_top_block.save_weights(weight_filename_top);
+
     }
 
 //=========== verify finnish ====
@@ -407,20 +418,12 @@ if(do_verify_if_best_trained == 1)
     else
     {
       save_epoc_counter = 0;
-      fc_nn_end_block.save_weights(weight_filename_end);
-      fc_nn_mid_block.save_weights(weight_filename_mid);
-      fc_nn_top_block.save_weights(weight_filename_top);
+    //  fc_nn_end_block.save_weights(weight_filename_end);
+    //  fc_nn_mid_block.save_weights(weight_filename_mid);
+    //  fc_nn_top_block.save_weights(weight_filename_top);
     }
   }
 
-  if(stop_training == 1)
-  {
-
-      fc_nn_end_block.save_weights(weight_filename_end);
-      fc_nn_mid_block.save_weights(weight_filename_mid);
-      fc_nn_top_block.save_weights(weight_filename_top);
-
-  }
 
   fc_nn_end_block.~fc_m_resnet();
   fc_nn_end_block.~fc_m_resnet();
