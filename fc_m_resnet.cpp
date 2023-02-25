@@ -10,14 +10,19 @@ using namespace std;
 fc_m_resnet::fc_m_resnet(/* args */)
 {
     version_major = 0;
-    version_mid = 0;
-    version_minor = 8;
+    version_mid = 1;
+    version_minor = 0;
     // 0.0.4 fix softmax bugs
     // 0.0.5 fix bug when block type < 2 remove loss calclulation in backprop if not end block
     // 0.0.6 fix bug at  if (block_type < 2){} add else{ .... for end block } at  void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
     // before 0.0.6 (block_type < 2){ use_skip_connect_mode = 0; } bug always remove use_skip_connect_mode = 1
     // 0.0.7 use_skip_connect_mode = 0 forced on top block as well as end block. Remove several printout ==== Skip connection is used ====
     // 0.0.8 fix use_skip_connect_mode printout no mater if (inp_l_size != out_l_size)
+    // 0.1.0 "shift_ununiform_skip_connection_after_samp_n" are introduced when ununifor skip connections is the case.
+    shift_ununiform_skip_connection_after_samp_n = 0;
+    shift_ununiform_skip_connection_sample_counter = 0;
+    switch_skip_con_selector = 0;
+
     setup_state = 0;
     nr_of_hidden_layers = 0;
     setup_inc_layer_cnt = 0;
@@ -450,6 +455,11 @@ void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
             skip_conn_in_out_relation = 0; // 0 = same input/output
             skip_conn_multiple_part = 1;
             skip_conn_rest_part = 0;
+            if (shift_ununiform_skip_connection_after_samp_n < 1)
+            {
+                cout << "Information: skip connections is uniform on this block but shift_ununiform_skip_connection_after_samp_n < 1 " << endl;
+                cout << "shift_ununiform_skip_connection_after_samp_n = " << shift_ununiform_skip_connection_after_samp_n << " will not have any affect" << endl;
+            }
         }
         if (setup_inc_layer_cnt == 1) // Only print out 1 time
         {
@@ -642,6 +652,7 @@ void fc_m_resnet::forward_pass(void)
     {
         int src_nodes = input_layer.size();
         int dst_nodes = output_layer.size();
+
         if (skip_conn_in_out_relation == 0)
         {
             // 0 = same input/output
@@ -650,22 +661,67 @@ void fc_m_resnet::forward_pass(void)
                 output_layer[dst_n_cnt] += input_layer[dst_n_cnt]; // Input nodes are same as output nodes simple add operation at output side
             }
         }
-        else if (skip_conn_in_out_relation == 1)
+        else
         {
-            // 1 = input > output
-            for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+
+            if (shift_ununiform_skip_connection_after_samp_n == 0)
             {
-                output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
-                                                                               //         cout << "skip_conn_in_out_relation = " << skip_conn_in_out_relation << " src_n_cnt % dst_nodes = " << src_n_cnt % dst_nodes << " src_n_cnt = " << src_n_cnt <<endl;
+                // Allways connect all ununiform skip connections mode
+                if (skip_conn_in_out_relation == 1)
+                {
+                    // 1 = input > output
+
+                    for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                    {
+                        output_layer[src_n_cnt % dst_nodes] += input_layer[src_n_cnt]; // Input nodes are > output nodes
+                    }
+                }
+                else if (skip_conn_in_out_relation == 2)
+                {
+                    // 2 = output > input
+                    for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                    {
+                        output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
+                                                                                       //          cout << "skip_conn_in_out_relation = " << skip_conn_in_out_relation << " dst_nodes = " << dst_nodes << " dst_n_cnt % src_nodes" << dst_n_cnt % src_nodes <<endl;
+                    }
+                }
             }
-        }
-        else if (skip_conn_in_out_relation == 2)
-        {
-            // 2 = output > input
-            for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+            else
             {
-                output_layer[dst_nodes] += input_layer[dst_n_cnt % src_nodes]; // Input nodes are < output nodes
-                                                                               //          cout << "skip_conn_in_out_relation = " << skip_conn_in_out_relation << " dst_nodes = " << dst_nodes << " dst_n_cnt % src_nodes" << dst_n_cnt % src_nodes <<endl;
+                // Use the switch skip connection mode
+
+                if (shift_ununiform_skip_connection_sample_counter < shift_ununiform_skip_connection_after_samp_n)
+                {
+                    shift_ununiform_skip_connection_sample_counter++;
+                }
+                else
+                {
+                    if (switch_skip_con_selector < skip_conn_multiple_part - 1)
+                    {
+                        switch_skip_con_selector++; //
+                    }
+                    else
+                    {
+                        switch_skip_con_selector = 0;
+                    }
+                    shift_ununiform_skip_connection_sample_counter = 0;
+                }
+                if (skip_conn_in_out_relation == 1)
+                {
+                    // 1 = input > output
+                    for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                    {
+                        output_layer[dst_n_cnt] += input_layer[dst_n_cnt + dst_nodes * switch_skip_con_selector]; // Input nodes are > output nodes
+                    }
+                }
+                else if (skip_conn_in_out_relation == 2)
+                {
+                    // 2 = output > input
+                    for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                    {
+                        output_layer[src_n_cnt + src_nodes * switch_skip_con_selector] += input_layer[src_n_cnt]; // Input nodes are < output nodes
+                    }
+                }
             }
         }
     }
@@ -767,18 +823,40 @@ void fc_m_resnet::backpropagtion_and_update(void)
             }
             else if (skip_conn_in_out_relation == 1)
             {
+
                 // 1 = input > output
-                for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                if (shift_ununiform_skip_connection_after_samp_n == 0)
                 {
-                    i_layer_delta[src_n_cnt] += o_layer_delta[src_n_cnt % dst_nodes]; // Input nodes are > output nodes
+                    for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                    {
+                        i_layer_delta[src_n_cnt] += o_layer_delta[src_n_cnt % dst_nodes]; // Input nodes are > output nodes
+                    }
+                }
+                else
+                {
+                    for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                    {
+                        i_layer_delta[dst_n_cnt + dst_nodes * switch_skip_con_selector] += o_layer_delta[dst_n_cnt]; // Input nodes are > output nodes
+                    }
                 }
             }
             else if (skip_conn_in_out_relation == 2)
             {
                 // 2 = output > input
-                for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                if (shift_ununiform_skip_connection_after_samp_n == 0)
                 {
-                    i_layer_delta[dst_n_cnt % src_nodes] += o_layer_delta[dst_nodes]; //
+
+                    for (int dst_n_cnt = 0; dst_n_cnt < dst_nodes; dst_n_cnt++)
+                    {
+                        i_layer_delta[dst_n_cnt % src_nodes] += o_layer_delta[dst_nodes]; //
+                    }
+                }
+                else
+                {
+                    for (int src_n_cnt = 0; src_n_cnt < src_nodes; src_n_cnt++)
+                    {
+                        i_layer_delta[src_n_cnt] += o_layer_delta[src_n_cnt + src_nodes * switch_skip_con_selector]; // Input nodes are > output nodes
+                    }
                 }
             }
         }

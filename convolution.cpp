@@ -144,8 +144,6 @@ void convolution::set_out_tensor(int out_channels)
     }
 
     //========= Set up convolution weight tensor and output tensor size for convolution object =================
-    
-   
     if(stride == 0)
     {
         output_side_size = (input_side_size - kernel_size) + 1;

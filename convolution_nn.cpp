@@ -53,6 +53,7 @@ int main()
     int data_size_one_sample_one_channel = l_mnist_data.get_one_sample_data_size();
     int training_dataset_size = l_mnist_data.get_training_data_set_size();
     int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
+    
 
     //==== Set up convolution layers ===========
     int input_channels = 1;//=== one channel MNIST dataset is used ====
