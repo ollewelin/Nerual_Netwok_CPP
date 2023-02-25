@@ -50,48 +50,22 @@ int main()
     vector<vector<double>> training_input_data;
     vector<vector<double>> verify_target_data;
     vector<vector<double>> verify_input_data;
-    int data_size_one_sample = l_mnist_data.get_one_sample_data_size();
+    int data_size_one_sample_one_channel = l_mnist_data.get_one_sample_data_size();
     int training_dataset_size = l_mnist_data.get_training_data_set_size();
     int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
 
     //==== Set up convolution layers ===========
-    //=== one channel MNIST dataset is used ====
-    int number_of_input_channels = 1;
-    cout << "data_size_one_sample = " << data_size_one_sample << endl;
-    int root_of_intdata_size = sqrt(data_size_one_sample);
-    cout << "root_of_intdata_size = " << root_of_intdata_size << endl;
-    int test_square_the_root = root_of_intdata_size * root_of_intdata_size;
-    if (test_square_the_root != data_size_one_sample)
-    {
-        cout << "Error Indata one sample not able to make a square root without decimal, test_square_the_root = " << test_square_the_root << endl;
-        cout << "Indata don't fit a perfect square, Exit program " << endl;
-        exit(0);
-    }
-
-    vector<double> dummy_conv_1D_vector;
-    vector<vector<double>> dummy_conv_2D_vector;
-    //========= L1 Set up convolution (vectors) all tensor size for convolution object =================
-    for(int i=0;i<root_of_intdata_size;i++)
-    {
-        dummy_conv_1D_vector.push_back(0.0);
-    }
-    for(int i=0;i<root_of_intdata_size;i++)
-    {
-        dummy_conv_2D_vector.push_back(dummy_conv_1D_vector);
-    }
-    for(int i=0;i<number_of_input_channels;i++)
-    {
-        conv_L1.input_tensor.push_back(dummy_conv_2D_vector);
-    }
-    conv_L1.set_kernel_size(5);//Odd number
+    int input_channels = 1;//=== one channel MNIST dataset is used ====
+    conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels);//data_size_one_sample_one_channel, input channels
+    conv_L1.set_kernel_size(3);//Odd number
     conv_L1.set_stride(1);
-    conv_L1.set_out_tensor_channels(30);
+    conv_L1.set_out_tensor(30);//output channels
     
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
 
     //========================================
-    const int end_inp_nodes = data_size_one_sample;
+    const int end_inp_nodes = data_size_one_sample_one_channel;
 
     const int end_hid_layers = 2;
     const int end_hid_nodes_L1 = 200;
