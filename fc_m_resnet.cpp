@@ -723,7 +723,6 @@ void fc_m_resnet::backpropagtion_and_update(void)
     //============================================================================================
 
     //============ Backpropagate hidden layer errors ============
-    int ix = 0;
     for (int i = last_delta_layer_nr - 1; i > -1; i--) // last_delta_layer_nr-1 (-1) because last layer delta already calculated for output layer laready cacluladed above
     {
         int nr_delta_nodes_dst_layer = internal_delta[i].size();
