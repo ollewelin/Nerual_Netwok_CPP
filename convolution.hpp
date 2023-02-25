@@ -11,13 +11,15 @@ private:
     int version_minor;
 
     int kernel_size;
+    int stride;
     int output_tensor_channels;
+
 
     int setup_state;
     //0 = start up state, nothing done yet
     //1 = set_kernel_size() is set up
     //2 = set_out_tensor_channels() is done
-    //3 = init_weights or load weights is done
+    //4 = init_weights or load weights is done
 
     vector<vector<vector<vector<double>>>> kernel_weights;//[output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> change_weights;//[output_channel][input_channel][kernel_row][kernel_col]
@@ -28,6 +30,8 @@ public:
     vector<vector<vector<double>>> i_tensor_delta;
     void set_kernel_size(int);
     int get_kernel_size(void);
+    void set_stride(int);
+    int get_stride(void);
     void set_out_tensor_channels(int);
     void randomize_weights(double);//the input argument must be in range 0..1 but to somthing low for example 0.01
     void load_weights(string);//load weights with file name argument 
