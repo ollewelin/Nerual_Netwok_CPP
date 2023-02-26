@@ -13,6 +13,7 @@ private:
     int kernel_size;
     int stride;
     int input_tensor_channels;
+    int root_of_intdata_size;
     int output_tensor_channels;
     int input_side_size;
     int output_side_size;

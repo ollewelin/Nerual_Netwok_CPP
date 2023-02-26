@@ -105,7 +105,7 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
     }
 
     cout << "data_size_one_sample one channel = " << total_input_size_one_channel << endl;
-    int root_of_intdata_size = sqrt(total_input_size_one_channel);
+    root_of_intdata_size = sqrt(total_input_size_one_channel);
     cout << "root_of_intdata_size = " << root_of_intdata_size << endl;
     int test_square_the_root = root_of_intdata_size * root_of_intdata_size;
     if (test_square_the_root != total_input_size_one_channel)
@@ -114,7 +114,7 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         cout << "Indata don't fit a perfect square, Exit program " << endl;
         exit(0);
     }
-    
+     
     vector<double> dummy_conv_1D_vector;
     vector<vector<double>> dummy_conv_2D_vector;
     //========= Set up convolution input tensor size for convolution object =================
@@ -129,6 +129,7 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
     for(int i=0;i<input_tensor_channels;i++)
     {
         input_tensor.push_back(dummy_conv_2D_vector);
+        i_tensor_delta.push_back(dummy_conv_2D_vector);
     }
 }
 
@@ -155,29 +156,59 @@ void convolution::set_out_tensor(int out_channels)
     }
     cout << "OK output_side_size = " << output_side_size << endl; 
     //output_side_size = xxx                                                            
-    vector<double>                  dummy_1D_kernel_vect;
-    vector<vector<double>>          dummy_2D_kernel_vect;
-    vector<vector<vector<double>>>  dummy_3D_kernel_vect;
+    vector<double>                  dummy_1D_vect;
+    vector<vector<double>>          dummy_2D_vect;
+    vector<vector<vector<double>>>  dummy_3D_vect;
     for(int i=0;i<kernel_size;i++)
     {
-        dummy_1D_kernel_vect.push_back(0.0);
+        dummy_1D_vect.push_back(0.0);
     }
     for(int i=0;i<kernel_size;i++)
     {
-        dummy_2D_kernel_vect.push_back(dummy_1D_kernel_vect);
+        dummy_2D_vect.push_back(dummy_1D_vect);
     }
-   
     for(int i=0;i<input_tensor_channels;i++)
     {
-
+        dummy_3D_vect.push_back(dummy_2D_vect);
     }
-//    vector<vector<vector<vector<double>>>> kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
-//    vector<vector<vector<vector<double>>>> change_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
-//    vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
-//    vector<vector<vector<double>>> input_tensor;//3D [input_channel][row][col]
-//    vector<vector<vector<double>>> i_tensor_delta;//3D [input_channel][row][col] 
-//    vector<vector<vector<double>>> output_tensor;//3D [output_channel][output_row][output_col] 
-//    vector<vector<vector<double>>> o_tensor_delta;//3D [output_channel][output_row][output_col] 
+    
+    for(int i=0;i<output_tensor_channels;i++)
+    {
+        kernel_weights.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
+        change_weights.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
+        kernel_weights.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
+    }
+    
+    //Add also one bias weight at end for the hole [input_channel][0][0]
+    dummy_1D_vect.clear();
+    dummy_2D_vect.clear();
+    dummy_3D_vect.clear();
+    dummy_1D_vect.push_back(0.0);
+    dummy_2D_vect.push_back(dummy_1D_vect);
+    dummy_3D_vect.push_back(dummy_2D_vect);
+    for(int i=0;i<output_tensor_channels;i++)
+    {
+        kernel_weights.push_back(dummy_3D_vect);//Add also one bias weight at end for the hole [output_channel][0][0][0]
+        change_weights.push_back(dummy_3D_vect);//Add also one bias weight at end for the hole [output_channel][0][0][0]
+        //kernel_deltas dont need space for bias. no bias here
+    }
+    cout << " kernel_weights.size() = " << kernel_weights.size() << endl;
+
+    dummy_1D_vect.clear();
+    dummy_2D_vect.clear();
+    for(int i=0;i<output_side_size;i++)
+    {
+        dummy_1D_vect.push_back(0.0);
+    }
+    for(int i=0;i<output_side_size;i++)
+    {
+        dummy_2D_vect.push_back(dummy_1D_vect);
+    }
+    for(int i=0;i<output_tensor_channels;i++)
+    {
+        output_tensor.push_back(dummy_2D_vect);
+        o_tensor_delta.push_back(dummy_2D_vect);
+    }
 
     setup_state = 2;
 }
