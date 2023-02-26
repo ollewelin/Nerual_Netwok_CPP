@@ -27,6 +27,8 @@ private:
     vector<vector<vector<vector<double>>>> kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> change_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
+    vector<double> kernel_bias_weights;//1D [output_channel]
+    vector<double> change_bias_weights;//1D [output_channel]
 
 public:
     vector<vector<vector<double>>> input_tensor;//3D [input_channel][row][col]

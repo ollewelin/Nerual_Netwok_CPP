@@ -180,19 +180,20 @@ void convolution::set_out_tensor(int out_channels)
     }
     
     //Add also one bias weight at end for the hole [input_channel][0][0]
-    dummy_1D_vect.clear();
-    dummy_2D_vect.clear();
-    dummy_3D_vect.clear();
-    dummy_1D_vect.push_back(0.0);
-    dummy_2D_vect.push_back(dummy_1D_vect);
-    dummy_3D_vect.push_back(dummy_2D_vect);
     for(int i=0;i<output_tensor_channels;i++)
     {
-        kernel_weights.push_back(dummy_3D_vect);//Add also one bias weight at end for the hole [output_channel][0][0][0]
-        change_weights.push_back(dummy_3D_vect);//Add also one bias weight at end for the hole [output_channel][0][0][0]
+        kernel_bias_weights.push_back(0.0);//kernel bias weight [output_channel]
+        change_bias_weights.push_back(0.0);//change bias weight [output_channel]
         //kernel_deltas dont need space for bias. no bias here
     }
+    cout << " kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
     cout << " kernel_weights.size() = " << kernel_weights.size() << endl;
+    cout << " kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
+    cout << " kernel_weights[0][0].size() = " << kernel_weights[0][0].size() << endl;
+    cout << " kernel_weights[0][0][0].size() = " << kernel_weights[0][0].size() << endl;
+    cout << " kernel_weights[" << output_tensor_channels << "][0][0][0].size() = " << kernel_weights[output_tensor_channels][0][0].size() << endl;
+    cout << " kernel_weights[" << output_tensor_channels * 2 - 1<< "][0][0][0].size() = " << kernel_weights[output_tensor_channels * 2 - 1][0][0].size() << endl;
+
 
     dummy_1D_vect.clear();
     dummy_2D_vect.clear();
@@ -209,7 +210,6 @@ void convolution::set_out_tensor(int out_channels)
         output_tensor.push_back(dummy_2D_vect);
         o_tensor_delta.push_back(dummy_2D_vect);
     }
-
     setup_state = 2;
 }
 void convolution::randomize_weights(double rand_prop)
