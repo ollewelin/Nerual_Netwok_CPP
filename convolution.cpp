@@ -103,6 +103,7 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         cout << "Exit program" << endl; 
         exit(0);
     }
+    cout << "   ========================================"<< endl;
     cout << "   data_size_one_sample one channel = " << total_input_size_one_channel << endl;
     root_of_intdata_size = sqrt(total_input_size_one_channel);
     cout << "   root_of_intdata_size = " << root_of_intdata_size << endl;
@@ -185,15 +186,6 @@ void convolution::set_out_tensor(int out_channels)
         change_bias_weights.push_back(0.0);//change bias weight [output_channel]
         //kernel_deltas dont need space for bias. no bias here
     }
-    cout << "   kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
-    cout << "   kernel_weights.size() = " << kernel_weights.size() << endl;
-    cout << "   kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
-    cout << "   kernel_weights[0][0].size() = " << kernel_weights[0][0].size() << endl;
-    cout << "   kernel_weights[" << output_tensor_channels - 1 << "][" << input_tensor_channels - 1 << "][" << kernel_size - 1 << "].size() = " << kernel_weights[output_tensor_channels - 1][input_tensor_channels - 1][kernel_size - 1].size() << endl;
-    cout << "   input_tensor.size() = " << input_tensor.size() << endl;
-    cout << "   output_tensor.size() = " << output_tensor.size() << endl;
-
-    cout << endl;
 
     dummy_1D_vect.clear();
     dummy_2D_vect.clear();
@@ -210,6 +202,17 @@ void convolution::set_out_tensor(int out_channels)
         output_tensor.push_back(dummy_2D_vect);
         o_tensor_delta.push_back(dummy_2D_vect);
     }
+    
+    cout << "   kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
+    cout << "   kernel_weights.size() = " << kernel_weights.size() << endl;
+    cout << "   kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
+    cout << "   kernel_weights[0][0].size() = " << kernel_weights[0][0].size() << endl;
+    cout << "   kernel_weights[" << output_tensor_channels - 1 << "][" << input_tensor_channels - 1 << "][" << kernel_size - 1 << "].size() = " << kernel_weights[output_tensor_channels - 1][input_tensor_channels - 1][kernel_size - 1].size() << endl;
+    cout << "   input_tensor.size() = " << input_tensor.size() << endl;
+    cout << "   output_tensor.size() = " << output_tensor.size() << endl;
+    cout << "   output_tensor[" << output_tensor_channels - 1 << "][" << output_side_size - 1 << "].size() = " << output_tensor[output_tensor_channels - 1][output_side_size - 1].size() << endl;
+    cout << "   ========================================"<< endl;
+
     setup_state = 2;
 }
 void convolution::randomize_weights(double rand_prop)
