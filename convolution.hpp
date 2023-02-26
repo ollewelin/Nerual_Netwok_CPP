@@ -17,10 +17,7 @@ private:
     int output_tensor_channels;
     int input_side_size;
     int output_side_size;
-
-    int kernel_slide_steps;
-    int kernel_dot_steps;
-    
+   
     int setup_state;
     //0 = start up state, nothing done yet
     //1 = set_kernel_size() is set up
@@ -32,7 +29,8 @@ private:
     vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<double> kernel_bias_weights;//1D [output_channel]
     vector<double> change_bias_weights;//1D [output_channel]
-
+    double activation_function(double);
+    double delta_activation_func(double,double);
 public:
     vector<vector<vector<double>>> input_tensor;//3D [input_channel][row][col]
     vector<vector<vector<double>>> i_tensor_delta;//3D [input_channel][row][col] 
@@ -60,6 +58,11 @@ public:
     double fix_leaky_proportion;
     double learning_rate;
     double momentum;
+    int use_dopouts;
+    //0 = No dropout
+    //1 = Use dropout
+    double dropout_proportion;
+
 
     void get_version(void);
     int ver_major;

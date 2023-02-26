@@ -14,6 +14,8 @@ convolution::convolution()
     setup_state = 0;
     kernel_size = 3;
     stride = 0;
+    dropout_proportion = 0.0;
+    use_dopouts = 0;
     cout << "Constructor Convloution neural network object " << endl;
 }
 
@@ -223,34 +225,128 @@ void convolution::load_weights(string filename)
 void convolution::save_weights(string filename)
 {
 }
+
+double convolution::activation_function(double input_data)
+{
+    double output_data = 0.0;
+    int this_node_dopped_out = 0;
+    if (use_dopouts == 1)
+    {
+        double dropout_random = ((double)rand() / RAND_MAX);
+        if (dropout_random < dropout_proportion)
+        {
+            this_node_dopped_out = 1;
+        }
+    }
+    if (this_node_dopped_out == 0)
+    {
+        if (activation_function_mode == 0)
+        {
+            // 0 = sigmoid activation function
+            output_data = 1.0 / (1.0 + exp(-input_data)); // Sigmoid function and put it into
+        }
+        else
+        {
+            // 1 = Relu simple activation function
+            // 2 = Relu fix leaky activation function
+            // 3 = Relu random variable leaky activation function
+            if (input_data >= 0.0)
+            {
+                // Positiv value go right though ar Relu (Rectify Linear)
+                output_data = input_data;
+                // cout << "forward + output_data = " << output_data << endl;
+            }
+            else
+            {
+                // Negative
+                switch (activation_function_mode)
+                {
+                case 1:
+                    // 1 = Relu simple activation function
+                    output_data = 0.0;
+                    //  cout << "forward - output_data = " << output_data << endl;
+                    break;
+                case 2:
+                    // 2 = Relu fix leaky activation function
+                    output_data = input_data * fix_leaky_proportion;
+                    //  cout << "forward -2 output_data = " << output_data << endl;
+                    break;
+                }
+            }
+        }
+    }
+    return output_data;
+}
+double convolution::delta_activation_func(double delta_outside_function, double value_from_node_outputs)
+{
+    double delta_inside_func = 0.0;
+    if (activation_function_mode == 0)
+    {
+        // 0 = sigmoid activation function
+        delta_inside_func = delta_outside_function * value_from_node_outputs * (1.0 - value_from_node_outputs); // Sigmoid function and put it into
+    }
+    else
+    {
+        // 1 = Relu simple activation function
+        // 2 = Relu fix leaky activation function
+        // 3 = Relu random variable leaky activation function
+        if (value_from_node_outputs >= 0.0)
+        {
+            // Positiv value go right though ar Relu (Rectify Linear)
+            delta_inside_func = delta_outside_function;
+        }
+        else
+        {
+            // Negative
+            switch (activation_function_mode)
+            {
+            case 1:
+                // 1 = Relu simple activation function
+                delta_inside_func = 0;
+                break;
+            case 2:
+                // 2 = Relu fix leaky activation function
+
+                delta_inside_func = delta_outside_function * fix_leaky_proportion;
+                break;
+            }
+        }
+    }
+    if (value_from_node_outputs == 0.0)
+    {
+        delta_inside_func = 0.0; // Dropout may have ocure
+    }
+
+    return delta_inside_func;
+}
+
+
+
 void convolution::conv_forward()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
-        for (int y_slide = 0; y_slide < kernel_slide_steps; y_slide++)
+        for (int y_slide = 0; y_slide < output_side_size; y_slide++)
         {
-            for (int x_slide = 0; x_slide < kernel_slide_steps; x_slide++)
+            for (int x_slide = 0; x_slide < output_side_size; x_slide++)
             {
                 // Make the dot product of input tensor with kernel wheight for one kernel position
-                double dot_product = kernel_bias_weights[out_ch_cnt];// start with bias value for the dot product
+                double dot_product = kernel_bias_weights[out_ch_cnt]; // start with bias value for the dot product
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
-                    for (int kernel_x = 0; kernel_x < kernel_dot_steps; kernel_x++)
+                    for (int ky = 0; ky < kernel_size; ky++)
                     {
-                        for (int kernel_x = 0; kernel_x < kernel_dot_steps; kernel_x++)
+                        for (int kx = 0; kx < kernel_size; kx++)
                         {
                             // Itterate dot product
-                            // dot_product +=
+                            dot_product += input_tensor[in_ch_cnt][ky + y_slide * stride][kx + x_slide * stride] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
                         }
                     }
                 }
+                // Make the activation function
+                // Put the dot product to output tensor map
+                output_tensor[out_ch_cnt][y_slide][x_slide] = activation_function(dot_product);
             }
-            //Make the activation function
-            //...
-
-            //Put the dot product to output tensor map
-            //...
-
         }
     }
 }
