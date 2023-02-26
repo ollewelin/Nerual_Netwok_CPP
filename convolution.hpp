@@ -17,6 +17,9 @@ private:
     int output_tensor_channels;
     int input_side_size;
     int output_side_size;
+
+    int kernel_slide_steps;
+    int kernel_dot_steps;
     
     int setup_state;
     //0 = start up state, nothing done yet
