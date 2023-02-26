@@ -176,7 +176,7 @@ void convolution::set_out_tensor(int out_channels)
     {
         kernel_weights.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
         change_weights.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
-        kernel_weights.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
+        kernel_deltas.push_back(dummy_3D_vect);//4D [output_channel][input_channel][kernel_row][kernel_col]
     }
     
     //Add also one bias weight at end for the hole [input_channel][0][0]
@@ -190,9 +190,8 @@ void convolution::set_out_tensor(int out_channels)
     cout << " kernel_weights.size() = " << kernel_weights.size() << endl;
     cout << " kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
     cout << " kernel_weights[0][0].size() = " << kernel_weights[0][0].size() << endl;
-    cout << " kernel_weights[0][0][0].size() = " << kernel_weights[0][0].size() << endl;
-    cout << " kernel_weights[" << output_tensor_channels << "][0][0][0].size() = " << kernel_weights[output_tensor_channels][0][0].size() << endl;
-    cout << " kernel_weights[" << output_tensor_channels * 2 - 1<< "][0][0][0].size() = " << kernel_weights[output_tensor_channels * 2 - 1][0][0].size() << endl;
+    //cout << " kernel_weights[0][0][0].size() = " << kernel_weights[0][0].size() << endl;
+    cout << " kernel_weights[" << output_tensor_channels - 1 << "][" << input_tensor_channels - 1 << "][" << kernel_size - 1 << "].size() = " << kernel_weights[output_tensor_channels - 1][input_tensor_channels - 1][kernel_size - 1].size() << endl;
 
 
     dummy_1D_vect.clear();
