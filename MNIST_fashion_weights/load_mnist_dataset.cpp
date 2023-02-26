@@ -73,17 +73,17 @@ void load_mnist_dataset::download_mnist(void)
   // answer_character = getchar();
   if (answer_character == 'Y' || answer_character == 'y')
   {
-    
+    int dummy = 0;
     printf("remove old MNIST dataset .gz files\n");
-    system("rm train-images-idx3-ubyte.gz");
-    system("rm train-labels-idx1-ubyte.gz");
-    system("rm t10k-images-idx3-ubyte.gz");
-    system("rm t10k-labels-idx1-ubyte.gz");
+    dummy = system("rm train-images-idx3-ubyte.gz");
+    dummy = system("rm train-labels-idx1-ubyte.gz");
+    dummy = system("rm t10k-images-idx3-ubyte.gz");
+    dummy = system("rm t10k-labels-idx1-ubyte.gz");
     printf("Start download MNIST dataset .gz files\n");
-    system("wget http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz");
-    system("wget http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz");
-    system("wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz");
-    system("wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz");
+    dummy = system("wget http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz");
+    dummy = system("wget http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz");
+    dummy = system("wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz");
+    dummy = system("wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz");
 
     /* try to open file to read */
     int check_all_files_there = -1;
@@ -130,10 +130,10 @@ void load_mnist_dataset::download_mnist(void)
     if (answer_character == 'Y' || answer_character == 'y')
     {
       printf("Unzip MNIST datasets\n");
-      system("gzip -d train-images-idx3-ubyte.gz");
-      system("gzip -d train-labels-idx1-ubyte.gz");
-      system("gzip -d t10k-images-idx3-ubyte.gz");
-      system("gzip -d t10k-labels-idx1-ubyte.gz");
+      dummy = system("gzip -d train-images-idx3-ubyte.gz");
+      dummy = system("gzip -d train-labels-idx1-ubyte.gz");
+      dummy = system("gzip -d t10k-images-idx3-ubyte.gz");
+      dummy = system("gzip -d t10k-labels-idx1-ubyte.gz");
       printf("...\n");
     }
     else
@@ -144,6 +144,7 @@ void load_mnist_dataset::download_mnist(void)
       printf("Exit program\n");
       exit(0);
     }
+    dummy++;
   }
   else
   {
@@ -155,7 +156,7 @@ void load_mnist_dataset::download_mnist(void)
 
 vector<vector<double>> load_mnist_dataset::load_input_data(vector<vector<double>> train_dat, int verify_mode)
 {
-  int file_error = 0;
+//  int file_error = 0;
   streampos size;
   string filename;
   if (verify_mode == 0)
