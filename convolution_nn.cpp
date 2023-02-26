@@ -36,7 +36,7 @@ int main()
     string weight_filename_end;
     weight_filename_end = "end_block_weights.dat";
     fc_nn_end_block.get_version();
-    conv_L1.get_version();
+    
 
     fc_nn_end_block.block_type = 2;
     fc_nn_end_block.use_softmax = 1;
@@ -53,23 +53,21 @@ int main()
     int training_dataset_size = l_mnist_data.get_training_data_set_size();
     int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
     
-
+    cout << endl;
+    conv_L1.get_version();
     //==== Set up convolution layers ===========
+    cout << "conv_L1 setup:" << endl;
     int input_channels = 1;//=== one channel MNIST dataset is used ====
-    
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels);//data_size_one_sample_one_channel, input channels
     conv_L1.set_kernel_size(3);//Odd number
     conv_L1.set_stride(1);
     conv_L1.set_out_tensor(30);//output channels
     conv_L1.output_tensor.size();
-    cout << " conv_L1.input_tensor.size() = " << conv_L1.input_tensor.size() << endl;
-    cout << " conv_L1.output_tensor.size() = " << conv_L1.output_tensor.size() << endl;
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
 
     //========================================
     const int end_inp_nodes = data_size_one_sample_one_channel;
-
     const int end_hid_layers = 2;
     const int end_hid_nodes_L1 = 200;
     const int end_hid_nodes_L2 = 50;

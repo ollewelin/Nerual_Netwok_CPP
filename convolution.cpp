@@ -47,7 +47,7 @@ void convolution::set_kernel_size(int k_size)
     }
     else
     {
-        cout << "OK kernel size = " << k_size << endl; 
+        cout << "   OK kernel size = " << k_size << endl; 
     }
     input_side_size = input_tensor[0][0].size();
     if(input_side_size < k_size)
@@ -59,7 +59,7 @@ void convolution::set_kernel_size(int k_size)
     }
     else
     {
-        cout << "OK input_side_size = " << input_side_size << endl;
+        cout << "   OK input_side_size = " << input_side_size << endl;
     }
     kernel_size = k_size;
     setup_state = 1;
@@ -79,12 +79,12 @@ void convolution::set_stride(int stride_size)
     }
     if(stride_size > 1 || stride_size < 0)
     {
-        cout << "Error stride size out of range. stride = " << stride_size << endl; 
-        cout << "Stride size on convolution version " << ver_major << "." << version_mid << "." << version_minor << " is only support range 0-1" << endl;
-        cout << "Exit program" << endl; 
+        cout << "   Error stride size out of range. stride = " << stride_size << endl; 
+        cout << "   Stride size on convolution version " << ver_major << "." << version_mid << "." << version_minor << " is only support range 0-1" << endl;
+        cout << "   Exit program" << endl; 
         exit(0);
     }
-    cout << "OK stride size is set to " << stride_size << endl; 
+    cout << "   OK stride size is set to " << stride_size << endl; 
     stride = stride_size;
 }
 int convolution::get_stride()
@@ -103,10 +103,9 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         cout << "Exit program" << endl; 
         exit(0);
     }
-
-    cout << "data_size_one_sample one channel = " << total_input_size_one_channel << endl;
+    cout << "   data_size_one_sample one channel = " << total_input_size_one_channel << endl;
     root_of_intdata_size = sqrt(total_input_size_one_channel);
-    cout << "root_of_intdata_size = " << root_of_intdata_size << endl;
+    cout << "   root_of_intdata_size = " << root_of_intdata_size << endl;
     int test_square_the_root = root_of_intdata_size * root_of_intdata_size;
     if (test_square_the_root != total_input_size_one_channel)
     {
@@ -154,7 +153,7 @@ void convolution::set_out_tensor(int out_channels)
     {
         output_side_size = ((input_side_size - kernel_size) / 2) + 1;
     }
-    cout << "OK output_side_size = " << output_side_size << endl; 
+    cout << "   OK output_side_size = " << output_side_size << endl; 
     //output_side_size = xxx                                                            
     vector<double>                  dummy_1D_vect;
     vector<vector<double>>          dummy_2D_vect;
@@ -186,13 +185,15 @@ void convolution::set_out_tensor(int out_channels)
         change_bias_weights.push_back(0.0);//change bias weight [output_channel]
         //kernel_deltas dont need space for bias. no bias here
     }
-    cout << " kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
-    cout << " kernel_weights.size() = " << kernel_weights.size() << endl;
-    cout << " kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
-    cout << " kernel_weights[0][0].size() = " << kernel_weights[0][0].size() << endl;
-    //cout << " kernel_weights[0][0][0].size() = " << kernel_weights[0][0].size() << endl;
-    cout << " kernel_weights[" << output_tensor_channels - 1 << "][" << input_tensor_channels - 1 << "][" << kernel_size - 1 << "].size() = " << kernel_weights[output_tensor_channels - 1][input_tensor_channels - 1][kernel_size - 1].size() << endl;
+    cout << "   kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
+    cout << "   kernel_weights.size() = " << kernel_weights.size() << endl;
+    cout << "   kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
+    cout << "   kernel_weights[0][0].size() = " << kernel_weights[0][0].size() << endl;
+    cout << "   kernel_weights[" << output_tensor_channels - 1 << "][" << input_tensor_channels - 1 << "][" << kernel_size - 1 << "].size() = " << kernel_weights[output_tensor_channels - 1][input_tensor_channels - 1][kernel_size - 1].size() << endl;
+    cout << "   input_tensor.size() = " << input_tensor.size() << endl;
+    cout << "   output_tensor.size() = " << output_tensor.size() << endl;
 
+    cout << endl;
 
     dummy_1D_vect.clear();
     dummy_2D_vect.clear();
