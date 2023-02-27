@@ -389,13 +389,14 @@ void convolution::conv_backprop()
     //.....change below
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
-        accum_bias_deltas[out_ch_cnt] = 0.0;
-        for (int y_slide = 0; y_slide < output_side_size; y_slide++)
+        for (int y_slide = 0; y_slide < input_side_size; y_slide++)
         {
-            for (int x_slide = 0; x_slide < output_side_size; x_slide++)
+            for (int x_slide = 0; x_slide < input_side_size; x_slide++)
             {
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
+                    //TODO change here below
+                    /*
                     for (int ky = 0; ky < kernel_size; ky++)
                     {
                         int inp_tens_y_pos = ky + y_slide * stride;
@@ -406,6 +407,8 @@ void convolution::conv_backprop()
                             i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][y_slide][x_slide] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
                         }
                     }
+                    */
+
                 }
             }
         }
