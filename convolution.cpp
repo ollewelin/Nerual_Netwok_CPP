@@ -13,7 +13,7 @@ convolution::convolution()
     // 0.0.1 Almost empty class no algorithm yet implemented
     setup_state = 0;
     kernel_size = 3;
-    stride = 0;
+    stride = 1;
     dropout_proportion = 0.0;
     use_dopouts = 0;
     cout << "Constructor Convloution neural network object " << endl;
@@ -79,10 +79,10 @@ void convolution::set_stride(int stride_size)
         cout << "Exit program" << endl;
         exit(0);
     }
-    if (stride_size > 1 || stride_size < 0)
+    if (stride_size > 2 || stride_size < 1)
     {
         cout << "   Error stride size out of range. stride = " << stride_size << endl;
-        cout << "   Stride size on convolution version " << ver_major << "." << version_mid << "." << version_minor << " is only support range 0-1" << endl;
+        cout << "   Stride size on convolution version " << ver_major << "." << version_mid << "." << version_minor << " is only support range 1-2" << endl;
         cout << "   Exit program" << endl;
         exit(0);
     }
@@ -147,11 +147,11 @@ void convolution::set_out_tensor(int out_channels)
     }
 
     //========= Set up convolution weight tensor and output tensor size for convolution object =================
-    if (stride == 0)
+    if (stride == 1)
     {
         output_side_size = (input_side_size - kernel_size) + 1;
     }
-    else if (stride == 1)
+    else if (stride == 2)
     {
         output_side_size = ((input_side_size - kernel_size) / 2) + 1;
     }
@@ -333,10 +333,26 @@ void convolution::conv_forward()
                 {
                     for (int ky = 0; ky < kernel_size; ky++)
                     {
-                        for (int kx = 0; kx < kernel_size; kx++)
+                        int inp_tens_y_pos = ky + y_slide * stride;
+                        if (inp_tens_y_pos < input_side_size)
                         {
-                            // Itterate dot product
-                            dot_product += input_tensor[in_ch_cnt][ky + y_slide * stride][kx + x_slide * stride] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                            for (int kx = 0; kx < kernel_size; kx++)
+                            {
+                                int inp_tens_x_pos = kx + x_slide * stride;
+                                if (inp_tens_x_pos < input_side_size)
+                                {
+                                    // Itterate dot product
+                                    dot_product += input_tensor[in_ch_cnt][ky + y_slide * stride][kx + x_slide * stride] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
                 }
@@ -359,20 +375,35 @@ void convolution::conv_backprop()
             {
                 // Compute derivative of activation function
                 double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], output_tensor[out_ch_cnt][y_slide][x_slide]);
-                
+
                 // Update delta for kernel weights and input tensor
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
                     for (int ky = 0; ky < kernel_size; ky++)
                     {
-                        for (int kx = 0; kx < kernel_size; kx++)
+                        int inp_tens_y_pos = ky + y_slide * stride;
+                        if (inp_tens_y_pos < input_side_size)
                         {
-                            // Update delta for kernel weight
-                            kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] += delta_activation * input_tensor[in_ch_cnt][ky + y_slide * stride][kx + x_slide * stride];
-                            
-                            // Update delta for input tensor. Flipped 180 deg kernel_weight
-                            i_tensor_delta[in_ch_cnt][ky + y_slide * stride][kx + x_slide * stride] += delta_activation * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
-                       }
+                            for (int kx = 0; kx < kernel_size; kx++)
+                            {
+                                int inp_tens_x_pos = kx + x_slide * stride;
+                                if (inp_tens_x_pos < input_side_size)
+                                {
+                                    // Update delta for kernel weight
+                                    kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] += delta_activation * input_tensor[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos];
+                                    // Update delta for input tensor. Flipped 180 deg kernel_weight
+                                    i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += delta_activation * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
                 // Update delta for bias weights
@@ -381,7 +412,6 @@ void convolution::conv_backprop()
         }
     }
 }
-
 void convolution::conv_update_weights()
 {
     // Update kernel weights
