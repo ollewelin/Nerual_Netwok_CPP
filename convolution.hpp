@@ -31,6 +31,7 @@ private:
     vector<double> accum_bias_deltas;//1D [output_channel]
     vector<double> kernel_bias_weights;//1D [output_channel]
     vector<double> change_bias_weights;//1D [output_channel]
+    vector<vector<vector<double>>> internal_tensor_delta;//3D [output_channel][output_row][output_col]
     double activation_function(double);
     double delta_activation_func(double,double);
 public:
