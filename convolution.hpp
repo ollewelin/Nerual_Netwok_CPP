@@ -17,6 +17,7 @@ private:
     int output_tensor_channels;
     int input_side_size;
     int output_side_size;
+
    
     int setup_state;
     //0 = start up state, nothing done yet
@@ -27,6 +28,7 @@ private:
     vector<vector<vector<vector<double>>>> kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> change_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
+    vector<double> accum_bias_deltas;//1D [output_channel]
     vector<double> kernel_bias_weights;//1D [output_channel]
     vector<double> change_bias_weights;//1D [output_channel]
     double activation_function(double);

@@ -60,7 +60,7 @@ int main()
     int input_channels = 1;//=== one channel MNIST dataset is used ====
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels);//data_size_one_sample_one_channel, input channels
     conv_L1.set_kernel_size(3);//Odd number
-    conv_L1.set_stride(1);
+    conv_L1.set_stride(2);
     conv_L1.set_out_tensor(30);//output channels
     conv_L1.output_tensor.size();
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============

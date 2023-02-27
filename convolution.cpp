@@ -23,7 +23,6 @@ convolution::~convolution()
 {
     cout << "Destructor Convloution neural network object " << endl;
 }
-
 void convolution::set_kernel_size(int k_size)
 {
     if (setup_state > 1)
@@ -183,6 +182,7 @@ void convolution::set_out_tensor(int out_channels)
     // Add also one bias weight at end for the hole [input_channel][0][0]
     for (int i = 0; i < output_tensor_channels; i++)
     {
+        accum_bias_deltas.push_back(0.0);//
         kernel_bias_weights.push_back(0.0); // kernel bias weight [output_channel]
         change_bias_weights.push_back(0.0); // change bias weight [output_channel]
         // kernel_deltas dont need space for bias. no bias here
@@ -334,25 +334,11 @@ void convolution::conv_forward()
                     for (int ky = 0; ky < kernel_size; ky++)
                     {
                         int inp_tens_y_pos = ky + y_slide * stride;
-                        if (inp_tens_y_pos < input_side_size)
+                        for (int kx = 0; kx < kernel_size; kx++)
                         {
-                            for (int kx = 0; kx < kernel_size; kx++)
-                            {
-                                int inp_tens_x_pos = kx + x_slide * stride;
-                                if (inp_tens_x_pos < input_side_size)
-                                {
-                                    // Itterate dot product
-                                    dot_product += input_tensor[in_ch_cnt][ky + y_slide * stride][kx + x_slide * stride] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            break;
+                            int inp_tens_x_pos = kx + x_slide * stride;
+                            // Itterate dot product
+                            dot_product += input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
                         }
                     }
                 }
@@ -369,6 +355,7 @@ void convolution::conv_backprop()
     // Compute delta for each output channel
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
+        accum_bias_deltas[out_ch_cnt] = 0.0;
         for (int y_slide = 0; y_slide < output_side_size; y_slide++)
         {
             for (int x_slide = 0; x_slide < output_side_size; x_slide++)
@@ -382,32 +369,18 @@ void convolution::conv_backprop()
                     for (int ky = 0; ky < kernel_size; ky++)
                     {
                         int inp_tens_y_pos = ky + y_slide * stride;
-                        if (inp_tens_y_pos < input_side_size)
+                        for (int kx = 0; kx < kernel_size; kx++)
                         {
-                            for (int kx = 0; kx < kernel_size; kx++)
-                            {
-                                int inp_tens_x_pos = kx + x_slide * stride;
-                                if (inp_tens_x_pos < input_side_size)
-                                {
-                                    // Update delta for kernel weight
-                                    kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] += delta_activation * input_tensor[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos];
-                                    // Update delta for input tensor. Flipped 180 deg kernel_weight
-                                    i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += delta_activation * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            break;
+                            int inp_tens_x_pos = kx + x_slide * stride;
+                            // Update delta for kernel weight
+                            kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] += delta_activation * input_tensor[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos];
+                            // Update delta for input tensor. Flipped 180 deg kernel_weight
+                            i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += delta_activation * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
                         }
                     }
                 }
                 // Update delta for bias weights
-                kernel_bias_weights[out_ch_cnt] += learning_rate * delta_activation;
+                accum_bias_deltas[out_ch_cnt] += delta_activation;
             }
         }
     }
@@ -417,7 +390,7 @@ void convolution::conv_update_weights()
     // Update kernel weights
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
-        change_bias_weights[out_ch_cnt] = (learning_rate * kernel_bias_weights[out_ch_cnt]) + (momentum * change_bias_weights[out_ch_cnt]);
+        change_bias_weights[out_ch_cnt] = (learning_rate * accum_bias_deltas[out_ch_cnt]) + (momentum * change_bias_weights[out_ch_cnt]);
         kernel_bias_weights[out_ch_cnt] += change_bias_weights[out_ch_cnt];
         for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
         {
