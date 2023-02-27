@@ -9,7 +9,7 @@ convolution::convolution()
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 1;
+    version_minor = 0;
     // 0.0.1 Almost empty class no algorithm yet implemented
     setup_state = 0;
     kernel_size = 3;
