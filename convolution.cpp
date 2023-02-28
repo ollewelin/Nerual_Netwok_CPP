@@ -182,7 +182,7 @@ void convolution::set_out_tensor(int out_channels)
     // Add also one bias weight at end for the hole [input_channel][0][0]
     for (int i = 0; i < output_tensor_channels; i++)
     {
-        accum_bias_deltas.push_back(0.0);//
+        accum_bias_deltas.push_back(0.0);   //
         kernel_bias_weights.push_back(0.0); // kernel bias weight [output_channel]
         change_bias_weights.push_back(0.0); // change bias weight [output_channel]
         // kernel_deltas dont need space for bias. no bias here
@@ -202,7 +202,7 @@ void convolution::set_out_tensor(int out_channels)
     {
         output_tensor.push_back(dummy_2D_vect);
         o_tensor_delta.push_back(dummy_2D_vect);
-        internal_tensor_delta.push_back(dummy_2D_vect);// o_tensor_delta derivated backwards to inside the activation fucntion
+        internal_tensor_delta.push_back(dummy_2D_vect); // o_tensor_delta derivated backwards to inside the activation fucntion
     }
 
     cout << "   kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
@@ -350,6 +350,32 @@ void convolution::conv_forward()
         }
     }
 }
+void convolution::xy_start_stop_transpose_conv(int slide_val)
+{
+    start_ret = kernel_size - slide_val - 1;
+    if (start_ret < 0)
+    {
+        start_ret = 0;
+    }
+    int stop_ret = kernel_size + input_side_size - slide_val - 1;
+    if (stop_ret > kernel_size)
+    {
+        stop_ret = kernel_size;
+    }
+
+    // Check and debug algorithm
+    if (start_ret > kernel_size - 1)
+    {
+        cout << "debug algorithm start_ret = " << start_ret << endl;
+        exit(0);
+    }
+    // Check and debug algorithm
+    if (stop_ret < 1)
+    {
+        cout << "debug algorithm stop_ret = " << stop_ret << endl;
+        exit(0);
+    }
+}
 
 void convolution::conv_backprop()
 {
@@ -385,7 +411,7 @@ void convolution::conv_backprop()
     }
 
     // Update delta for input tensor. Flipped 180 deg kernel_weight
-    //TODO...
+    // TODO...
     //.....change below
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -395,20 +421,22 @@ void convolution::conv_backprop()
             {
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
-                    //TODO change here below
-                    /*
-                    for (int ky = 0; ky < kernel_size; ky++)
+                    xy_start_stop_transpose_conv(y_slide);
+                    for (int ky = start_ret; ky < stop_ret; ky++)
                     {
-                        int inp_tens_y_pos = ky + y_slide * stride;
-                        for (int kx = 0; kx < kernel_size; kx++)
+                        xy_start_stop_transpose_conv(x_slide);
+                        for (int kx = start_ret; kx < stop_ret; kx = kx + stride)
                         {
-                            int inp_tens_x_pos = kx + x_slide * stride;
+                            int inp_tens_y_pos = 0; // TODO
+                            int inp_tens_x_pos = 0; // TODO.
+
                             // Update delta for input tensor. Flipped 180 deg kernel_weight
+                            //                            i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][y_slide][x_slide] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
+                    
+                    //TODO....
                             i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][y_slide][x_slide] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
                         }
                     }
-                    */
-
                 }
             }
         }

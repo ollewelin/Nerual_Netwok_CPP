@@ -34,6 +34,9 @@ private:
     vector<vector<vector<double>>> internal_tensor_delta;//3D [output_channel][output_row][output_col]
     double activation_function(double);
     double delta_activation_func(double,double);
+    void xy_start_stop_transpose_conv(int);
+    int start_ret;
+    int stop_ret;
 public:
     vector<vector<vector<double>>> input_tensor;//3D [input_channel][row][col]
     vector<vector<vector<double>>> i_tensor_delta;//3D [input_channel][row][col] 
