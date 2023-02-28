@@ -78,10 +78,10 @@ void convolution::set_stride(int stride_size)
         cout << "Exit program" << endl;
         exit(0);
     }
-    if (stride_size > 2 || stride_size < 1)
+    if (stride_size < 1)
     {
         cout << "   Error stride size out of range. stride = " << stride_size << endl;
-        cout << "   Stride size on convolution version " << ver_major << "." << version_mid << "." << version_minor << " is only support range 1-2" << endl;
+        cout << "   Stride size on convolution version " << ver_major << "." << version_mid << "." << version_minor << " is only support range 1-n" << endl;
         cout << "   Exit program" << endl;
         exit(0);
     }
@@ -146,15 +146,19 @@ void convolution::set_out_tensor(int out_channels)
     }
 
     //========= Set up convolution weight tensor and output tensor size for convolution object =================
-    if (stride == 1)
+    output_side_size = ((input_side_size - kernel_size) / stride) + 1;
+    if(output_side_size > 0)
     {
-        output_side_size = (input_side_size - kernel_size) + 1;
+        cout << "   OK output_side_size = " << output_side_size << endl;
     }
-    else if (stride == 2)
+    else
     {
-        output_side_size = ((input_side_size - kernel_size) / 2) + 1;
+        cout << "Error efter stride and kernel calculation for output size. output_side_size = " << output_side_size << endl;
+        cout << "decrease stide of layers or increase input size" << endl;
+        cout << "Exit program" << endl;
+        exit(0);
     }
-    cout << "   OK output_side_size = " << output_side_size << endl;
+    
     // output_side_size = xxx
     vector<double> dummy_1D_vect;
     vector<vector<double>> dummy_2D_vect;
