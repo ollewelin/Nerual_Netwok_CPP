@@ -422,7 +422,7 @@ void convolution::conv_backprop()
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
                     xy_start_stop_transpose_conv(y_slide);
-                    for (int ky = start_ret; ky < stop_ret; ky++)
+                    for (int ky = start_ret; ky < stop_ret; ky = ky + stride)
                     {
                         xy_start_stop_transpose_conv(x_slide);
                         for (int kx = start_ret; kx < stop_ret; kx = kx + stride)
