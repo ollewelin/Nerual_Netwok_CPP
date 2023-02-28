@@ -382,16 +382,18 @@ void convolution::conv_backprop()
     // Compute delta for each output channel
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
-        accum_bias_deltas[out_ch_cnt] = 0.0;
+        accum_bias_deltas[out_ch_cnt] = 0.0;//used only for bias weight update later
         for (int y_slide = 0; y_slide < output_side_size; y_slide++)
         {
             for (int x_slide = 0; x_slide < output_side_size; x_slide++)
             {
                 // Compute derivative of activation function
                 double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], output_tensor[out_ch_cnt][y_slide][x_slide]);
+                //delta_activation used in this loop for kernel weight delta calculations
+                //store also delta_activation into internal_tensor_delta[][][] used later for delta for input tensor calculation
                 internal_tensor_delta[out_ch_cnt][y_slide][x_slide] = delta_activation;
                 // Update delta for bias weights
-                accum_bias_deltas[out_ch_cnt] += delta_activation;
+                accum_bias_deltas[out_ch_cnt] += delta_activation;//used only for bias weight update later
                 // Update delta for kernel weights and input tensor
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
