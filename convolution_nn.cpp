@@ -16,12 +16,32 @@ using namespace std;
 #include <math.h>   // exp
 #include <stdlib.h> // exit(0);
 
-
 #include <cstdlib>
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main()
 {
+
+    cout << "evaluate stride add input algorithm  test " << endl;
+    int k = 3;
+    for (int stride = 1; stride < 4; stride++)
+    {
+        for (int i = 5; i < 12; i++)
+        {
+            int modulo = (i - k) % stride;
+            int add = 0;
+            if(modulo > 0)
+            {
+                add = stride - modulo; 
+            }
+            cout << "i = " << i << endl;
+            cout << "k = " << k << endl;
+            cout << "stride = " << stride << endl;
+            cout << "add = " << add << endl;
+        }
+        cout << endl;
+    }
+
     cout << "Convolution neural network under work..." << endl;
     // ======== create 2 convolution layer objects =========
     convolution conv_L1;
@@ -36,7 +56,6 @@ int main()
     string weight_filename_end;
     weight_filename_end = "end_block_weights.dat";
     fc_nn_end_block.get_version();
-    
 
     fc_nn_end_block.block_type = 2;
     fc_nn_end_block.use_softmax = 1;
@@ -52,19 +71,18 @@ int main()
     int data_size_one_sample_one_channel = l_mnist_data.get_one_sample_data_size();
     int training_dataset_size = l_mnist_data.get_training_data_set_size();
     int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
-    
+
     cout << endl;
     conv_L1.get_version();
     //==== Set up convolution layers ===========
     cout << "conv_L1 setup:" << endl;
-    int input_channels = 1;//=== one channel MNIST dataset is used ====
-    conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels);//data_size_one_sample_one_channel, input channels
-    conv_L1.set_kernel_size(3);//Odd number
+    int input_channels = 1;                                                  //=== one channel MNIST dataset is used ====
+    conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
+    conv_L1.set_kernel_size(3);                                              // Odd number
     conv_L1.set_stride(2);
-    conv_L1.set_out_tensor(30);//output channels
+    conv_L1.set_out_tensor(30); // output channels
     conv_L1.output_tensor.size();
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
-
 
     //========================================
     const int end_inp_nodes = data_size_one_sample_one_channel;
