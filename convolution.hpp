@@ -39,19 +39,19 @@ private:
     int start_ret;
     int stop_ret;
 public:
-    vector<vector<vector<double>>> input_tensor;//3D [input_channel][row][col]
-    vector<vector<vector<double>>> i_tensor_delta;//3D [input_channel][row][col] 
     void set_kernel_size(int);
     int get_kernel_size(void);
     void set_stride(int);
     int get_stride(void);
     void set_in_tensor(int, int);//input data size total (both side of sqare) on one channel, input channels
+    vector<vector<vector<double>>> input_tensor;//3D [input_channel][row][col].     The size of this vectors will setup inside set_in_tensor(int, int) function when called.
+    vector<vector<vector<double>>> i_tensor_delta;//3D [input_channel][row][col].   The size of this vectors will setup inside set_in_tensor(int, int) function when called.
     void set_out_tensor(int);//output channels
+    vector<vector<vector<double>>> output_tensor;//3D [output_channel][output_row][output_col].     The size of this vectors will setup inside set_out_tensor(int) function when called.
+    vector<vector<vector<double>>> o_tensor_delta;//3D [output_channel][output_row][output_col].    The size of this vectors will setup inside set_out_tensor(int) function when called.S
     void randomize_weights(double);//the input argument must be in range 0..1 but to somthing low for example 0.01
     void load_weights(string);//load weights with file name argument 
     void save_weights(string);//save weights with file name argument 
-    vector<vector<vector<double>>> output_tensor;//3D [output_channel][output_row][output_col] 
-    vector<vector<vector<double>>> o_tensor_delta;//3D [output_channel][output_row][output_col] 
     void conv_forward(void);
     void conv_backprop(void);
     void conv_update_weights(void);
