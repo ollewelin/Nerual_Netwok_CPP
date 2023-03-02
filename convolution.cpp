@@ -25,9 +25,9 @@ convolution::~convolution()
 }
 void convolution::set_kernel_size(int k_size)
 {
-    if (setup_state > 1)
+    if (setup_state > 0)
     {
-        cout << "Error could not change kernel when set_out_tensor_channels() already setup_state = " << setup_state << endl;
+        cout << "Error could not change kernel already set up once setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
         exit(0);
     }
@@ -48,20 +48,9 @@ void convolution::set_kernel_size(int k_size)
     }
     else
     {
-        cout << "   OK kernel size = " << k_size << endl;
+      //  cout << "   OK kernel size = " << k_size << endl;
     }
-    input_side_size = input_tensor[0][0].size();
-    if (input_side_size < k_size)
-    {
-        cout << "Error kernel size is > input side of square size input_side_size = " << input_side_size << endl;
-        cout << "kernel_size = " << k_size << endl;
-        cout << "Exit program" << endl;
-        exit(0);
-    }
-    else
-    {
-        cout << "   OK input_side_size = " << input_side_size << endl;
-    }
+
     kernel_size = k_size;
     setup_state = 1;
 }
@@ -74,7 +63,7 @@ void convolution::set_stride(int stride_size)
 {
     if (setup_state > 1)
     {
-        cout << "Error could not change stride size when set_out_tensor_channels() already setup_state = " << setup_state << endl;
+        cout << "Error must set stride after kernel setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
         exit(0);
     }
@@ -85,8 +74,10 @@ void convolution::set_stride(int stride_size)
         cout << "   Exit program" << endl;
         exit(0);
     }
+    cout << "   ========================================" << endl;
     cout << "   OK stride size is set to " << stride_size << endl;
     stride = stride_size;
+    setup_state = 2;
 }
 int convolution::get_stride()
 {
@@ -97,14 +88,14 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
 {
     input_tensor_channels = in_channels;
 
-    if (setup_state != 0)
+    if (setup_state != 2)
     {
-        cout << "Error could not set_in_tensor() setup_state must be = 0 when call set_in_tensor, setup_state = " << setup_state << endl;
+        cout << "Error could not set_in_tensor() setup_state must be = 2 when call set_in_tensor, setup_state = " << setup_state << endl;
         cout << "setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
         exit(0);
     }
-    cout << "   ========================================" << endl;
+    
     cout << "   data_size_one_sample one channel = " << total_input_size_one_channel << endl;
     root_of_intdata_size = sqrt(total_input_size_one_channel);
     // cout << "   root_of_intdata_size = " << root_of_intdata_size << endl;
@@ -118,12 +109,33 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
 
     vector<double> dummy_conv_1D_vector;
     vector<vector<double>> dummy_conv_2D_vector;
+
+    //Add stride add calculation at right and bottom side if neccesary
+    int add_side = 0;
+    if(stride > 1)
+    {
+        cout << "   Start doing calculatiote if stride add to input_tensor_size is neccesary" << endl;
+        int modulo = (root_of_intdata_size - kernel_size) % stride;//Calculation if add 
+        if(modulo > 0)
+        {
+            add_side = stride - modulo; 
+        }
+        cout << "   root_of_intdata_size = " << root_of_intdata_size << endl;
+        cout << "   kernel_size = " << kernel_size << endl;
+        cout << "   stride = " << stride << endl;
+        cout << "   add_side = " << add_side << endl;
+        if(add_side > 0)
+        {
+            cout << "   Note! Add bottom rows and right column at input_tensor to make the convolution betwhen input and kernel not miss any input data during stride stop operation " << endl;
+        }
+    }
+    int temporary_input_t_side_size = root_of_intdata_size + add_side;
     //========= Set up convolution input tensor size for convolution object =================
-    for (int i = 0; i < root_of_intdata_size; i++)
+    for (int i = 0; i < temporary_input_t_side_size; i++)
     {
         dummy_conv_1D_vector.push_back(0.0);
     }
-    for (int i = 0; i < root_of_intdata_size; i++)
+    for (int i = 0; i < temporary_input_t_side_size; i++)
     {
         dummy_conv_2D_vector.push_back(dummy_conv_1D_vector);
     }
@@ -132,14 +144,28 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         input_tensor.push_back(dummy_conv_2D_vector);
         i_tensor_delta.push_back(dummy_conv_2D_vector);
     }
+    input_side_size = input_tensor[0][0].size();
+    if (input_side_size < kernel_size)
+    {
+        cout << "Error kernel size is > input side of square size input_side_size = " << input_side_size << endl;
+        cout << "kernel_size = " << kernel_size << endl;
+        cout << "Exit program" << endl;
+        exit(0);
+    }
+    else
+    {
+        cout << "   OK input_side_size = " << input_side_size << endl;
+    }
+
+    setup_state = 3;
 }
 
 void convolution::set_out_tensor(int out_channels)
 {
     output_tensor_channels = out_channels;
-    if (setup_state != 1)
+    if (setup_state != 3)
     {
-        cout << "Error could not set_out_tensor() setup_state must be = 1 when call set_out_tensor_channels(), setup_state = " << setup_state << endl;
+        cout << "Error could not set_out_tensor() setup_state must be = 3 when call set_out_tensor_channels(), setup_state = " << setup_state << endl;
         cout << "setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
         exit(0);
@@ -219,13 +245,31 @@ void convolution::set_out_tensor(int out_channels)
     cout << "   output_tensor[" << output_tensor_channels - 1 << "][" << output_side_size - 1 << "].size() = " << output_tensor[output_tensor_channels - 1][output_side_size - 1].size() << endl;
     cout << "   ========================================" << endl;
 
-    setup_state = 2;
+    setup_state = 4;
 }
 void convolution::randomize_weights(double rand_prop)
 {
+    if (setup_state != 4)
+    {
+        cout << "Error could not radmoize_weight() setup_state must be = 4, setup_state = " << setup_state << endl;
+        cout << "setup_state = " << setup_state << endl;
+        cout << "Exit program" << endl;
+        //TODO
+        exit(0);
+    }
+    setup_state = 5;
 }
 void convolution::load_weights(string filename)
 {
+    if (setup_state != 4)
+    {
+        cout << "Error could not load_weights() setup_state must be = 4, setup_state = " << setup_state << endl;
+        cout << "setup_state = " << setup_state << endl;
+        cout << "Exit program" << endl;
+        //TODO
+        exit(0);
+    }
+    setup_state = 5;
 }
 void convolution::save_weights(string filename)
 {
