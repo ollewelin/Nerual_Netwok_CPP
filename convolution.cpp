@@ -56,7 +56,7 @@ void convolution::set_kernel_size(int k_size)
 }
 int convolution::get_kernel_size()
 {
-
+    
     return kernel_size;
 }
 void convolution::set_stride(int stride_size)

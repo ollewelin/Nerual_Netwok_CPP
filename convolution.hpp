@@ -18,15 +18,14 @@ private:
     int input_side_size;
     int output_side_size;
 
-   
     int setup_state;
-    //0 = start up state, nothing done yet
+    //Setup functions below must be called in this order to make setup working.
+    //0 = start up state, nothing done yet. 
     //1 = set_kernel_size() is set up
-    //2 = set_stride() sone is set up
+    //2 = set_stride() stride is set up
     //3 = set_in_tensor() done
     //4 = set_out_tensor_channels() is done
-    //5 = init_weights or load weights is done
-
+    //5 = randomize_weights() or load_weights() is done
     vector<vector<vector<vector<double>>>> kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> change_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
