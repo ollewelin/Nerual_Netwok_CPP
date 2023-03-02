@@ -478,12 +478,10 @@ void convolution::conv_backprop()
                         {
                             int inp_tens_y_pos = 0; // TODO
                             int inp_tens_x_pos = 0; // TODO.
-
+                            int out_tens_y_pos = 0; // TODO
+                            int out_tens_x_pos = 0; // TODO
                             // Update delta for input tensor. Flipped 180 deg kernel_weight
-                            //                            i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][y_slide][x_slide] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
-                    
-                    //TODO....
-                            i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][y_slide][x_slide] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
+                            i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
                         }
                     }
                 }
