@@ -399,23 +399,17 @@ void convolution::conv_forward()
 }
 void convolution::xy_start_stop_kernel(int slide_val)
 {
-    // start_ret = kernel_size - slide_val - 1;
-
     start_ret = slide_val % stride;
-
     int start_constraint_end = (output_side_size * stride - kernel_size / 2);
     if (slide_val > start_constraint_end)
     {
         start_ret = start_ret + (slide_val - output_side_size * stride);
     }
-
-    // TODO...
     int stop_ret = slide_val;
     if (stop_ret < kernel_size)
     {
         stop_ret = kernel_size;
     }
-
     // Check and debug algorithm
     if (start_ret > kernel_size - 1)
     {
