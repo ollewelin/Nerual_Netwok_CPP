@@ -397,15 +397,22 @@ void convolution::conv_forward()
         }
     }
 }
-void convolution::xy_start_stop_transpose_conv(int slide_val)
+void convolution::xy_start_stop_kernel(int slide_val)
 {
-    start_ret = kernel_size - slide_val - 1;
-    if (start_ret < 0)
+    //start_ret = kernel_size - slide_val - 1;
+    
+    start_ret = slide_val % stride;
+    
+
+    int start_constraint_end = (output_side_size * stride - kernel_size/2);
+    if(slide_val > start_constraint_end)
     {
-        start_ret = 0;
+        start_ret = start_ret + (slide_val - output_side_size * stride);
     }
-    int stop_ret = kernel_size + input_side_size - slide_val - 1;
-    if (stop_ret > kernel_size)
+
+    //TODO...
+    int stop_ret = slide_val;
+    if (stop_ret < kernel_size)
     {
         stop_ret = kernel_size;
     }
@@ -414,12 +421,6 @@ void convolution::xy_start_stop_transpose_conv(int slide_val)
     if (start_ret > kernel_size - 1)
     {
         cout << "debug algorithm start_ret = " << start_ret << endl;
-        exit(0);
-    }
-    // Check and debug algorithm
-    if (stop_ret < 1)
-    {
-        cout << "debug algorithm stop_ret = " << stop_ret << endl;
         exit(0);
     }
 }
@@ -451,7 +452,7 @@ void convolution::conv_backprop()
                         {
                             int inp_tens_x_pos = kx + x_slide * stride;
                             // Update delta for kernel weight
-                            kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] += delta_activation * input_tensor[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos];
+                            kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] += delta_activation * input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos];
                         }
                     }
                 }
@@ -460,8 +461,6 @@ void convolution::conv_backprop()
     }
 
     // Update delta for input tensor. Flipped 180 deg kernel_weight
-    // TODO...
-    //.....change below
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
         for (int y_slide = 0; y_slide < input_side_size; y_slide++)
@@ -470,18 +469,18 @@ void convolution::conv_backprop()
             {
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
-                    xy_start_stop_transpose_conv(y_slide);
-                    for (int ky = start_ret; ky < stop_ret; ky = ky + stride)
+                    xy_start_stop_kernel(y_slide);
+                    
+                    for (int ky = start_ret; ky < stop_ret; ky = ky + stride)//Flipped 180 deg kernel_weight
                     {
-                        xy_start_stop_transpose_conv(x_slide);
-                        for (int kx = start_ret; kx < stop_ret; kx = kx + stride)
+                        xy_start_stop_kernel(x_slide);
+                    
+                        for (int kx = start_ret; kx < stop_ret; kx = kx + stride)//Flipped 180 deg kernel_weight
                         {
-                            int inp_tens_y_pos = 0; // TODO
-                            int inp_tens_x_pos = 0; // TODO.
-                            int out_tens_y_pos = 0; // TODO
-                            int out_tens_x_pos = 0; // TODO
+                            int out_tens_y_pos = output_side_size - y_slide/stride;//
+                            int out_tens_x_pos = output_side_size - x_slide/stride;//
                             // Update delta for input tensor. Flipped 180 deg kernel_weight
-                            i_tensor_delta[in_ch_cnt][inp_tens_x_pos][inp_tens_y_pos] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
+                            i_tensor_delta[in_ch_cnt][y_slide][x_slide] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
                         }
                     }
                 }
@@ -489,6 +488,8 @@ void convolution::conv_backprop()
         }
     }
 }
+
+
 void convolution::conv_update_weights()
 {
     // Update kernel weights
