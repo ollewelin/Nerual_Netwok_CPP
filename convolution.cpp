@@ -48,7 +48,7 @@ void convolution::set_kernel_size(int k_size)
     }
     else
     {
-      //  cout << "   OK kernel size = " << k_size << endl;
+        //  cout << "   OK kernel size = " << k_size << endl;
     }
 
     kernel_size = k_size;
@@ -94,7 +94,7 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         cout << "Exit program" << endl;
         exit(0);
     }
-    
+
     cout << "   data_size_one_sample one channel = " << total_input_size_one_channel << endl;
     root_of_intdata_size = sqrt(total_input_size_one_channel);
     // cout << "   root_of_intdata_size = " << root_of_intdata_size << endl;
@@ -109,21 +109,21 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
     vector<double> dummy_conv_1D_vector;
     vector<vector<double>> dummy_conv_2D_vector;
 
-    //Add stride add calculation at right and bottom side if neccesary
+    // Add stride add calculation at right and bottom side if neccesary
     int add_side = 0;
-    if(stride > 1)
+    if (stride > 1)
     {
         cout << "   Start doing calculatiote if stride add to input_tensor_size is neccesary" << endl;
-        int modulo = (root_of_intdata_size - kernel_size) % stride;//Calculation if add 
-        if(modulo > 0)
+        int modulo = (root_of_intdata_size - kernel_size) % stride; // Calculation if add
+        if (modulo > 0)
         {
-            add_side = stride - modulo; 
+            add_side = stride - modulo;
         }
         cout << "   root_of_intdata_size = " << root_of_intdata_size << endl;
         cout << "   kernel_size = " << kernel_size << endl;
         cout << "   stride = " << stride << endl;
         cout << "   add_side = " << add_side << endl;
-        if(add_side > 0)
+        if (add_side > 0)
         {
             cout << "   Note! Add bottom rows and right column at input_tensor to make the convolution betwhen input and kernel not miss any input data during stride stop operation " << endl;
         }
@@ -172,7 +172,7 @@ void convolution::set_out_tensor(int out_channels)
 
     //========= Set up convolution weight tensor and output tensor size for convolution object =================
     output_side_size = ((input_side_size - kernel_size) / stride) + 1;
-    if(output_side_size > 0)
+    if (output_side_size > 0)
     {
         cout << "   OK output_side_size = " << output_side_size << endl;
     }
@@ -183,7 +183,7 @@ void convolution::set_out_tensor(int out_channels)
         cout << "Exit program" << endl;
         exit(0);
     }
-    
+
     // output_side_size = xxx
     vector<double> dummy_1D_vect;
     vector<vector<double>> dummy_2D_vect;
@@ -253,7 +253,7 @@ void convolution::randomize_weights(double rand_prop)
         cout << "Error could not radmoize_weight() setup_state must be = 4, setup_state = " << setup_state << endl;
         cout << "setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
-        //TODO
+        // TODO
         exit(0);
     }
     setup_state = 5;
@@ -265,7 +265,7 @@ void convolution::load_weights(string filename)
         cout << "Error could not load_weights() setup_state must be = 4, setup_state = " << setup_state << endl;
         cout << "setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
-        //TODO
+        // TODO
         exit(0);
     }
     setup_state = 5;
@@ -399,18 +399,17 @@ void convolution::conv_forward()
 }
 void convolution::xy_start_stop_kernel(int slide_val)
 {
-    //start_ret = kernel_size - slide_val - 1;
-    
-    start_ret = slide_val % stride;
-    
+    // start_ret = kernel_size - slide_val - 1;
 
-    int start_constraint_end = (output_side_size * stride - kernel_size/2);
-    if(slide_val > start_constraint_end)
+    start_ret = slide_val % stride;
+
+    int start_constraint_end = (output_side_size * stride - kernel_size / 2);
+    if (slide_val > start_constraint_end)
     {
         start_ret = start_ret + (slide_val - output_side_size * stride);
     }
 
-    //TODO...
+    // TODO...
     int stop_ret = slide_val;
     if (stop_ret < kernel_size)
     {
@@ -430,18 +429,18 @@ void convolution::conv_backprop()
     // Compute delta for each output channel
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
-        accum_bias_deltas[out_ch_cnt] = 0.0;//used only for bias weight update later
+        accum_bias_deltas[out_ch_cnt] = 0.0; // used only for bias weight update later
         for (int y_slide = 0; y_slide < output_side_size; y_slide++)
         {
             for (int x_slide = 0; x_slide < output_side_size; x_slide++)
             {
                 // Compute derivative of activation function
                 double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], output_tensor[out_ch_cnt][y_slide][x_slide]);
-                //delta_activation used in this loop for kernel weight delta calculations
-                //store also delta_activation into internal_tensor_delta[][][] used later for delta for input tensor calculation
+                // delta_activation used in this loop for kernel weight delta calculations
+                // store also delta_activation into internal_tensor_delta[][][] used later for delta for input tensor calculation
                 internal_tensor_delta[out_ch_cnt][y_slide][x_slide] = delta_activation;
                 // Update delta for bias weights
-                accum_bias_deltas[out_ch_cnt] += delta_activation;//used only for bias weight update later
+                accum_bias_deltas[out_ch_cnt] += delta_activation; // used only for bias weight update later
                 // Update delta for kernel weights and input tensor
                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                 {
@@ -463,24 +462,28 @@ void convolution::conv_backprop()
     // Update delta for input tensor. Flipped 180 deg kernel_weight
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
-        for (int y_slide = 0; y_slide < input_side_size; y_slide++)
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
         {
-            for (int x_slide = 0; x_slide < input_side_size; x_slide++)
+            for (int y_slide = 0; y_slide < input_side_size; y_slide++)
             {
-                for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+                int out_tens_y_pos = output_side_size - y_slide / stride; //
+                if (out_tens_y_pos < output_side_size - 1)
                 {
                     xy_start_stop_kernel(y_slide);
-                    
-                    for (int ky = start_ret; ky < stop_ret; ky = ky + stride)//Flipped 180 deg kernel_weight
+                    for (int x_slide = 0; x_slide < input_side_size; x_slide++)
                     {
-                        xy_start_stop_kernel(x_slide);
-                    
-                        for (int kx = start_ret; kx < stop_ret; kx = kx + stride)//Flipped 180 deg kernel_weight
+                        int out_tens_x_pos = output_side_size - x_slide / stride; //
+                        if (out_tens_y_pos < output_side_size - 1)
                         {
-                            int out_tens_y_pos = output_side_size - y_slide/stride;//
-                            int out_tens_x_pos = output_side_size - x_slide/stride;//
-                            // Update delta for input tensor. Flipped 180 deg kernel_weight
-                            i_tensor_delta[in_ch_cnt][y_slide][x_slide] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                            xy_start_stop_kernel(x_slide);
+                            for (int ky = start_ret; ky < stop_ret; ky = ky + stride) 
+                            {
+                                for (int kx = start_ret; kx < stop_ret; kx = kx + stride) 
+                                {
+                                    // Update delta for input tensor. Flipped 180 deg kernel_weight
+                                    i_tensor_delta[in_ch_cnt][y_slide][x_slide] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][kernel_size - ky - 1][kernel_size - kx - 1];
+                                }
+                            }
                         }
                     }
                 }
@@ -488,7 +491,6 @@ void convolution::conv_backprop()
         }
     }
 }
-
 
 void convolution::conv_update_weights()
 {
