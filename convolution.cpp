@@ -443,7 +443,7 @@ void convolution::xy_start_stop_kernel(int slide_val)
         start_ret = start_ret + (slide_val - output_side_size * stride);
     }
     stop_ret = slide_val;
-    if (stop_ret < kernel_size)
+    if (stop_ret > kernel_size)
     {
         stop_ret = kernel_size;
     }
