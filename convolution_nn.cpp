@@ -66,7 +66,13 @@ int main()
     conv_L1.output_tensor.size();
     conv_L1.randomize_weights(0.01);
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
-
+    while(1)
+    {
+        
+        conv_L1.conv_forward1();
+        conv_L1.conv_backprop();
+        conv_L1.conv_update_weights();
+    }
     //========================================
     const int end_inp_nodes = data_size_one_sample_one_channel;
     const int end_hid_layers = 2;

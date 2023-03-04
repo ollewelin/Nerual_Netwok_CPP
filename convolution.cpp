@@ -500,15 +500,19 @@ void convolution::conv_backprop()
             if (out_tens_y_pos < output_side_size - 1)
             {
                 xy_start_stop_kernel(y_slide);
+                int y_start_ret = start_ret;
+                int y_stop_ret = stop_ret;
                 for (int x_slide = 0; x_slide < input_side_size; x_slide++)
                 {
                     int out_tens_x_pos = output_side_size - x_slide / stride; //
                     if (out_tens_y_pos < output_side_size - 1)
                     {
                         xy_start_stop_kernel(x_slide);
-                        for (int ky = start_ret; ky < stop_ret; ky = ky + stride) // Flipped 180 deg kernel_weight
+                        int x_start_ret = start_ret;
+                        int x_stop_ret = stop_ret;
+                        for (int ky = y_start_ret; ky < y_stop_ret; ky = ky + stride) // Flipped 180 deg kernel_weight
                         {
-                            for (int kx = start_ret; kx < stop_ret; kx = kx + stride) // Flipped 180 deg kernel_weight
+                            for (int kx = x_start_ret; kx < x_stop_ret; kx = kx + stride) // Flipped 180 deg kernel_weight
                             {
                                 for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                                 {
