@@ -368,7 +368,7 @@ double convolution::delta_activation_func(double delta_outside_function, double 
 }
 
 // More computation intensive metode. But vetor memory pipline large jumping metode
-void convolution::conv_forward()
+void convolution::conv_forward1()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -402,7 +402,7 @@ void convolution::conv_forward()
 
 // Less vetor memory large pipline jumping metode But more computation intensive metode
 
-void convolution::conv_forward_low_arithm_operation()
+void convolution::conv_forward2()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -559,3 +559,67 @@ void convolution::get_version()
     ver_mid = version_mid;
     ver_minor = version_minor;
 }
+
+/*
+#include <iostream>
+#include <chrono>
+
+// Function 1
+void convolution::conv_forward1()
+{
+    // implementation of function 1
+}
+
+// Function 2
+void convolution::conv_forward2()
+{
+    // implementation of function 2
+}
+
+int main()
+{
+    // number of times to run each function
+    int num_runs = 10;
+
+    // time variables
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> elapsed_seconds1, elapsed_seconds2;
+
+    // run function 1 and record runtime
+    start = std::chrono::system_clock::now();
+    for (int i = 0; i < num_runs; i++)
+    {
+        convolution::conv_forward1();
+    }
+    end = std::chrono::system_clock::now();
+    elapsed_seconds1 = end - start;
+
+    // run function 2 and record runtime
+    start = std::chrono::system_clock::now();
+    for (int i = 0; i < num_runs; i++)
+    {
+        convolution::conv_forward2();
+    }
+    end = std::chrono::system_clock::now();
+    elapsed_seconds2 = end - start;
+
+    // print results
+    std::cout << "Function 1 took " << elapsed_seconds1.count() << " seconds for " << num_runs << " runs." << std::endl;
+    std::cout << "Function 2 took " << elapsed_seconds2.count() << " seconds for " << num_runs << " runs." << std::endl;
+
+    // choose faster function and use it for further processing
+    if (elapsed_seconds1 < elapsed_seconds2)
+    {
+        std::cout << "Function 1 is faster." << std::endl;
+        convolution::conv_forward1();
+    }
+    else
+    {
+        std::cout << "Function 2 is faster." << std::endl;
+        convolution::conv_forward2();
+    }
+
+    return 0;
+}
+
+*/
