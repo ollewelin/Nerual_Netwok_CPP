@@ -367,6 +367,7 @@ double convolution::delta_activation_func(double delta_outside_function, double 
     return delta_inside_func;
 }
 
+// More computation intensive metode. But vetor memory pipline large jumping metode
 void convolution::conv_forward()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
@@ -398,6 +399,41 @@ void convolution::conv_forward()
         }
     }
 }
+
+// Less vetor memory large pipline jumping metode But more computation intensive metode
+
+void convolution::conv_forward_low_arithm_operation()
+{
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int y_slide = 0; y_slide < output_side_size; y_slide++)
+            {
+                for (int x_slide = 0; x_slide < output_side_size; x_slide++)
+                {
+                    // Make the dot product of input tensor with kernel wheight for one kernel position
+                    double dot_product = kernel_bias_weights[out_ch_cnt]; // start with bias value for the dot product
+                    for (int ky = 0; ky < kernel_size; ky++)
+                    {
+                        int inp_tens_y_pos = ky + y_slide * stride;
+                        for (int kx = 0; kx < kernel_size; kx++)
+                        {
+
+                            int inp_tens_x_pos = kx + x_slide * stride;
+                            // Itterate dot product
+                            dot_product += input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                        }
+                    }
+                    // Make the activation function
+                    // Put the dot product to output tensor map
+                    output_tensor[out_ch_cnt][y_slide][x_slide] = activation_function(dot_product);
+                }
+            }
+        }
+    }
+}
+
 void convolution::xy_start_stop_kernel(int slide_val)
 {
     start_ret = slide_val % stride;
