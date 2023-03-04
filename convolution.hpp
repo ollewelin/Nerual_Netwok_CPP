@@ -17,7 +17,7 @@ private:
     int output_tensor_channels;
     int input_side_size;
     int output_side_size;
-    int xyi_start;
+
 
     int setup_state;
     //Setup functions below must be called in this order to make setup working.

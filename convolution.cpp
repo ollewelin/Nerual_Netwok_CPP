@@ -243,7 +243,7 @@ void convolution::set_out_tensor(int out_channels)
     cout << "   output_tensor.size() = " << output_tensor.size() << endl;
     cout << "   output_tensor[" << output_tensor_channels - 1 << "][" << output_side_size - 1 << "].size() = " << output_tensor[output_tensor_channels - 1][output_side_size - 1].size() << endl;
     cout << "   ========================================" << endl;
-    xyi_start = kernel_size / stride;
+
     setup_state = 4;
 }
 void convolution::randomize_weights(double rand_prop)
@@ -442,7 +442,7 @@ void convolution::xy_start_stop_kernel(int slide_val)
     {
         start_ret = start_ret + (slide_val - output_side_size * stride);
     }
-    stop_ret = slide_val;
+    stop_ret = slide_val + 1;
     if (stop_ret > kernel_size)
     {
         stop_ret = kernel_size;
@@ -503,20 +503,29 @@ void convolution::conv_backprop()
                 xy_start_stop_kernel(x_slide);
                 int x_start_ret = start_ret;
                 int x_stop_ret = stop_ret;
-                int yi = xyi_start;
+                int yi = 0;
                 for (int ky = y_start_ret; ky < y_stop_ret; ky = ky + stride) // Flipped 180 deg kernel_weight
                 {
                     int out_tens_y_pos = (y_slide / stride) + yi; //
                     yi--;
+                    if (out_tens_y_pos < 0)
+                    {
+                        out_tens_y_pos = 0;
+                    }
+
                     if (out_tens_y_pos >= output_side_size - 1)
                     {
                         out_tens_y_pos = output_side_size - 1;
                     }
-                    int xi = xyi_start;
+                    int xi = 0;
                     for (int kx = x_start_ret; kx < x_stop_ret; kx = kx + stride) // Flipped 180 deg kernel_weight
                     {
-                        int out_tens_x_pos = (x_slide / stride) + xi; //
+                        int out_tens_x_pos = (x_slide / stride) + xi;
                         xi--;
+                        if (out_tens_x_pos < 0)
+                        {
+                            out_tens_x_pos = 0;
+                        }
                         if (out_tens_x_pos >= output_side_size - 1)
                         {
                             out_tens_x_pos = output_side_size - 1;
