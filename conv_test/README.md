@@ -31,5 +31,5 @@
 
 ![](con_test_structure.png)
 
-![](conv_test_backprop_delta_debug.png)
+![](conv_transpose.png)
 
