@@ -5,3 +5,5 @@
 ## Test on conv_test
 
 ![](conv_test_backprop_delta.png)
+
+![](con_test_structure.png)
