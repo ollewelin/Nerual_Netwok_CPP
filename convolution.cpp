@@ -17,6 +17,8 @@ convolution::convolution()
     dropout_proportion = 0.0;
     use_dopouts = 0;
     cout << "Constructor Convloution neural network object " << endl;
+    srand(time(NULL)); // Seed radomizer
+    cout << "Seed radomizer done" << endl;
 }
 
 convolution::~convolution()
@@ -246,7 +248,6 @@ void convolution::set_out_tensor(int out_channels)
     cout << "   output_tensor.size() = " << output_tensor.size() << endl;
     cout << "   output_tensor[" << output_tensor_channels - 1 << "][" << output_side_size - 1 << "].size() = " << output_tensor[output_tensor_channels - 1][output_side_size - 1].size() << endl;
     cout << "   ========================================" << endl;
-    
 
     setup_state = 4;
 }
@@ -260,9 +261,26 @@ void convolution::randomize_weights(double rand_prop)
         // TODO
         exit(0);
     }
+
+    // Randomize kernel weights
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        kernel_bias_weights[out_ch_cnt] = ((((double)rand() / RAND_MAX) - 0.5) * rand_prop);
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int ky = 0; ky < kernel_size; ky++)
+            {
+                for (int kx = 0; kx < kernel_size; kx++)
+                {
+                    kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] = ((((double)rand() / RAND_MAX) - 0.5) * rand_prop);
+                }
+            }
+        }
+    }
+
     setup_state = 5;
 }
-void convolution::load_weights(string filename)
+void convolution::load_weights(string filename_k_w, string filname_k_bias)
 {
     if (setup_state != 4)
     {
@@ -274,8 +292,39 @@ void convolution::load_weights(string filename)
     }
     setup_state = 5;
 }
-void convolution::save_weights(string filename)
+
+const int precision_to_text_file = 16;
+void convolution::save_weights(string filename_k_w, string filname_k_bias)
 {
+    
+    cout << "Save kernel weight data weights ..." << endl;
+    ofstream outputFile;
+    outputFile.precision(precision_to_text_file);
+    outputFile.open(filename_k_w);
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int ky = 0; ky < kernel_size; ky++)
+            {
+                for (int kx = 0; kx < kernel_size; kx++)
+                {
+                    outputFile << kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] << endl;
+                }
+            }
+        }
+    }
+    outputFile.close();
+    cout << "Save kernel weight data finnish !" << endl;
+    cout << "Save bias weight data weights ..." << endl;
+    outputFile.precision(precision_to_text_file);
+    outputFile.open(filname_k_bias);
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        outputFile << kernel_bias_weights[out_ch_cnt]<< endl;
+    }
+    outputFile.close();
+    cout << "Save bias weight data finnish !" << endl;
 }
 
 double convolution::activation_function(double input_data)
@@ -441,10 +490,10 @@ void convolution::conv_forward2()
 void convolution::xy_start_stop_kernel(int slide_val)
 {
     start_ret = slide_val % stride;
-    if(slide_val > (input_side_size - kernel_size))
+    if (slide_val > (input_side_size - kernel_size))
     {
-        //Contraint start kernel pos to more then 0
-        start_ret = (slide_val - (output_side_size-1) * stride);
+        // Contraint start kernel pos to more then 0
+        start_ret = (slide_val - (output_side_size - 1) * stride);
     }
     stop_ret = slide_val + 1;
     if (stop_ret > kernel_size)
@@ -581,67 +630,3 @@ void convolution::get_version()
     ver_mid = version_mid;
     ver_minor = version_minor;
 }
-
-/*
-#include <iostream>
-#include <chrono>
-
-// Function 1
-void convolution::conv_forward1()
-{
-    // implementation of function 1
-}
-
-// Function 2
-void convolution::conv_forward2()
-{
-    // implementation of function 2
-}
-
-int main()
-{
-    // number of times to run each function
-    int num_runs = 10;
-
-    // time variables
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds1, elapsed_seconds2;
-
-    // run function 1 and record runtime
-    start = std::chrono::system_clock::now();
-    for (int i = 0; i < num_runs; i++)
-    {
-        convolution::conv_forward1();
-    }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds1 = end - start;
-
-    // run function 2 and record runtime
-    start = std::chrono::system_clock::now();
-    for (int i = 0; i < num_runs; i++)
-    {
-        convolution::conv_forward2();
-    }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds2 = end - start;
-
-    // print results
-    std::cout << "Function 1 took " << elapsed_seconds1.count() << " seconds for " << num_runs << " runs." << std::endl;
-    std::cout << "Function 2 took " << elapsed_seconds2.count() << " seconds for " << num_runs << " runs." << std::endl;
-
-    // choose faster function and use it for further processing
-    if (elapsed_seconds1 < elapsed_seconds2)
-    {
-        std::cout << "Function 1 is faster." << std::endl;
-        convolution::conv_forward1();
-    }
-    else
-    {
-        std::cout << "Function 2 is faster." << std::endl;
-        convolution::conv_forward2();
-    }
-
-    return 0;
-}
-
-*/

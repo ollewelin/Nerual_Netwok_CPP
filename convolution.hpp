@@ -51,8 +51,8 @@ public:
     vector<vector<vector<double>>> output_tensor;//3D [output_channel][output_row][output_col].     The size of this vectors will setup inside set_out_tensor(int) function when called.
     vector<vector<vector<double>>> o_tensor_delta;//3D [output_channel][output_row][output_col].    The size of this vectors will setup inside set_out_tensor(int) function when called.S
     void randomize_weights(double);//the input argument must be in range 0..1 but to somthing low for example 0.01
-    void load_weights(string);//load weights with file name argument 
-    void save_weights(string);//save weights with file name argument 
+    void load_weights(string, string);//load weights with file name argument 
+    void save_weights(string, string);//save weights with file name argument 
     void conv_forward1(void);//Low memory swaping high aritmetric operation variant
     void conv_forward2(void);//High memory swaping low aritmetric operation variant of conv_forward()
     void conv_backprop(void);

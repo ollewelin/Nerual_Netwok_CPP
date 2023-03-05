@@ -17,6 +17,7 @@ using namespace std;
 #include <stdlib.h> // exit(0);
 
 #include <cstdlib>
+#include <chrono>
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main()
@@ -40,9 +41,51 @@ int main()
     conv_test.output_tensor.size();
     conv_test.randomize_weights(0.01);
     conv_test.conv_forward1();
+    conv_test.conv_forward2();
     conv_test.conv_backprop();
     conv_test.conv_update_weights();
     //========================================
+
+    // number of times to run each function
+    int num_runs = 10;
+
+    // time variables
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> elapsed_seconds1, elapsed_seconds2;
+
+    // run function 1 and record runtime
+    start = std::chrono::system_clock::now();
+    for (int i = 0; i < num_runs; i++)
+    {
+        conv_test.conv_forward1();
+    }
+    end = std::chrono::system_clock::now();
+    elapsed_seconds1 = end - start;
+
+    // run function 2 and record runtime
+    start = std::chrono::system_clock::now();
+    for (int i = 0; i < num_runs; i++)
+    {
+        conv_test.conv_forward2();
+    }
+    end = std::chrono::system_clock::now();
+    elapsed_seconds2 = end - start;
+
+    // print results
+    std::cout << "Function 1 took " << elapsed_seconds1.count() << " seconds for " << num_runs << " runs." << std::endl;
+    std::cout << "Function 2 took " << elapsed_seconds2.count() << " seconds for " << num_runs << " runs." << std::endl;
+
+    // choose faster function and use it for further processing
+    if (elapsed_seconds1 < elapsed_seconds2)
+    {
+        std::cout << "Function 1 is faster." << std::endl;
+      //  conv_test.conv_forward1();
+    }
+    else
+    {
+        std::cout << "Function 2 is faster." << std::endl;
+      //  conv_test.conv_forward2();
+    }
 
 
     srand(time(NULL));
