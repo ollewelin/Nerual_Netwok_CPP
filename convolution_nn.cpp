@@ -128,14 +128,25 @@ int main()
     conv_L1.output_tensor.size();
     conv_L1.randomize_weights(0.01);
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
-  //  while(1)
-  //  {
 
-        conv_L1.conv_forward1();
-        conv_L1.conv_backprop();
-        conv_L1.conv_update_weights();
-  //  }
+    //==== Set up convolution layers ===========
+    cout << "conv_L2 setup:" << endl;
+    conv_L2.set_kernel_size(5);                                              // Odd number
+    conv_L2.set_stride(2);
+    conv_L2.set_in_tensor((conv_L1.output_tensor[0].size()*conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
+    conv_L2.set_out_tensor(30); // output channels
+    conv_L2.output_tensor.size();
+    conv_L2.randomize_weights(0.01);
+    //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
+    //conv_L1.conv_forward1();
+    //conv_L1.conv_forward1();
+    //conv_L1.conv_backprop();
+    //conv_L1.conv_update_weights();
+    //conv_L1.conv_backprop();
+    //conv_L1.conv_update_weights();
     //========================================
+
+
     const int end_inp_nodes = data_size_one_sample_one_channel;
     const int end_hid_layers = 2;
     const int end_hid_nodes_L1 = 200;
