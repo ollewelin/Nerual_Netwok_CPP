@@ -261,7 +261,7 @@ int main()
     int stop_training = 0;
     // Start traning
     //=================
-    int print_after = 5000;
+    int print_after = 4999;
     int print_cnt = print_after;
     for (int epc = 0; epc < training_epocs; epc++)
     {
@@ -436,6 +436,7 @@ int main()
                 cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
             }
             verify_loss = fc_nn_end_block.loss;
+            cout << "TODO !!! Verify not connected yet " << endl;
             cout << "Verify loss = " << verify_loss << endl;
             cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
             double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)verify_dataset_size);
