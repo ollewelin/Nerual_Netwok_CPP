@@ -100,9 +100,9 @@ int main()
     string L1_kernel_b_weight_filename;
     L1_kernel_b_weight_filename = "L1_kernel_b.dat";
     string L2_kernel_k_weight_filename;
-    L2_kernel_k_weight_filename = "L1_kernel_k.dat";
+    L2_kernel_k_weight_filename = "L2_kernel_k.dat";
     string L2_kernel_b_weight_filename;
-    L2_kernel_b_weight_filename = "L1_kernel_b.dat";
+    L2_kernel_b_weight_filename = "L2_kernel_b.dat";
 
     fc_nn_end_block.get_version();
 
