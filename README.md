@@ -289,8 +289,11 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     Epoch ----66
     
     
-# Convolution
-Backprop debuging test
+# Convolution example backprop delta or transpose 
+
+Backprop or  test
 
 ![](conv_test_backprop_delta.png)
+
+![](con_test_structure.png)
 
