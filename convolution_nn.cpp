@@ -212,7 +212,7 @@ int main()
     conv_L1.momentum = fc_nn_end_block.momentum;
     conv_L2.learning_rate = fc_nn_end_block.learning_rate;
     conv_L2.momentum = fc_nn_end_block.momentum;
-    
+
 
     double init_random_weight_propotion = 0.05;
     cout << "Do you want to load weights from saved weight file = Y/N " << endl;
@@ -261,7 +261,8 @@ int main()
     int stop_training = 0;
     // Start traning
     //=================
-
+    int print_after = 5000;
+    int print_cnt = print_after;
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -297,7 +298,16 @@ int main()
             conv_L1.conv_forward1();
             conv_L2.input_tensor = conv_L1.output_tensor;
             conv_L2.conv_forward1();
-            cout << "convolution L1 L2 done, i = " << i << endl;
+            if(print_cnt>0)
+            {
+                print_cnt--;
+            }
+            else
+            {
+                cout << "convolution L1 L2 done, i = " << i << endl;
+                print_cnt = print_after;
+            }
+
             int L2_out_one_side = conv_L2.output_tensor[0].size();
             int L2_out_ch = conv_L2.output_tensor.size();
             for (int oc = 0; oc < L2_out_ch; oc++)
