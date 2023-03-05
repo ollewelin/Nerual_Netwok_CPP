@@ -1,0 +1,4 @@
+
+Backprop debuging test
+
+![](Screenshot from 2023-03-05 13-40-54.png)
