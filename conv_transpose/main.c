@@ -14,32 +14,27 @@ vector<vector<vector<double>>> transposeConvolution(
     int kernel_size = kernel[0][0].size();
     int output_size = (input[0][0].size() - 1) * stride + kernel_size;
 
+
     // Initialize output tensor with zeros
-    vector<vector<vector<double>>> output(output_channels,
-                                          vector<vector<double>>(output_size,
-                                                                 vector<double>(output_size)));
+    vector<vector<vector<double>>> output(output_channels, 
+                                           vector<vector<double>>(output_size, 
+                                                                   vector<double>(output_size)));
 
     // Perform transpose convolution operation
-    for (int oc = 0; oc < output_channels; oc++)
-    {
-        for (int ic = 0; ic < input_channels; ic++)
-        {
-            for (int xi = 0; xi < input[ic][0].size(); xi += stride)
-            {
-                for (int yi = 0; yi < input[ic].size(); yi += stride)
-                {
-                    for (int yk = 0; yk < kernel_size; yk++)
-                    {
-                        for (int xk = 0; xk < kernel_size; xk++)
-                        {
-                            int xo = xi + xk - kernel_size + 1;
-                            int yo = yi + yk - kernel_size + 1;
+    for (int oc = 0; oc < output_channels; oc++) {
+        for (int ic = 0; ic < input_channels; ic++) {
+            for (int yo = 0; yo < output_size; yo += stride) {
+                for (int xo = 0; xo < output_size; xo += stride) {
+                    for (int yk = 0; yk < kernel_size; yk++) {
+                        for (int xk = 0; xk < kernel_size; xk++) {
+                            int yi = yo + yk - kernel_size + 1;
+                            int xi = xo + xk - kernel_size + 1;
                             cout << " oc = " << oc << " yo = " << yo << " xo = " << xo << " ic = " << ic << " yi = " << yi << " xi = " << xi << " ic = " << ic << " oc = " << oc << " yk = " << yk << " xk = " << xk << endl;
 
-                            if (xo >= 0 && xo < output_size && yo >= 0 && yo < output_size)
-                            {
+                            if (xi >= 0 && xi < input[ic][0].size() && yi >= 0 && yi < input[ic].size()) {
                                 output[oc][yo][xo] += input[ic][yi][xi] * kernel[ic][oc][yk][xk];
-                                cout <<  "Do operation at oc = " << oc << " yo = " << yo << " xo = " << xo << " ic = " << ic << " yi = " << yi << " xi = " << xi << " ic = " << ic << " oc = " << oc << " yk = " << yk << " xk = " << xk << endl;
+                            cout << "Operation at oc = " << oc << " yo = " << yo << " xo = " << xo << " ic = " << ic << " yi = " << yi << " xi = " << xi << " ic = " << ic << " oc = " << oc << " yk = " << yk << " xk = " << xk << endl;
+
                             }
                         }
                     }
@@ -57,14 +52,11 @@ int main()
     int input_channels = 3;
     int input_size = 10;
     vector<vector<vector<double>>> input(input_channels,
-                                         vector<vector<double>>(input_size,
-                                                                vector<double>(input_size)));
-    for (int ic = 0; ic < input_channels; ic++)
-    {
-        for (int xi = 0; xi < input_size; xi++)
-        {
-            for (int yi = 0; yi < input_size; yi++)
-            {
+                                          vector<vector<double>>(input_size, 
+                                                                  vector<double>(input_size)));
+    for (int ic = 0; ic < input_channels; ic++) {
+        for (int yi = 0; yi < input_size; yi++) {
+            for (int xi = 0; xi < input_size; xi++) {
                 input[ic][yi][xi] = xi * yi;
             }
         }
@@ -74,17 +66,13 @@ int main()
     int output_channels = 8;
     int kernel_size = 5;
     vector<vector<vector<vector<double>>>> kernel(input_channels,
-                                                  vector<vector<vector<double>>>(output_channels,
-                                                                                 vector<vector<double>>(kernel_size,
-                                                                                                        vector<double>(kernel_size))));
-    for (int ic = 0; ic < input_channels; ic++)
-    {
-        for (int oc = 0; oc < output_channels; oc++)
-        {
-            for (int xk = 0; xk < kernel_size; xk++)
-            {
-                for (int yk = 0; yk < kernel_size; yk++)
-                {
+                                                    vector<vector<vector<double>>>(output_channels,
+                                                                                    vector<vector<double>>(kernel_size,
+                                                                                                            vector<double>(kernel_size))));
+    for (int ic = 0; ic < input_channels; ic++) {
+        for (int oc = 0; oc < output_channels; oc++) {
+            for (int yk = 0; yk < kernel_size; yk++) {
+                for (int xk = 0; xk < kernel_size; xk++) {
                     kernel[ic][oc][yk][xk] = xk * yk;
                 }
             }
@@ -95,7 +83,6 @@ int main()
     int stride = 2;
     vector<vector<vector<double>>> output = transposeConvolution(input, kernel, stride);
     int output_size = (input[0][0].size() - 1) * stride + kernel_size;
-
     // Print output
     for (int i = 0; i < output_channels; i++)
     {
