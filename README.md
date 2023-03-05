@@ -292,5 +292,5 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
 # Convolution
 Backprop debuging test
 
-![](conv_test/Screenshot from 2023-03-05 13-40-54.png)
+![](Screenshot from 2023-03-05 13-40-54.png)
 
