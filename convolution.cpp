@@ -277,54 +277,121 @@ void convolution::randomize_weights(double rand_prop)
             }
         }
     }
-
+    cout << "Randomize kernel weight data finnish !" << endl;
     setup_state = 5;
 }
+
+const int precision_to_text_file = 16;
 void convolution::load_weights(string filename_k_w, string filname_k_bias)
 {
-    if (setup_state != 4)
+    if (setup_state < 3)
     {
-        cout << "Error could not load_weights() setup_state must be = 4, setup_state = " << setup_state << endl;
+        cout << "Error could not load_weights() setup_state must be = 4 or more, setup_state = " << setup_state << endl;
         cout << "setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
         // TODO
         exit(0);
     }
-    setup_state = 5;
-}
 
-const int precision_to_text_file = 16;
-void convolution::save_weights(string filename_k_w, string filname_k_bias)
-{
-    
-    cout << "Save kernel weight data weights ..." << endl;
-    ofstream outputFile;
-    outputFile.precision(precision_to_text_file);
-    outputFile.open(filename_k_w);
+    cout << "Load data weights ..." << endl;
+    ifstream inputFile_w, inputFile_b;
+    inputFile_w.precision(precision_to_text_file);
+    inputFile_w.open(filename_k_w);
+    inputFile_b.precision(precision_to_text_file);
+    inputFile_b.open(filename_k_w);
+
+    double d_element = 0.0;
+    double d_b_element = 0.0;
+    int data_load_error = 0;
+    int data_load_numbers = 0;
+    int data_b_load_numbers = 0;
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
+        if (inputFile_b >> d_b_element)
+        {
+            kernel_bias_weights[out_ch_cnt] = d_b_element;
+            data_b_load_numbers++;
+        }
+        else
+        {
+            data_load_error = 1;
+        }
+        if (data_load_error != 0)
+        {
+            break;
+        }
+
         for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
         {
             for (int ky = 0; ky < kernel_size; ky++)
             {
                 for (int kx = 0; kx < kernel_size; kx++)
                 {
-                    outputFile << kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] << endl;
+                    if (inputFile_w >> d_element)
+                    {
+                        kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] = d_element;
+                        data_load_numbers++;
+                    }
+                    else
+                    {
+                        data_load_error = 1;
+                    }
+                    if (data_load_error != 0)
+                    {
+                        break;
+                    }
+                }
+                if (data_load_error != 0)
+                {
+                    break;
+                }
+            }
+            if (data_load_error != 0)
+            {
+                break;
+            }
+        }
+    }
+    inputFile_w.close();
+    inputFile_b.close();
+
+    if (data_load_error == 0)
+    {
+        cout << "Load data finnish !" << endl;
+    }
+    else
+    {
+        cout << "ERROR! weight file error have not sufficient amount of data to put into  all_weights[l_cnt][n_cnt][w_cnt] vector" << endl;
+        cout << "Loaded this amout of data weights data_load_numbers = " << data_load_numbers << endl;
+        cout << "Loaded this amout of data bias weights data_load_numbers = " << data_b_load_numbers << endl;
+    }
+    setup_state = 5;
+}
+void convolution::save_weights(string filename_k_w, string filname_k_bias)
+{
+    cout << "Save kernel weight data weights ..." << endl;
+    ofstream outputFile_w, outputFile_b;
+    outputFile_w.precision(precision_to_text_file);
+    outputFile_w.open(filename_k_w);
+    outputFile_b.precision(precision_to_text_file);
+    outputFile_b.open(filname_k_bias);
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        outputFile_b << kernel_bias_weights[out_ch_cnt] << endl;
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int ky = 0; ky < kernel_size; ky++)
+            {
+                for (int kx = 0; kx < kernel_size; kx++)
+                {
+                    outputFile_w << kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] << endl;
                 }
             }
         }
     }
-    outputFile.close();
+    outputFile_b.close();
+    outputFile_w.close();
     cout << "Save kernel weight data finnish !" << endl;
-    cout << "Save bias weight data weights ..." << endl;
-    outputFile.precision(precision_to_text_file);
-    outputFile.open(filname_k_bias);
-    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
-    {
-        outputFile << kernel_bias_weights[out_ch_cnt]<< endl;
-    }
-    outputFile.close();
-    cout << "Save bias weight data finnish !" << endl;
 }
 
 double convolution::activation_function(double input_data)

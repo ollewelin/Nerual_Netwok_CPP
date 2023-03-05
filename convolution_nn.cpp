@@ -40,6 +40,8 @@ int main()
     conv_test.set_out_tensor(7); // output channels
     conv_test.output_tensor.size();
     conv_test.randomize_weights(0.01);
+    conv_test.save_weights("conv_test_w.dat", "conv_test_b.dat");
+    conv_test.load_weights("conv_test_w.dat", "conv_test_b.dat");
     conv_test.conv_forward1();
     conv_test.conv_forward2();
     conv_test.conv_backprop();
