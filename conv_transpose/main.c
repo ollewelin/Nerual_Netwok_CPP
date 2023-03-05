@@ -22,14 +22,14 @@ vector<vector<vector<double>>> transposeConvolution(
     // Perform transpose convolution operation
     for (int oc = 0; oc < output_channels; oc++) {
         for (int ic = 0; ic < input_channels; ic++) {
-            for (int xo = 0; xo < output_size; xo += stride) {
-                for (int yo = 0; yo < output_size; yo += stride) {
+            for (int xi = 0; xi < input[ic][0].size(); xi += stride) {
+                for (int yi = 0; yi < input[ic].size(); yi += stride) {
                     for (int xk = 0; xk < kernel_size; xk++) {
                         for (int yk = 0; yk < kernel_size; yk++) {
-                            int xi = xo + xk - kernel_size + 1;
-                            int yi = yo + yk - kernel_size + 1;
-                            if (xi >= 0 && xi < input[ic][0].size() && yi >= 0 && yi < input[ic].size()) {
-                                output[oc][xo][yo] += input[ic][xi][yi] * kernel[ic][oc][xk][yk];
+                            int xo = xi + xk - kernel_size + 1;
+                            int yo = yi + yk - kernel_size + 1;
+                            if (xo >= 0 && xo < output_size && yo >= 0 && yo < output_size) {
+                                output[oc][yo][xo] += input[ic][yi][xi] * kernel[ic][oc][yk][xk];
                             }
                         }
                     }
@@ -52,7 +52,7 @@ int main()
     for (int ic = 0; ic < input_channels; ic++) {
         for (int xi = 0; xi < input_size; xi++) {
             for (int yi = 0; yi < input_size; yi++) {
-                input[ic][xi][yi] = xi * yi;
+                input[ic][yi][xi] = xi * yi;
             }
         }
     }
@@ -68,7 +68,7 @@ int main()
         for (int oc = 0; oc < output_channels; oc++) {
             for (int xk = 0; xk < kernel_size; xk++) {
                 for (int yk = 0; yk < kernel_size; yk++) {
-                    kernel[ic][oc][xk][yk] = xk * yk;
+                    kernel[ic][oc][yk][xk] = xk * yk;
                 }
             }
         }
@@ -77,8 +77,9 @@ int main()
     // Perform transpose convolution operation with stride = 2
     int stride = 2;
     vector<vector<vector<double>>> output = transposeConvolution(input, kernel, stride);
-/*
-   // Print output
+    int output_size = (input[0][0].size() - 1) * stride + kernel_size;
+
+    // Print output
     for (int i = 0; i < output_channels; i++) {
         cout << "Output Channel " << i + 1 << ":" << endl;
         for (int j = 0; j < output_size; j++) {
@@ -89,6 +90,6 @@ int main()
         }
         cout << endl;
     }
-*/
+
     return 0;
 }
