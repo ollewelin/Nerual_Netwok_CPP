@@ -39,8 +39,6 @@ private:
     void xy_start_stop_kernel(int);
     int start_ret;
     int stop_ret;
-    int slide_end_position_constraint_kernel_start;
-    int half_kernel_size;
 public:
     void set_kernel_size(int);
     int get_kernel_size(void);

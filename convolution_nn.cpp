@@ -26,8 +26,25 @@ int main()
     // ======== create 2 convolution layer objects =========
     convolution conv_L1;
     convolution conv_L2;
+    convolution conv_test;//
     // convolution conv_L3;
     //======================================================
+
+
+    //==== Set up convolution layers ===========
+    cout << "conv_test setup:" << endl;
+    conv_test.set_kernel_size(5);                                              // Odd number
+    conv_test.set_stride(2);
+    conv_test.set_in_tensor(22*22, 1); // data_size_one_sample_one_channel, input channels
+    conv_test.set_out_tensor(7); // output channels
+    conv_test.output_tensor.size();
+    conv_test.randomize_weights(0.01);
+    conv_test.conv_forward1();
+    conv_test.conv_backprop();
+    conv_test.conv_update_weights();
+    //========================================
+
+
     srand(time(NULL));
     char answer;
 
@@ -66,13 +83,13 @@ int main()
     conv_L1.output_tensor.size();
     conv_L1.randomize_weights(0.01);
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
-    while(1)
-    {
+  //  while(1)
+  //  {
 
         conv_L1.conv_forward1();
         conv_L1.conv_backprop();
         conv_L1.conv_update_weights();
-    }
+  //  }
     //========================================
     const int end_inp_nodes = data_size_one_sample_one_channel;
     const int end_hid_layers = 2;

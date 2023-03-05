@@ -233,9 +233,6 @@ void convolution::set_out_tensor(int out_channels)
         o_tensor_delta.push_back(dummy_2D_vect);
         internal_tensor_delta.push_back(dummy_2D_vect); // o_tensor_delta derivated backwards to inside the activation fucntion
     }
-    slide_end_position_constraint_kernel_start = (output_side_size * stride - kernel_size / 2);
-    //cout << "   slide_end_position_constraint_kernel_start = " << slide_end_position_constraint_kernel_start << endl;
-    half_kernel_size = kernel_size / 2;
     cout << "   kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
     cout << "   kernel_weights.size() = " << kernel_weights.size() << endl;
     cout << "   kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
