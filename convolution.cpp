@@ -233,7 +233,9 @@ void convolution::set_out_tensor(int out_channels)
         o_tensor_delta.push_back(dummy_2D_vect);
         internal_tensor_delta.push_back(dummy_2D_vect); // o_tensor_delta derivated backwards to inside the activation fucntion
     }
-
+    slide_end_position_constraint_kernel_start = (output_side_size * stride - kernel_size / 2);
+    //cout << "   slide_end_position_constraint_kernel_start = " << slide_end_position_constraint_kernel_start << endl;
+    half_kernel_size = kernel_size / 2;
     cout << "   kernel_bias_weights.size() = " << kernel_bias_weights.size() << endl;
     cout << "   kernel_weights.size() = " << kernel_weights.size() << endl;
     cout << "   kernel_weights[0].size() = " << kernel_weights[0].size() << endl;
@@ -243,6 +245,7 @@ void convolution::set_out_tensor(int out_channels)
     cout << "   output_tensor.size() = " << output_tensor.size() << endl;
     cout << "   output_tensor[" << output_tensor_channels - 1 << "][" << output_side_size - 1 << "].size() = " << output_tensor[output_tensor_channels - 1][output_side_size - 1].size() << endl;
     cout << "   ========================================" << endl;
+    
 
     setup_state = 4;
 }
@@ -437,10 +440,10 @@ void convolution::conv_forward2()
 void convolution::xy_start_stop_kernel(int slide_val)
 {
     start_ret = slide_val % stride;
-    int start_constraint_end = (output_side_size * stride - kernel_size / 2);
-    if (slide_val > start_constraint_end)
+    if(slide_val > (input_side_size - kernel_size))
     {
-        start_ret = start_ret + (slide_val - output_side_size * stride);
+        //Contraint start kernel pos to more then 0
+        start_ret = (slide_val - (output_side_size-1) * stride);
     }
     stop_ret = slide_val + 1;
     if (stop_ret > kernel_size)
@@ -504,7 +507,7 @@ void convolution::conv_backprop()
                 int x_start_ret = start_ret;
                 int x_stop_ret = stop_ret;
                 int yi = 0;
-                for (int ky = y_start_ret; ky < y_stop_ret; ky = ky + stride) // Flipped 180 deg kernel_weight
+                for (int ky = y_start_ret; ky < y_stop_ret; ky += stride) // Flipped 180 deg kernel_weight
                 {
                     int out_tens_y_pos = (y_slide / stride) + yi; //
                     yi--;
@@ -518,7 +521,7 @@ void convolution::conv_backprop()
                         out_tens_y_pos = output_side_size - 1;
                     }
                     int xi = 0;
-                    for (int kx = x_start_ret; kx < x_stop_ret; kx = kx + stride) // Flipped 180 deg kernel_weight
+                    for (int kx = x_start_ret; kx < x_stop_ret; kx += stride) // Flipped 180 deg kernel_weight
                     {
                         int out_tens_x_pos = (x_slide / stride) + xi;
                         xi--;
