@@ -97,6 +97,15 @@ int main()
     fc_m_resnet fc_nn_end_block;
     string weight_filename_end;
     weight_filename_end = "end_block_weights.dat";
+    string L1_kernel_k_weight_filename;
+    L1_kernel_k_weight_filename = "L1_kernel_k.dat";
+    string L1_kernel_b_weight_filename;
+    L1_kernel_b_weight_filename = "L1_kernel_b.dat";
+    string L2_kernel_k_weight_filename;
+    L2_kernel_k_weight_filename = "L1_kernel_k.dat";
+    string L2_kernel_b_weight_filename;
+    L2_kernel_b_weight_filename = "L1_kernel_b.dat";
+
     fc_nn_end_block.get_version();
 
     fc_nn_end_block.block_type = 2;
@@ -124,9 +133,8 @@ int main()
     conv_L1.set_kernel_size(5);                                              // Odd number
     conv_L1.set_stride(2);
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
-    conv_L1.set_out_tensor(30); // output channels
+    conv_L1.set_out_tensor(35); // output channels
     conv_L1.output_tensor.size();
-    conv_L1.randomize_weights(0.01);
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
     //==== Set up convolution layers ===========
@@ -134,9 +142,8 @@ int main()
     conv_L2.set_kernel_size(5);                                              // Odd number
     conv_L2.set_stride(2);
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size()*conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
-    conv_L2.set_out_tensor(30); // output channels
+    conv_L2.set_out_tensor(25); // output channels
     conv_L2.output_tensor.size();
-    conv_L2.randomize_weights(0.01);
     //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
     //conv_L1.conv_forward1();
     //conv_L1.conv_forward1();
@@ -146,8 +153,9 @@ int main()
     //conv_L1.conv_update_weights();
     //========================================
 
-
-    const int end_inp_nodes = data_size_one_sample_one_channel;
+    
+    const int end_inp_nodes = (conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()) * conv_L2.output_tensor.size();
+    cout << "end_inp_nodes = " << end_inp_nodes << endl;
     const int end_hid_layers = 2;
     const int end_hid_nodes_L1 = 200;
     const int end_hid_nodes_L2 = 50;
@@ -159,7 +167,7 @@ int main()
     {
         dummy_one_target_data_point.push_back(0.0);
     }
-    for (int i = 0; i < end_inp_nodes; i++)
+    for (int i = 0; i < data_size_one_sample_one_channel; i++)
     {
         dummy_one_training_data_point.push_back(0.0);
     }
@@ -210,11 +218,15 @@ int main()
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
     {
+        conv_L1.load_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
+        conv_L2.load_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);        
         fc_nn_end_block.load_weights(weight_filename_end);
     }
     else
     {
         fc_nn_end_block.randomize_weights(init_random_weight_propotion);
+        conv_L1.randomize_weights(init_random_weight_propotion);
+        conv_L2.randomize_weights(init_random_weight_propotion);
     }
 
     const int training_epocs = 10000; // One epocs go through the hole data set once
@@ -267,10 +279,16 @@ int main()
 
         for (int i = 0; i < training_dataset_size; i++)
         {
+            // Forward L1, L2 convoution 
+            // TODO....
+
+
             // Start Forward pass fully connected network
             for (int j = 0; j < end_inp_nodes; j++)
             {
-                fc_nn_end_block.input_layer[j] = training_input_data[training_order_list[i]][j];
+              //  fc_nn_end_block.input_layer[j] = training_input_data[training_order_list[i]][j];
+              //TODO....
+              //fc_nn_end_block.input_layer[j] = conv_L2.output_tensor
             }
             fc_nn_end_block.forward_pass();
             // Forward pass though fully connected network
@@ -392,6 +410,8 @@ int main()
             {
                 best_verify_loss = verify_loss;
                 fc_nn_end_block.save_weights(weight_filename_end);
+                conv_L1.save_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
+                conv_L2.save_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);        
             }
 
             //=========== verify finnish ====
