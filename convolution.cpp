@@ -125,7 +125,11 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         cout << "   add_side = " << add_side << endl;
         if (add_side > 0)
         {
-            cout << "   Note! Add bottom rows and right column at input_tensor to make the convolution betwhen input and kernel not miss any input data during stride stop operation " << endl;
+            cout << "   Note! Add bottom rows and right column at input_tensor to make the convolution between input and kernel not miss any input data during stride stop operation " << endl;
+        }
+        else
+        {
+            cout << "   OK Note. Input tensor fit perfect to stride no missing data when slide to end without add extra right rows and bottom column at input spartial " << endl;
         }
     }
     int temporary_input_t_side_size = root_of_intdata_size + add_side;
