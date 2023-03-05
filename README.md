@@ -293,7 +293,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
 
 Backprop or  test kernel 180 degree flip
 
-![](conv_test_backprop_delta.png)
+![](conv_transpose.png)
 
     conv_test setup:
       ========================================
