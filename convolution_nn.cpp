@@ -108,7 +108,7 @@ int main()
 
     fc_nn_end_block.block_type = 2;
     fc_nn_end_block.use_softmax = 1;
-    fc_nn_end_block.activation_function_mode = 0;
+    fc_nn_end_block.activation_function_mode = 2;
     fc_nn_end_block.use_skip_connect_mode = 0; // 1 for residual network architetcture
     fc_nn_end_block.use_dopouts = 0;
 
@@ -132,6 +132,7 @@ int main()
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
     conv_L1.set_out_tensor(35);                                              // output channels
     conv_L1.output_tensor.size();
+    conv_L1.activation_function_mode = 2;
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
     //==== Set up convolution layers ===========
@@ -141,6 +142,7 @@ int main()
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(25);                                                                                               // output channels
     conv_L2.output_tensor.size();
+    conv_L2.activation_function_mode = 2;
     //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
     // conv_L1.conv_forward1();
     // conv_L1.conv_forward1();

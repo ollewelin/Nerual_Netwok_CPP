@@ -15,6 +15,7 @@ convolution::convolution()
     kernel_size = 3;
     stride = 1;
     dropout_proportion = 0.0;
+    activation_function_mode = 0;
     use_dopouts = 0;
     cout << "Constructor Convloution neural network object " << endl;
     srand(time(NULL)); // Seed radomizer
