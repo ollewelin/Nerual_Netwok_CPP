@@ -15,8 +15,11 @@ convolution::convolution()
     kernel_size = 3;
     stride = 1;
     dropout_proportion = 0.0;
+    activation_function_mode = 0;
     use_dopouts = 0;
     cout << "Constructor Convloution neural network object " << endl;
+    srand(time(NULL)); // Seed radomizer
+    cout << "Seed radomizer done" << endl;
 }
 
 convolution::~convolution()
@@ -125,7 +128,11 @@ void convolution::set_in_tensor(int total_input_size_one_channel, int in_channel
         cout << "   add_side = " << add_side << endl;
         if (add_side > 0)
         {
-            cout << "   Note! Add bottom rows and right column at input_tensor to make the convolution betwhen input and kernel not miss any input data during stride stop operation " << endl;
+            cout << "   Note! Add bottom rows and right column at input_tensor to make the convolution between input and kernel not miss any input data during stride stop operation " << endl;
+        }
+        else
+        {
+            cout << "   OK Note. Input tensor fit perfect to stride no missing data when slide to end without add extra right rows and bottom column at input spartial " << endl;
         }
     }
     int temporary_input_t_side_size = root_of_intdata_size + add_side;
@@ -242,7 +249,6 @@ void convolution::set_out_tensor(int out_channels)
     cout << "   output_tensor.size() = " << output_tensor.size() << endl;
     cout << "   output_tensor[" << output_tensor_channels - 1 << "][" << output_side_size - 1 << "].size() = " << output_tensor[output_tensor_channels - 1][output_side_size - 1].size() << endl;
     cout << "   ========================================" << endl;
-    
 
     setup_state = 4;
 }
@@ -256,22 +262,137 @@ void convolution::randomize_weights(double rand_prop)
         // TODO
         exit(0);
     }
+
+    // Randomize kernel weights
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        kernel_bias_weights[out_ch_cnt] = ((((double)rand() / RAND_MAX) - 0.5) * rand_prop);
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int ky = 0; ky < kernel_size; ky++)
+            {
+                for (int kx = 0; kx < kernel_size; kx++)
+                {
+                    kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] = ((((double)rand() / RAND_MAX) - 0.5) * rand_prop);
+                }
+            }
+        }
+    }
+    cout << "Randomize kernel weight data finnish !" << endl;
     setup_state = 5;
 }
-void convolution::load_weights(string filename)
+
+const int precision_to_text_file = 16;
+void convolution::load_weights(string filename_k_w, string filname_k_bias)
 {
-    if (setup_state != 4)
+    if (setup_state < 3)
     {
-        cout << "Error could not load_weights() setup_state must be = 4, setup_state = " << setup_state << endl;
+        cout << "Error could not load_weights() setup_state must be = 4 or more, setup_state = " << setup_state << endl;
         cout << "setup_state = " << setup_state << endl;
         cout << "Exit program" << endl;
         // TODO
         exit(0);
     }
+
+    cout << "Load data weights ..." << endl;
+    ifstream inputFile_w, inputFile_b;
+    inputFile_w.precision(precision_to_text_file);
+    inputFile_w.open(filename_k_w);
+    inputFile_b.precision(precision_to_text_file);
+    inputFile_b.open(filename_k_w);
+
+    double d_element = 0.0;
+    double d_b_element = 0.0;
+    int data_load_error = 0;
+    int data_load_numbers = 0;
+    int data_b_load_numbers = 0;
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        if (inputFile_b >> d_b_element)
+        {
+            kernel_bias_weights[out_ch_cnt] = d_b_element;
+            data_b_load_numbers++;
+        }
+        else
+        {
+            data_load_error = 1;
+        }
+        if (data_load_error != 0)
+        {
+            break;
+        }
+
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int ky = 0; ky < kernel_size; ky++)
+            {
+                for (int kx = 0; kx < kernel_size; kx++)
+                {
+                    if (inputFile_w >> d_element)
+                    {
+                        kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] = d_element;
+                        data_load_numbers++;
+                    }
+                    else
+                    {
+                        data_load_error = 1;
+                    }
+                    if (data_load_error != 0)
+                    {
+                        break;
+                    }
+                }
+                if (data_load_error != 0)
+                {
+                    break;
+                }
+            }
+            if (data_load_error != 0)
+            {
+                break;
+            }
+        }
+    }
+    inputFile_w.close();
+    inputFile_b.close();
+
+    if (data_load_error == 0)
+    {
+        cout << "Load data finnish !" << endl;
+    }
+    else
+    {
+        cout << "ERROR! weight file error have not sufficient amount of data to put into  all_weights[l_cnt][n_cnt][w_cnt] vector" << endl;
+        cout << "Loaded this amout of data weights data_load_numbers = " << data_load_numbers << endl;
+        cout << "Loaded this amout of data bias weights data_load_numbers = " << data_b_load_numbers << endl;
+    }
     setup_state = 5;
 }
-void convolution::save_weights(string filename)
+void convolution::save_weights(string filename_k_w, string filname_k_bias)
 {
+    cout << "Save kernel weight data weights ..." << endl;
+    ofstream outputFile_w, outputFile_b;
+    outputFile_w.precision(precision_to_text_file);
+    outputFile_w.open(filename_k_w);
+    outputFile_b.precision(precision_to_text_file);
+    outputFile_b.open(filname_k_bias);
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        outputFile_b << kernel_bias_weights[out_ch_cnt] << endl;
+        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+        {
+            for (int ky = 0; ky < kernel_size; ky++)
+            {
+                for (int kx = 0; kx < kernel_size; kx++)
+                {
+                    outputFile_w << kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx] << endl;
+                }
+            }
+        }
+    }
+    outputFile_b.close();
+    outputFile_w.close();
+    cout << "Save kernel weight data finnish !" << endl;
 }
 
 double convolution::activation_function(double input_data)
@@ -389,9 +510,11 @@ void convolution::conv_forward1()
                         for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                         {
                             dot_product += input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                      //      cout << "dot product = " << dot_product << endl;
                         }
                     }
                 }
+
                 // Make the activation function
                 // Put the dot product to output tensor map
                 output_tensor[out_ch_cnt][y_slide][x_slide] = activation_function(dot_product);
@@ -437,10 +560,10 @@ void convolution::conv_forward2()
 void convolution::xy_start_stop_kernel(int slide_val)
 {
     start_ret = slide_val % stride;
-    if(slide_val > (input_side_size - kernel_size))
+    if (slide_val > (input_side_size - kernel_size))
     {
-        //Contraint start kernel pos to more then 0
-        start_ret = (slide_val - (output_side_size-1) * stride);
+        // Contraint start kernel pos to more then 0
+        start_ret = (slide_val - (output_side_size - 1) * stride);
     }
     stop_ret = slide_val + 1;
     if (stop_ret > kernel_size)
@@ -542,6 +665,7 @@ void convolution::conv_backprop()
     }
 }
 
+
 void convolution::conv_update_weights()
 {
     // Update kernel weights
@@ -562,6 +686,7 @@ void convolution::conv_update_weights()
         }
     }
 }
+
 void convolution::conv_transpose_fwd()
 {
 }
@@ -577,67 +702,3 @@ void convolution::get_version()
     ver_mid = version_mid;
     ver_minor = version_minor;
 }
-
-/*
-#include <iostream>
-#include <chrono>
-
-// Function 1
-void convolution::conv_forward1()
-{
-    // implementation of function 1
-}
-
-// Function 2
-void convolution::conv_forward2()
-{
-    // implementation of function 2
-}
-
-int main()
-{
-    // number of times to run each function
-    int num_runs = 10;
-
-    // time variables
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds1, elapsed_seconds2;
-
-    // run function 1 and record runtime
-    start = std::chrono::system_clock::now();
-    for (int i = 0; i < num_runs; i++)
-    {
-        convolution::conv_forward1();
-    }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds1 = end - start;
-
-    // run function 2 and record runtime
-    start = std::chrono::system_clock::now();
-    for (int i = 0; i < num_runs; i++)
-    {
-        convolution::conv_forward2();
-    }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds2 = end - start;
-
-    // print results
-    std::cout << "Function 1 took " << elapsed_seconds1.count() << " seconds for " << num_runs << " runs." << std::endl;
-    std::cout << "Function 2 took " << elapsed_seconds2.count() << " seconds for " << num_runs << " runs." << std::endl;
-
-    // choose faster function and use it for further processing
-    if (elapsed_seconds1 < elapsed_seconds2)
-    {
-        std::cout << "Function 1 is faster." << std::endl;
-        convolution::conv_forward1();
-    }
-    else
-    {
-        std::cout << "Function 2 is faster." << std::endl;
-        convolution::conv_forward2();
-    }
-
-    return 0;
-}
-
-*/

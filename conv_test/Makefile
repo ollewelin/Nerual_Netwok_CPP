@@ -1,7 +1,7 @@
 
-#CC = g++ -std=c++14 -O3
-CC = g++ -std=c++14 -O0 
-CFLAGS = -g -Wall
+CC = g++ -std=c++14 -O3
+#CC = g++ -std=c++14 -O0 -g
+CFLAGS = -Wall
 
 #SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
 #PROG = main

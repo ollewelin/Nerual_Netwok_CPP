@@ -17,6 +17,7 @@ using namespace std;
 #include <stdlib.h> // exit(0);
 
 #include <cstdlib>
+#include <chrono>
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main()
@@ -26,24 +27,66 @@ int main()
     // ======== create 2 convolution layer objects =========
     convolution conv_L1;
     convolution conv_L2;
-    convolution conv_test;//
+    convolution conv_test; //
     // convolution conv_L3;
     //======================================================
 
-
     //==== Set up convolution layers ===========
     cout << "conv_test setup:" << endl;
-    conv_test.set_kernel_size(5);                                              // Odd number
+    conv_test.set_kernel_size(5); // Odd number
     conv_test.set_stride(2);
-    conv_test.set_in_tensor(22*22, 1); // data_size_one_sample_one_channel, input channels
-    conv_test.set_out_tensor(7); // output channels
+    conv_test.set_in_tensor(22 * 22, 1); // data_size_one_sample_one_channel, input channels
+    conv_test.set_out_tensor(7);         // output channels
     conv_test.output_tensor.size();
     conv_test.randomize_weights(0.01);
+    conv_test.save_weights("conv_test_w.dat", "conv_test_b.dat");
+    conv_test.load_weights("conv_test_w.dat", "conv_test_b.dat");
     conv_test.conv_forward1();
+    conv_test.conv_forward2();
     conv_test.conv_backprop();
     conv_test.conv_update_weights();
     //========================================
 
+    // number of times to run each function
+    int num_runs = 10;
+
+    // time variables
+    std::chrono::time_point<std::chrono::system_clock> start, end;
+    std::chrono::duration<double> elapsed_seconds1, elapsed_seconds2;
+
+    // run function 1 and record runtime
+    start = std::chrono::system_clock::now();
+    for (int i = 0; i < num_runs; i++)
+    {
+        conv_test.conv_forward1();
+    }
+    end = std::chrono::system_clock::now();
+    elapsed_seconds1 = end - start;
+
+    // run function 2 and record runtime
+    start = std::chrono::system_clock::now();
+    for (int i = 0; i < num_runs; i++)
+    {
+        conv_test.conv_forward2();
+    }
+    end = std::chrono::system_clock::now();
+    elapsed_seconds2 = end - start;
+
+    // print results
+    std::cout << "Function 1 took " << elapsed_seconds1.count() << " seconds for " << num_runs << " runs." << std::endl;
+    std::cout << "Function 2 took " << elapsed_seconds2.count() << " seconds for " << num_runs << " runs." << std::endl;
+
+    // choose faster function and use it for further processing
+    if (elapsed_seconds1 < elapsed_seconds2)
+    {
+        std::cout << "Function 1 is faster." << std::endl;
+        //  conv_test.conv_forward1();
+    }
+    else
+    {
+        std::cout << "Function 2 is faster." << std::endl;
+        //  conv_test.conv_forward2();
+    }
 
     srand(time(NULL));
     char answer;
@@ -52,6 +95,15 @@ int main()
     fc_m_resnet fc_nn_end_block;
     string weight_filename_end;
     weight_filename_end = "end_block_weights.dat";
+    string L1_kernel_k_weight_filename;
+    L1_kernel_k_weight_filename = "L1_kernel_k.dat";
+    string L1_kernel_b_weight_filename;
+    L1_kernel_b_weight_filename = "L1_kernel_b.dat";
+    string L2_kernel_k_weight_filename;
+    L2_kernel_k_weight_filename = "L2_kernel_k.dat";
+    string L2_kernel_b_weight_filename;
+    L2_kernel_b_weight_filename = "L2_kernel_b.dat";
+
     fc_nn_end_block.get_version();
 
     fc_nn_end_block.block_type = 2;
@@ -67,7 +119,6 @@ int main()
     vector<vector<double>> verify_input_data;
     int data_size_one_sample_one_channel = l_mnist_data.get_one_sample_data_size();
 
-
     int training_dataset_size = l_mnist_data.get_training_data_set_size();
     int verify_dataset_size = l_mnist_data.get_verify_data_set_size();
 
@@ -75,23 +126,34 @@ int main()
     conv_L1.get_version();
     //==== Set up convolution layers ===========
     cout << "conv_L1 setup:" << endl;
-    int input_channels = 1;                                                  //=== one channel MNIST dataset is used ====
-    conv_L1.set_kernel_size(5);                                              // Odd number
+    int input_channels = 1;     //=== one channel MNIST dataset is used ====
+    conv_L1.set_kernel_size(5); // Odd number
     conv_L1.set_stride(2);
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
-    conv_L1.set_out_tensor(30); // output channels
+    conv_L1.set_out_tensor(35);                                              // output channels
     conv_L1.output_tensor.size();
-    conv_L1.randomize_weights(0.01);
-    //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
-  //  while(1)
-  //  {
 
-        conv_L1.conv_forward1();
-        conv_L1.conv_backprop();
-        conv_L1.conv_update_weights();
-  //  }
+    //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
+
+    //==== Set up convolution layers ===========
+    cout << "conv_L2 setup:" << endl;
+    conv_L2.set_kernel_size(5); // Odd number
+    conv_L2.set_stride(2);
+    conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
+    conv_L2.set_out_tensor(25);                                                                                               // output channels
+    conv_L2.output_tensor.size();
+
+    //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
+    // conv_L1.conv_forward1();
+    // conv_L1.conv_forward1();
+    // conv_L1.conv_backprop();
+    // conv_L1.conv_update_weights();
+    // conv_L1.conv_backprop();
+    // conv_L1.conv_update_weights();
     //========================================
-    const int end_inp_nodes = data_size_one_sample_one_channel;
+
+    const int end_inp_nodes = (conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()) * conv_L2.output_tensor.size();
+    cout << "end_inp_nodes = " << end_inp_nodes << endl;
     const int end_hid_layers = 2;
     const int end_hid_nodes_L1 = 200;
     const int end_hid_nodes_L2 = 50;
@@ -103,7 +165,7 @@ int main()
     {
         dummy_one_target_data_point.push_back(0.0);
     }
-    for (int i = 0; i < end_inp_nodes; i++)
+    for (int i = 0; i < data_size_one_sample_one_channel; i++)
     {
         dummy_one_training_data_point.push_back(0.0);
     }
@@ -145,20 +207,29 @@ int main()
     //=== Now setup the hyper parameters of the Neural Network ====
 
     const double learning_rate_end = 0.01;
-
     fc_nn_end_block.momentum = 0.3;
     fc_nn_end_block.learning_rate = learning_rate_end;
+    conv_L1.learning_rate = 0.01;
+    conv_L1.momentum = 0.5;
+    conv_L2.learning_rate = 0.01;
+    conv_L2.momentum = 0.5;
+    conv_L1.activation_function_mode = 2;
+    conv_L2.activation_function_mode = 2;
 
     double init_random_weight_propotion = 0.05;
     cout << "Do you want to load weights from saved weight file = Y/N " << endl;
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
     {
+        conv_L1.load_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
+        conv_L2.load_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
         fc_nn_end_block.load_weights(weight_filename_end);
     }
     else
     {
         fc_nn_end_block.randomize_weights(init_random_weight_propotion);
+        conv_L1.randomize_weights(init_random_weight_propotion);
+        conv_L2.randomize_weights(init_random_weight_propotion);
     }
 
     const int training_epocs = 10000; // One epocs go through the hole data set once
@@ -190,9 +261,12 @@ int main()
 
     int do_verify_if_best_trained = 0;
     int stop_training = 0;
+
     // Start traning
     //=================
-
+    int print_after = 4999;
+    int print_cnt = print_after;
+    int one_side = sqrt(data_size_one_sample_one_channel);
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -211,11 +285,45 @@ int main()
 
         for (int i = 0; i < training_dataset_size; i++)
         {
-            // Start Forward pass fully connected network
-            for (int j = 0; j < end_inp_nodes; j++)
+            for (int ic = 0; ic < input_channels; ic++)
             {
-                fc_nn_end_block.input_layer[j] = training_input_data[training_order_list[i]][j];
+                for (int yi = 0; yi < one_side; yi++)
+                {
+                    for (int xi = 0; xi < one_side; xi++)
+                    {
+
+                        conv_L1.input_tensor[ic][yi][xi] = training_input_data[training_order_list[i]][ic * input_channels * one_side * one_side + one_side * yi + xi];
+                    }
+                }
             }
+
+            conv_L1.conv_forward1();
+
+            conv_L2.input_tensor = conv_L1.output_tensor;
+            conv_L2.conv_forward1();
+            if (print_cnt > 0)
+            {
+                print_cnt--;
+            }
+            else
+            {
+                cout << "convolution L1 L2 done, i = " << i << endl;
+                print_cnt = print_after;
+            }
+
+            int L2_out_one_side = conv_L2.output_tensor[0].size();
+            int L2_out_ch = conv_L2.output_tensor.size();
+            for (int oc = 0; oc < L2_out_ch; oc++)
+            {
+                for (int yi = 0; yi < L2_out_one_side; yi++)
+                {
+                    for (int xi = 0; xi < L2_out_one_side; xi++)
+                    {
+                        fc_nn_end_block.input_layer[oc * L2_out_one_side * L2_out_one_side + yi * L2_out_one_side + xi] = conv_L2.output_tensor[oc][yi][xi];
+                    }
+                }
+            }
+            // Start Forward pass fully connected network
             fc_nn_end_block.forward_pass();
             // Forward pass though fully connected network
 
@@ -237,12 +345,22 @@ int main()
             }
 
             fc_nn_end_block.backpropagtion_and_update();
-            for (int j = 0; j < end_out_nodes; j++)
-            {
-                // TODO...
-                // Backpropagation to convolution network  = fc_nn_end_block.i_layer_delta[j];
-            }
 
+            for (int oc = 0; oc < L2_out_ch; oc++)
+            {
+                for (int yi = 0; yi < L2_out_one_side; yi++)
+                {
+                    for (int xi = 0; xi < L2_out_one_side; xi++)
+                    {
+                        conv_L2.o_tensor_delta[oc][yi][xi] = fc_nn_end_block.i_layer_delta[oc * L2_out_one_side * L2_out_one_side + yi * L2_out_one_side + xi];
+                    }
+                }
+            }
+            conv_L2.conv_backprop();
+            conv_L1.o_tensor_delta = conv_L2.i_tensor_delta;
+            conv_L1.conv_backprop();
+            conv_L2.conv_update_weights();
+            conv_L1.conv_update_weights();
             // cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
             if (highest_out_class == target)
             {
@@ -274,7 +392,7 @@ int main()
         cout << "correct_ratio = " << correct_ratio << endl;
 
         //=========== verify ===========
-
+        print_cnt = 0;
         if (do_verify_if_best_trained == 1)
         {
             fc_nn_end_block.dropout_proportion = 0.0;
@@ -283,12 +401,33 @@ int main()
             correct_classify_cnt = 0;
             for (int i = 0; i < verify_dataset_size; i++)
             {
-
-                // Start Forward pass fully connected network
-                for (int j = 0; j < end_inp_nodes; j++)
+                for (int ic = 0; ic < input_channels; ic++)
                 {
-                    fc_nn_end_block.input_layer[j] = verify_input_data[verify_order_list[i]][j];
+                    for (int yi = 0; yi < one_side; yi++)
+                    {
+                        for (int xi = 0; xi < one_side; xi++)
+                        {
+
+                            conv_L1.input_tensor[ic][yi][xi] = verify_input_data[verify_order_list[i]][ic * input_channels * one_side * one_side + one_side * yi + xi];
+                        }
+                    }
                 }
+                conv_L1.conv_forward1();
+                conv_L2.input_tensor = conv_L1.output_tensor;
+                conv_L2.conv_forward1();
+                int L2_out_one_side = conv_L2.output_tensor[0].size();
+                int L2_out_ch = conv_L2.output_tensor.size();
+                for (int oc = 0; oc < L2_out_ch; oc++)
+                {
+                    for (int yi = 0; yi < L2_out_one_side; yi++)
+                    {
+                        for (int xi = 0; xi < L2_out_one_side; xi++)
+                        {
+                            fc_nn_end_block.input_layer[oc * L2_out_one_side * L2_out_one_side + yi * L2_out_one_side + xi] = conv_L2.output_tensor[oc][yi][xi];
+                        }
+                    }
+                }
+                // Start Forward pass fully connected network
                 fc_nn_end_block.forward_pass();
                 // Forward pass though fully connected network
 
@@ -310,12 +449,14 @@ int main()
                 }
 
                 fc_nn_end_block.only_loss_calculation();
+
                 // cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
                 if (highest_out_class == target)
                 {
                     correct_classify_cnt++;
                 }
             }
+
             for (int k = 0; k < end_out_nodes; k++)
             {
                 cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
@@ -336,6 +477,8 @@ int main()
             {
                 best_verify_loss = verify_loss;
                 fc_nn_end_block.save_weights(weight_filename_end);
+                conv_L1.save_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
+                conv_L2.save_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
             }
 
             //=========== verify finnish ====
