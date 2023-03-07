@@ -510,9 +510,11 @@ void convolution::conv_forward1()
                         for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                         {
                             dot_product += input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                      //      cout << "dot product = " << dot_product << endl;
                         }
                     }
                 }
+
                 // Make the activation function
                 // Put the dot product to output tensor map
                 output_tensor[out_ch_cnt][y_slide][x_slide] = activation_function(dot_product);

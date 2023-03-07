@@ -132,7 +132,7 @@ int main()
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
     conv_L1.set_out_tensor(35);                                              // output channels
     conv_L1.output_tensor.size();
-    
+
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
     //==== Set up convolution layers ===========
@@ -142,7 +142,7 @@ int main()
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(25);                                                                                               // output channels
     conv_L2.output_tensor.size();
-    
+
     //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
     // conv_L1.conv_forward1();
     // conv_L1.conv_forward1();
@@ -209,13 +209,12 @@ int main()
     const double learning_rate_end = 0.01;
     fc_nn_end_block.momentum = 0.3;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.001;
-    conv_L1.momentum = 0.05;
-    conv_L2.learning_rate = 0.001;
-    conv_L2.momentum = 0.05;
+    conv_L1.learning_rate = 0.01;
+    conv_L1.momentum = 0.5;
+    conv_L2.learning_rate = 0.01;
+    conv_L2.momentum = 0.5;
     conv_L1.activation_function_mode = 2;
     conv_L2.activation_function_mode = 2;
-
 
     double init_random_weight_propotion = 0.05;
     cout << "Do you want to load weights from saved weight file = Y/N " << endl;
@@ -262,10 +261,12 @@ int main()
 
     int do_verify_if_best_trained = 0;
     int stop_training = 0;
+
     // Start traning
     //=================
     int print_after = 4999;
     int print_cnt = print_after;
+    int one_side = sqrt(data_size_one_sample_one_channel);
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -284,21 +285,23 @@ int main()
 
         for (int i = 0; i < training_dataset_size; i++)
         {
-            int one_side = sqrt(data_size_one_sample_one_channel);
             for (int ic = 0; ic < input_channels; ic++)
             {
                 for (int yi = 0; yi < one_side; yi++)
                 {
                     for (int xi = 0; xi < one_side; xi++)
                     {
+
                         conv_L1.input_tensor[ic][yi][xi] = training_input_data[training_order_list[i]][ic * input_channels * one_side * one_side + one_side * yi + xi];
                     }
                 }
             }
+
             conv_L1.conv_forward1();
+
             conv_L2.input_tensor = conv_L1.output_tensor;
             conv_L2.conv_forward1();
-            if(print_cnt>0)
+            if (print_cnt > 0)
             {
                 print_cnt--;
             }
@@ -316,7 +319,7 @@ int main()
                 {
                     for (int xi = 0; xi < L2_out_one_side; xi++)
                     {
-                        fc_nn_end_block.input_layer[oc*L2_out_one_side*L2_out_one_side + yi*L2_out_one_side + xi] = conv_L2.output_tensor[oc][yi][xi];
+                        fc_nn_end_block.input_layer[oc * L2_out_one_side * L2_out_one_side + yi * L2_out_one_side + xi] = conv_L2.output_tensor[oc][yi][xi];
                     }
                 }
             }
@@ -349,7 +352,7 @@ int main()
                 {
                     for (int xi = 0; xi < L2_out_one_side; xi++)
                     {
-                        conv_L2.o_tensor_delta[oc][yi][xi] = fc_nn_end_block.i_layer_delta[oc*L2_out_one_side*L2_out_one_side + yi*L2_out_one_side + xi];
+                        conv_L2.o_tensor_delta[oc][yi][xi] = fc_nn_end_block.i_layer_delta[oc * L2_out_one_side * L2_out_one_side + yi * L2_out_one_side + xi];
                     }
                 }
             }
@@ -389,7 +392,7 @@ int main()
         cout << "correct_ratio = " << correct_ratio << endl;
 
         //=========== verify ===========
-
+        print_cnt = 0;
         if (do_verify_if_best_trained == 1)
         {
             fc_nn_end_block.dropout_proportion = 0.0;
@@ -398,12 +401,33 @@ int main()
             correct_classify_cnt = 0;
             for (int i = 0; i < verify_dataset_size; i++)
             {
-
-                // Start Forward pass fully connected network
-                for (int j = 0; j < end_inp_nodes; j++)
+                for (int ic = 0; ic < input_channels; ic++)
                 {
-                    fc_nn_end_block.input_layer[j] = verify_input_data[verify_order_list[i]][j];
+                    for (int yi = 0; yi < one_side; yi++)
+                    {
+                        for (int xi = 0; xi < one_side; xi++)
+                        {
+
+                            conv_L1.input_tensor[ic][yi][xi] = verify_input_data[verify_order_list[i]][ic * input_channels * one_side * one_side + one_side * yi + xi];
+                        }
+                    }
                 }
+                conv_L1.conv_forward1();
+                conv_L2.input_tensor = conv_L1.output_tensor;
+                conv_L2.conv_forward1();
+                int L2_out_one_side = conv_L2.output_tensor[0].size();
+                int L2_out_ch = conv_L2.output_tensor.size();
+                for (int oc = 0; oc < L2_out_ch; oc++)
+                {
+                    for (int yi = 0; yi < L2_out_one_side; yi++)
+                    {
+                        for (int xi = 0; xi < L2_out_one_side; xi++)
+                        {
+                            fc_nn_end_block.input_layer[oc * L2_out_one_side * L2_out_one_side + yi * L2_out_one_side + xi] = conv_L2.output_tensor[oc][yi][xi];
+                        }
+                    }
+                }
+                // Start Forward pass fully connected network
                 fc_nn_end_block.forward_pass();
                 // Forward pass though fully connected network
 
@@ -425,18 +449,19 @@ int main()
                 }
 
                 fc_nn_end_block.only_loss_calculation();
+
                 // cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
                 if (highest_out_class == target)
                 {
                     correct_classify_cnt++;
                 }
             }
+
             for (int k = 0; k < end_out_nodes; k++)
             {
                 cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
             }
             verify_loss = fc_nn_end_block.loss;
-            cout << "TODO !!! Verify not connected yet " << endl;
             cout << "Verify loss = " << verify_loss << endl;
             cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
             double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)verify_dataset_size);
