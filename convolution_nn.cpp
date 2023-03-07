@@ -132,7 +132,7 @@ int main()
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
     conv_L1.set_out_tensor(35);                                              // output channels
     conv_L1.output_tensor.size();
-    conv_L1.activation_function_mode = 0;
+    
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
     //==== Set up convolution layers ===========
@@ -142,7 +142,7 @@ int main()
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(25);                                                                                               // output channels
     conv_L2.output_tensor.size();
-    conv_L2.activation_function_mode = 0;
+    
     //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
     // conv_L1.conv_forward1();
     // conv_L1.conv_forward1();
@@ -207,13 +207,14 @@ int main()
     //=== Now setup the hyper parameters of the Neural Network ====
 
     const double learning_rate_end = 0.01;
-
     fc_nn_end_block.momentum = 0.3;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = fc_nn_end_block.learning_rate;
-    conv_L1.momentum = fc_nn_end_block.momentum;
-    conv_L2.learning_rate = fc_nn_end_block.learning_rate;
-    conv_L2.momentum = fc_nn_end_block.momentum;
+    conv_L1.learning_rate = 0.001;
+    conv_L1.momentum = 0.05;
+    conv_L2.learning_rate = 0.001;
+    conv_L2.momentum = 0.05;
+    conv_L1.activation_function_mode = 2;
+    conv_L2.activation_function_mode = 2;
 
 
     double init_random_weight_propotion = 0.05;
@@ -283,9 +284,6 @@ int main()
 
         for (int i = 0; i < training_dataset_size; i++)
         {
-            // Forward L1, L2 convoution
-            // TODO....
-            // data_size_one_sample_one_channel, input_channels
             int one_side = sqrt(data_size_one_sample_one_channel);
             for (int ic = 0; ic < input_channels; ic++)
             {

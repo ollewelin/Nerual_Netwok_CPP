@@ -663,6 +663,7 @@ void convolution::conv_backprop()
     }
 }
 
+
 void convolution::conv_update_weights()
 {
     // Update kernel weights
@@ -683,6 +684,7 @@ void convolution::conv_update_weights()
         }
     }
 }
+
 void convolution::conv_transpose_fwd()
 {
 }
