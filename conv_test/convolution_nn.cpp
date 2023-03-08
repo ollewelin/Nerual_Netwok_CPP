@@ -217,13 +217,22 @@ int main()
     conv_L2.activation_function_mode = 2;
 
     double init_random_weight_propotion = 0.05;
-    cout << "Do you want to load weights from saved weight file = Y/N " << endl;
+    cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
     {
         conv_L1.load_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
         conv_L2.load_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
-        fc_nn_end_block.load_weights(weight_filename_end);
+        cout << "Do you want to randomize fully connected layers Y or N load weights  = Y/N " << endl;
+        cin >> answer;
+        if (answer == 'Y' || answer == 'y')
+        {
+            fc_nn_end_block.randomize_weights(init_random_weight_propotion);
+        }
+        else
+        {
+            fc_nn_end_block.load_weights(weight_filename_end);
+        }
     }
     else
     {
@@ -231,6 +240,17 @@ int main()
         conv_L1.randomize_weights(init_random_weight_propotion);
         conv_L2.randomize_weights(init_random_weight_propotion);
     }
+
+    int re_randomize_fc_mode = 0;
+    int re_rand_fc_cnt = 0;
+    const int re_rand_after_epc = 10;
+    cout << "Do you want to training kernel weights methode by re randomize fully connected network each 10 times = Y/N " << endl;
+    cin >> answer;
+    if (answer == 'Y' || answer == 'y')
+    {
+        re_randomize_fc_mode = 1;
+    }
+    
 
     const int training_epocs = 10000; // One epocs go through the hole data set once
     const int save_after_epcs = 10;
@@ -277,6 +297,21 @@ int main()
         cout << "input node --- [0] = " << fc_nn_end_block.input_layer[0] << endl;
 
         //============ Traning ==================
+    
+        if(re_randomize_fc_mode==1)
+        {
+            if(re_rand_fc_cnt<re_rand_after_epc)
+            {
+                re_rand_fc_cnt++;
+            }
+            else
+            {
+                best_training_loss = 1000000000;
+                best_verify_loss = best_training_loss;
+                cout << "Randomize fully connected weights ============ " << endl;
+                fc_nn_end_block.randomize_weights(init_random_weight_propotion);
+            }
+        }
 
         training_order_list = fisher_yates_shuffle(training_order_list);
         fc_nn_end_block.loss = 0.0;
