@@ -241,6 +241,17 @@ int main()
         conv_L2.randomize_weights(init_random_weight_propotion);
     }
 
+    int re_randomize_fc_mode = 0;
+    int re_rand_fc_cnt = 0;
+    const int re_rand_after_epc = 10;
+    cout << "Do you want to training kernel weights methode by re randomize fully connected network each 10 times = Y/N " << endl;
+    cin >> answer;
+    if (answer == 'Y' || answer == 'y')
+    {
+        re_randomize_fc_mode = 1;
+    }
+    
+
     const int training_epocs = 10000; // One epocs go through the hole data set once
     const int save_after_epcs = 10;
     int save_epoc_counter = 0;
@@ -286,6 +297,21 @@ int main()
         cout << "input node --- [0] = " << fc_nn_end_block.input_layer[0] << endl;
 
         //============ Traning ==================
+    
+        if(re_randomize_fc_mode==1)
+        {
+            if(re_rand_fc_cnt<re_rand_after_epc)
+            {
+                re_rand_fc_cnt++;
+            }
+            else
+            {
+                best_training_loss = 1000000000;
+                best_verify_loss = best_training_loss;
+                cout << "Randomize fully connected weights ============ " << endl;
+                fc_nn_end_block.randomize_weights(init_random_weight_propotion);
+            }
+        }
 
         training_order_list = fisher_yates_shuffle(training_order_list);
         fc_nn_end_block.loss = 0.0;
