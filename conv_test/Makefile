@@ -1,6 +1,6 @@
 
 CC = g++ -std=c++14 -O3
-#CC = g++ -std=c++14 -O0 -g
+#CC = g++ -std=c++14 -O0 
 CFLAGS = -Wall
 
 #SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
