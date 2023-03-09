@@ -629,59 +629,59 @@ void convolution::conv_backprop()
             }
         }
     }
-if(top_conv != 1)
-{
-    // Update delta for input tensor. Flipped 180 deg kernel_weight
-    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    if (top_conv != 1)
     {
-        for (int y_slide = 0; y_slide < input_side_size; y_slide++)
+        // Update delta for input tensor. Flipped 180 deg kernel_weight
+        for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
         {
-            xy_start_stop_kernel(y_slide);
-            int y_start_ret = start_ret;
-            int y_stop_ret = stop_ret;
-            for (int x_slide = 0; x_slide < input_side_size; x_slide++)
+            for (int y_slide = 0; y_slide < input_side_size; y_slide++)
             {
-                xy_start_stop_kernel(x_slide);
-                int x_start_ret = start_ret;
-                int x_stop_ret = stop_ret;
-                int yi = 0;
-                for (int ky = y_start_ret; ky < y_stop_ret; ky += stride) // Flipped 180 deg kernel_weight
+                xy_start_stop_kernel(y_slide);
+                int y_start_ret = start_ret;
+                int y_stop_ret = stop_ret;
+                for (int x_slide = 0; x_slide < input_side_size; x_slide++)
                 {
-                    int out_tens_y_pos = (y_slide / stride) + yi; //
-                    yi--;
-                    if (out_tens_y_pos < 0)
+                    xy_start_stop_kernel(x_slide);
+                    int x_start_ret = start_ret;
+                    int x_stop_ret = stop_ret;
+                    int yi = 0;
+                    for (int ky = y_start_ret; ky < y_stop_ret; ky += stride) // Flipped 180 deg kernel_weight
                     {
-                        out_tens_y_pos = 0;
-                    }
+                        int out_tens_y_pos = (y_slide / stride) + yi; //
+                        yi--;
+                        if (out_tens_y_pos < 0)
+                        {
+                            out_tens_y_pos = 0;
+                        }
 
-                    if (out_tens_y_pos >= output_side_size - 1)
-                    {
-                        out_tens_y_pos = output_side_size - 1;
-                    }
-                    int xi = 0;
-                    for (int kx = x_start_ret; kx < x_stop_ret; kx += stride) // Flipped 180 deg kernel_weight
-                    {
-                        int out_tens_x_pos = (x_slide / stride) + xi;
-                        xi--;
-                        if (out_tens_x_pos < 0)
+                        if (out_tens_y_pos >= output_side_size - 1)
                         {
-                            out_tens_x_pos = 0;
+                            out_tens_y_pos = output_side_size - 1;
                         }
-                        if (out_tens_x_pos >= output_side_size - 1)
+                        int xi = 0;
+                        for (int kx = x_start_ret; kx < x_stop_ret; kx += stride) // Flipped 180 deg kernel_weight
                         {
-                            out_tens_x_pos = output_side_size - 1;
-                        }
-                        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
-                        {
-                            // Update delta for input tensor. Flipped 180 deg kernel_weight
-                            i_tensor_delta[in_ch_cnt][y_slide][x_slide] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                            int out_tens_x_pos = (x_slide / stride) + xi;
+                            xi--;
+                            if (out_tens_x_pos < 0)
+                            {
+                                out_tens_x_pos = 0;
+                            }
+                            if (out_tens_x_pos >= output_side_size - 1)
+                            {
+                                out_tens_x_pos = output_side_size - 1;
+                            }
+                            for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+                            {
+                                // Update delta for input tensor. Flipped 180 deg kernel_weight
+                                i_tensor_delta[in_ch_cnt][y_slide][x_slide] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
 }
 
 void convolution::conv_update_weights()
