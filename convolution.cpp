@@ -9,14 +9,16 @@ convolution::convolution()
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 0;
+    version_minor = 1;
     // 0.0.0 Not finnish at all
+    // 0.0.1 First working version. Not yet implement conv_transpose_fwd() conv_transpose_bkp()
     setup_state = 0;
     kernel_size = 3;
     stride = 1;
     dropout_proportion = 0.0;
     activation_function_mode = 0;
     use_dopouts = 0;
+    top_conv = 0;
     cout << "Constructor Convloution neural network object " << endl;
     srand(time(NULL)); // Seed radomizer
     cout << "Seed radomizer done" << endl;
@@ -510,7 +512,7 @@ void convolution::conv_forward1()
                         for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
                         {
                             dot_product += input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
-                      //      cout << "dot product = " << dot_product << endl;
+                            //      cout << "dot product = " << dot_product << endl;
                         }
                     }
                 }
@@ -580,6 +582,21 @@ void convolution::xy_start_stop_kernel(int slide_val)
 
 void convolution::conv_backprop()
 {
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        for (int ky = 0; ky < kernel_size; ky++)
+        {
+            for (int kx = 0; kx < kernel_size; kx++)
+            {
+                // Clear delta for kernel weight
+                for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+                {
+                    kernel_deltas[out_ch_cnt][in_ch_cnt][ky][kx] = 0.0;
+                }
+            }
+        }
+    }
+
     // Compute delta for each output channel
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -612,7 +629,8 @@ void convolution::conv_backprop()
             }
         }
     }
-
+if(top_conv != 1)
+{
     // Update delta for input tensor. Flipped 180 deg kernel_weight
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -664,7 +682,7 @@ void convolution::conv_backprop()
         }
     }
 }
-
+}
 
 void convolution::conv_update_weights()
 {
