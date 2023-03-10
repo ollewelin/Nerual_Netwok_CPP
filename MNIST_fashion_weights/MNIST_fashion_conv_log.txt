@@ -1,0 +1,424 @@
+./convolution_nn 
+Convolution neural network under work...
+Constructor Convloution neural network object 
+Seed radomizer done
+Constructor Convloution neural network object 
+Seed radomizer done
+Constructor Convloution neural network object 
+Seed radomizer done
+conv_test setup:
+   ========================================
+   OK stride size is set to 2
+   data_size_one_sample one channel = 484
+   Start doing calculatiote if stride add to input_tensor_size is neccesary
+   root_of_intdata_size = 22
+   kernel_size = 5
+   stride = 2
+   add_side = 1
+   Note! Add bottom rows and right column at input_tensor to make the convolution between input and kernel not miss any input data during stride stop operation 
+   OK input_side_size = 23
+   OK output_side_size = 10
+   kernel_bias_weights.size() = 7
+   kernel_weights.size() = 7
+   kernel_weights[0].size() = 1
+   kernel_weights[0][0].size() = 5
+   kernel_weights[6][0][4].size() = 5
+   input_tensor.size() = 1
+   output_tensor.size() = 7
+   output_tensor[6][9].size() = 10
+   ========================================
+Randomize kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Load data weights ...
+Load data finnish !
+Function 1 took 0.00126385 seconds for 10 runs.
+Function 2 took 0.000516169 seconds for 10 runs.
+Function 2 is faster.
+fc_m_resnet Constructor
+Seed radomizer done
+Fully connected residual neural network object
+fc_m_resnet object version : 0.1.0
+Constructor load_mnist_dataset 
+
+Convloution neural network object
+Convloution version : 0.0.1
+conv_L1 setup:
+   ========================================
+   OK stride size is set to 2
+   data_size_one_sample one channel = 784
+   Start doing calculatiote if stride add to input_tensor_size is neccesary
+   root_of_intdata_size = 28
+   kernel_size = 5
+   stride = 2
+   add_side = 1
+   Note! Add bottom rows and right column at input_tensor to make the convolution between input and kernel not miss any input data during stride stop operation 
+   OK input_side_size = 29
+   OK output_side_size = 13
+   kernel_bias_weights.size() = 30
+   kernel_weights.size() = 30
+   kernel_weights[0].size() = 1
+   kernel_weights[0][0].size() = 5
+   kernel_weights[29][0][4].size() = 5
+   input_tensor.size() = 1
+   output_tensor.size() = 30
+   output_tensor[29][12].size() = 13
+   ========================================
+conv_L2 setup:
+   ========================================
+   OK stride size is set to 2
+   data_size_one_sample one channel = 169
+   Start doing calculatiote if stride add to input_tensor_size is neccesary
+   root_of_intdata_size = 13
+   kernel_size = 5
+   stride = 2
+   add_side = 0
+   OK Note. Input tensor fit perfect to stride no missing data when slide to end without add extra right rows and bottom column at input spartial 
+   OK input_side_size = 13
+   OK output_side_size = 5
+   kernel_bias_weights.size() = 25
+   kernel_weights.size() = 25
+   kernel_weights[0].size() = 30
+   kernel_weights[0][0].size() = 5
+   kernel_weights[24][29][4].size() = 5
+   input_tensor.size() = 30
+   output_tensor.size() = 25
+   output_tensor[24][4].size() = 5
+   ========================================
+end_inp_nodes = 625
+train-images-idx3-ubyte is in memory
+train-labels-idx1-ubyte is in memory
+lable_size = 60000
+one_sample_lable_size = 10
+t10k-images-idx3-ubyte is in memory
+t10k-labels-idx1-ubyte is in memory
+lable_size = 10000
+one_sample_lable_size = 10
+Destructor load_mnist_dataset 
+
+
+ Number of hidden layers is set to = 2
+Size of hidden_layer[0][x] = 200
+Size of hidden_layer[1][x] = 50
+hidden_layer vector is now set up
+Now setup all_weight, change_weights vectors size of this fc block
+Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 626
+Size of temporary dummy_1D_weight_vector from hidden layer connection[1] is = 201
+Size of temporary dummy_1D_weight_vector last hidden layer connection[1] is = 51
+The size of all_weight and change_weights in now setup OK !
+Note that the program how call this object could only set this size once. No protections against change size of the public vectors
+Setup state = 2
+Size of layer dimentions[] of weights at the this nn block = 3
+Size of node dimentions[][] of weights for hidden layer number 0 is: 200
+Size of weight dimentions[][][] of weights for hidden layer number 0 is: 626
+Size of node dimentions[][] of weights for hidden layer number 1 is: 50
+Size of weight dimentions[][][] of weights for hidden layer number 1 is: 201
+Size of node dimentions[][] of weights for hidden layer number 2 is: 10
+Size of weight dimentions[][][] of weights for hidden layer number 2 is: 51
+Do you want to load kernel weights from saved weight file = Y/N 
+n
+Randomize weights 3D vector all weights of fc_resnet object....
+Randomize weights is DONE!
+setup_state = 3
+Randomize kernel weight data finnish !
+Randomize kernel weight data finnish !
+Do you want to training kernel weights methode by re randomize fully connected network each 10 times = Y/N 
+n
+Epoch ----0
+input node --- [0] = 0
+convolution L1 L2 done, i = 4999
+convolution L1 L2 done, i = 9999
+convolution L1 L2 done, i = 14999
+convolution L1 L2 done, i = 19999
+convolution L1 L2 done, i = 24999
+convolution L1 L2 done, i = 29999
+convolution L1 L2 done, i = 34999
+convolution L1 L2 done, i = 39999
+convolution L1 L2 done, i = 44999
+convolution L1 L2 done, i = 49999
+convolution L1 L2 done, i = 54999
+convolution L1 L2 done, i = 59999
+Epoch 0
+input node [0] = 0.184051
+Output node [0] = 0.10136  Target node [0] = 0
+Output node [1] = 0.100906  Target node [1] = 0
+Output node [2] = 0.100461  Target node [2] = 0
+Output node [3] = 0.0984101  Target node [3] = 0
+Output node [4] = 0.100888  Target node [4] = 0
+Output node [5] = 0.0989767  Target node [5] = 0
+Output node [6] = 0.0995304  Target node [6] = 0
+Output node [7] = 0.0994861  Target node [7] = 0
+Output node [8] = 0.0993103  Target node [8] = 1
+Output node [9] = 0.100671  Target node [9] = 0
+Training loss = 138151
+correct_classify_cnt = 5993
+correct_ratio = 9.98833
+Output node [0] = 0.10116  Target node [0] = 0
+Output node [1] = 0.100867  Target node [1] = 0
+Output node [2] = 0.100581  Target node [2] = 0
+Output node [3] = 0.0984471  Target node [3] = 0
+Output node [4] = 0.100904  Target node [4] = 0
+Output node [5] = 0.0990522  Target node [5] = 0
+Output node [6] = 0.0995565  Target node [6] = 0
+Output node [7] = 0.0995042  Target node [7] = 1
+Output node [8] = 0.0993421  Target node [8] = 0
+Output node [9] = 0.100585  Target node [9] = 0
+Verify loss = 4498.89
+Verify correct_classify_cnt = 1000
+Verify correct_ratio = 10
+Save data weights ...
+Save data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Epoch ----1
+input node --- [0] = 0.0187836
+convolution L1 L2 done, i = 0
+convolution L1 L2 done, i = 5000
+convolution L1 L2 done, i = 10000
+convolution L1 L2 done, i = 15000
+convolution L1 L2 done, i = 20000
+convolution L1 L2 done, i = 25000
+convolution L1 L2 done, i = 30000
+convolution L1 L2 done, i = 35000
+convolution L1 L2 done, i = 40000
+convolution L1 L2 done, i = 45000
+convolution L1 L2 done, i = 50000
+convolution L1 L2 done, i = 55000
+Epoch 1
+input node [0] = 0.843943
+Output node [0] = 0.0991121  Target node [0] = 0
+Output node [1] = 0.10069  Target node [1] = 0
+Output node [2] = 0.0974811  Target node [2] = 0
+Output node [3] = 0.0986782  Target node [3] = 0
+Output node [4] = 0.0990562  Target node [4] = 0
+Output node [5] = 0.1018  Target node [5] = 1
+Output node [6] = 0.0983091  Target node [6] = 0
+Output node [7] = 0.102071  Target node [7] = 0
+Output node [8] = 0.0997332  Target node [8] = 0
+Output node [9] = 0.103069  Target node [9] = 0
+Training loss = 136723
+correct_classify_cnt = 6642
+correct_ratio = 11.07
+Output node [0] = 0.111785  Target node [0] = 0
+Output node [1] = 0.0959775  Target node [1] = 0
+Output node [2] = 0.125338  Target node [2] = 0
+Output node [3] = 0.102178  Target node [3] = 0
+Output node [4] = 0.130096  Target node [4] = 0
+Output node [5] = 0.0629741  Target node [5] = 0
+Output node [6] = 0.114825  Target node [6] = 1
+Output node [7] = 0.0678494  Target node [7] = 0
+Output node [8] = 0.105552  Target node [8] = 0
+Output node [9] = 0.0834246  Target node [9] = 0
+Verify loss = 4425.12
+Verify correct_classify_cnt = 1057
+Verify correct_ratio = 10.57
+Save data weights ...
+Save data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Epoch ----2
+input node --- [0] = 1.23312
+convolution L1 L2 done, i = 0
+convolution L1 L2 done, i = 5000
+convolution L1 L2 done, i = 10000
+convolution L1 L2 done, i = 15000
+convolution L1 L2 done, i = 20000
+convolution L1 L2 done, i = 25000
+convolution L1 L2 done, i = 30000
+convolution L1 L2 done, i = 35000
+convolution L1 L2 done, i = 40000
+convolution L1 L2 done, i = 45000
+convolution L1 L2 done, i = 50000
+convolution L1 L2 done, i = 55000
+Epoch 2
+input node [0] = 31.683
+Output node [0] = 0.0774608  Target node [0] = 0
+Output node [1] = 0.0110693  Target node [1] = 0
+Output node [2] = 0.46144  Target node [2] = 1
+Output node [3] = 0.0210654  Target node [3] = 0
+Output node [4] = 0.101181  Target node [4] = 0
+Output node [5] = 0.0043526  Target node [5] = 0
+Output node [6] = 0.273112  Target node [6] = 0
+Output node [7] = 3.84946e-05  Target node [7] = 0
+Output node [8] = 0.0501671  Target node [8] = 0
+Output node [9] = 0.000113584  Target node [9] = 0
+Training loss = 74899.1
+correct_classify_cnt = 30957
+correct_ratio = 51.595
+Output node [0] = 8.44386e-05  Target node [0] = 0
+Output node [1] = 1.88359e-05  Target node [1] = 0
+Output node [2] = 0.000298967  Target node [2] = 0
+Output node [3] = 0.000506934  Target node [3] = 0
+Output node [4] = 0.00077771  Target node [4] = 0
+Output node [5] = 0.42684  Target node [5] = 1
+Output node [6] = 0.000520639  Target node [6] = 0
+Output node [7] = 0.454353  Target node [7] = 0
+Output node [8] = 0.0330701  Target node [8] = 0
+Output node [9] = 0.0835297  Target node [9] = 0
+Verify loss = 1918.94
+Verify correct_classify_cnt = 7322
+Verify correct_ratio = 73.22
+Save data weights ...
+Save data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Epoch ----3
+input node --- [0] = 13.4946
+convolution L1 L2 done, i = 0
+convolution L1 L2 done, i = 5000
+convolution L1 L2 done, i = 10000
+convolution L1 L2 done, i = 15000
+convolution L1 L2 done, i = 20000
+convolution L1 L2 done, i = 25000
+convolution L1 L2 done, i = 30000
+convolution L1 L2 done, i = 35000
+convolution L1 L2 done, i = 40000
+convolution L1 L2 done, i = 45000
+convolution L1 L2 done, i = 50000
+convolution L1 L2 done, i = 55000
+Epoch 3
+input node [0] = 27.7122
+Output node [0] = 1.03772e-08  Target node [0] = 0
+Output node [1] = 4.90994e-09  Target node [1] = 0
+Output node [2] = 2.86449e-10  Target node [2] = 0
+Output node [3] = 2.01264e-06  Target node [3] = 0
+Output node [4] = 4.88623e-08  Target node [4] = 0
+Output node [5] = 0.000800017  Target node [5] = 0
+Output node [6] = 4.62933e-07  Target node [6] = 0
+Output node [7] = 0.0286119  Target node [7] = 0
+Output node [8] = 1.17951e-05  Target node [8] = 0
+Output node [9] = 0.970574  Target node [9] = 1
+Training loss = 37993.6
+correct_classify_cnt = 45689
+correct_ratio = 76.1483
+Output node [0] = 0.0235595  Target node [0] = 0
+Output node [1] = 5.66921e-05  Target node [1] = 0
+Output node [2] = 0.159643  Target node [2] = 0
+Output node [3] = 0.0106374  Target node [3] = 0
+Output node [4] = 0.122045  Target node [4] = 0
+Output node [5] = 0.00111824  Target node [5] = 0
+Output node [6] = 0.157917  Target node [6] = 0
+Output node [7] = 2.60268e-05  Target node [7] = 0
+Output node [8] = 0.524949  Target node [8] = 1
+Output node [9] = 4.81452e-05  Target node [9] = 0
+Verify loss = 1415.01
+Verify correct_classify_cnt = 8017
+Verify correct_ratio = 80.17
+Save data weights ...
+Save data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+
+
+
+
+
+input node --- [0] = -2.04099e-320
+convolution L1 L2 done, i = 0
+convolution L1 L2 done, i = 5000
+convolution L1 L2 done, i = 10000
+convolution L1 L2 done, i = 15000
+convolution L1 L2 done, i = 20000
+convolution L1 L2 done, i = 25000
+convolution L1 L2 done, i = 30000
+convolution L1 L2 done, i = 35000
+convolution L1 L2 done, i = 40000
+convolution L1 L2 done, i = 45000
+convolution L1 L2 done, i = 50000
+convolution L1 L2 done, i = 55000
+Epoch 94
+input node [0] = -2.87843e-320
+Output node [0] = 0.00325667  Target node [0] = 0
+Output node [1] = 6.28702e-09  Target node [1] = 0
+Output node [2] = 0.96386  Target node [2] = 1
+Output node [3] = 5.72937e-06  Target node [3] = 0
+Output node [4] = 0.0328254  Target node [4] = 0
+Output node [5] = 3.37863e-12  Target node [5] = 0
+Output node [6] = 4.58586e-05  Target node [6] = 0
+Output node [7] = 1.09793e-13  Target node [7] = 0
+Output node [8] = 6.12732e-06  Target node [8] = 0
+Output node [9] = 5.54667e-15  Target node [9] = 0
+Training loss = 11649.2
+correct_classify_cnt = 55482
+correct_ratio = 92.47
+Output node [0] = 1.8475e-10  Target node [0] = 0
+Output node [1] = 9.91316e-14  Target node [1] = 0
+Output node [2] = 0.9986  Target node [2] = 1
+Output node [3] = 9.01302e-13  Target node [3] = 0
+Output node [4] = 0.00139973  Target node [4] = 0
+Output node [5] = 1.85092e-21  Target node [5] = 0
+Output node [6] = 1.61338e-07  Target node [6] = 0
+Output node [7] = 1.47093e-21  Target node [7] = 0
+Output node [8] = 6.71136e-17  Target node [8] = 0
+Output node [9] = 3.73328e-21  Target node [9] = 0
+Verify loss = 834.329
+Verify correct_classify_cnt = 8962
+Verify correct_ratio = 89.62
+Save data weights ...
+Save data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Epoch ----95
+
+
+
+
+
+convolution L1 L2 done, i = 0
+convolution L1 L2 done, i = 5000
+convolution L1 L2 done, i = 10000
+convolution L1 L2 done, i = 15000
+convolution L1 L2 done, i = 20000
+convolution L1 L2 done, i = 25000
+convolution L1 L2 done, i = 30000
+convolution L1 L2 done, i = 35000
+convolution L1 L2 done, i = 40000
+convolution L1 L2 done, i = 45000
+convolution L1 L2 done, i = 50000
+convolution L1 L2 done, i = 55000
+Epoch 123
+input node [0] = 343.754
+Output node [0] = 0.928718  Target node [0] = 1
+Output node [1] = 3.99907e-08  Target node [1] = 0
+Output node [2] = 2.4325e-06  Target node [2] = 0
+Output node [3] = 7.97262e-06  Target node [3] = 0
+Output node [4] = 2.14056e-07  Target node [4] = 0
+Output node [5] = 3.26907e-13  Target node [5] = 0
+Output node [6] = 0.0712713  Target node [6] = 0
+Output node [7] = 2.87745e-15  Target node [7] = 0
+Output node [8] = 1.51026e-08  Target node [8] = 0
+Output node [9] = 1.10638e-14  Target node [9] = 0
+Training loss = 9579.86
+correct_classify_cnt = 56206
+correct_ratio = 93.6767
+Output node [0] = 1.12966e-08  Target node [0] = 0
+Output node [1] = 6.02691e-18  Target node [1] = 0
+Output node [2] = 1.27588e-07  Target node [2] = 0
+Output node [3] = 2.49324e-13  Target node [3] = 0
+Output node [4] = 6.40636e-06  Target node [4] = 0
+Output node [5] = 4.48583e-22  Target node [5] = 0
+Output node [6] = 0.999993  Target node [6] = 1
+Output node [7] = 3.71775e-25  Target node [7] = 0
+Output node [8] = 2.38627e-15  Target node [8] = 0
+Output node [9] = 3.95726e-24  Target node [9] = 0
+Verify loss = 828.949
+Verify correct_classify_cnt = 8960
+Verify correct_ratio = 89.6
+Save data weights ...
+Save data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Save kernel weight data weights ...
+Save kernel weight data finnish !
+Epoch ----124
+
