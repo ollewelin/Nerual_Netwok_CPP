@@ -27,71 +27,9 @@ int main()
     // ======== create 2 convolution layer objects =========
     convolution conv_L1;
     convolution conv_L2;
-    convolution conv_test; //
-    // convolution conv_L3;
     //======================================================
 
-    //==== Set up convolution layers ===========
-    cout << "conv_test setup:" << endl;
-    conv_test.set_kernel_size(5); // Odd number
-    conv_test.set_stride(2);
-    conv_test.set_in_tensor(22 * 22, 1); // data_size_one_sample_one_channel, input channels
-    conv_test.set_out_tensor(7);         // output channels
-    conv_test.output_tensor.size();
-    conv_test.randomize_weights(0.01);
-    conv_test.save_weights("conv_test_w.dat", "conv_test_b.dat");
-    conv_test.load_weights("conv_test_w.dat", "conv_test_b.dat");
-    conv_test.conv_forward1();
-    conv_test.conv_forward2();
-    conv_test.conv_backprop();
-    conv_test.conv_update_weights();
-    //========================================
-
-    // number of times to run each function
-    int num_runs = 10;
-
-    // time variables
-    std::chrono::time_point<std::chrono::system_clock> start, end;
-    std::chrono::duration<double> elapsed_seconds1, elapsed_seconds2;
-
-    // run function 1 and record runtime
-    start = std::chrono::system_clock::now();
-    for (int i = 0; i < num_runs; i++)
-    {
-        conv_test.conv_forward1();
-    }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds1 = end - start;
-
-    // run function 2 and record runtime
-    start = std::chrono::system_clock::now();
-    for (int i = 0; i < num_runs; i++)
-    {
-        conv_test.conv_forward2();
-    }
-    end = std::chrono::system_clock::now();
-    elapsed_seconds2 = end - start;
-
-    // print results
-    std::cout << "Function 1 took " << elapsed_seconds1.count() << " seconds for " << num_runs << " runs." << std::endl;
-    std::cout << "Function 2 took " << elapsed_seconds2.count() << " seconds for " << num_runs << " runs." << std::endl;
-
-    // choose faster function and use it for further processing
-    if (elapsed_seconds1 < elapsed_seconds2)
-    {
-        std::cout << "Function 1 is faster." << std::endl;
-        //  conv_test.conv_forward1();
-    }
-    else
-    {
-        std::cout << "Function 2 is faster." << std::endl;
-        //  conv_test.conv_forward2();
-    }
-
-    srand(time(NULL));
-    char answer;
-
-    //=========== Test Neural Network size settings ==============
+    //=========== Neural Network size settings ==============
     fc_m_resnet fc_nn_end_block;
     string weight_filename_end;
     weight_filename_end = "end_block_weights.dat";
@@ -144,15 +82,6 @@ int main()
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(25);                                                                                               // output channels
     conv_L2.output_tensor.size();
-
-    //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
-    // conv_L1.conv_forward1();
-    // conv_L1.conv_forward1();
-    // conv_L1.conv_backprop();
-    // conv_L1.conv_update_weights();
-    // conv_L1.conv_backprop();
-    // conv_L1.conv_update_weights();
-    //========================================
 
     const int end_inp_nodes = (conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()) * conv_L2.output_tensor.size();
     cout << "end_inp_nodes = " << end_inp_nodes << endl;
@@ -218,6 +147,7 @@ int main()
     conv_L1.activation_function_mode = 2;
     conv_L2.activation_function_mode = 2;
 
+    char answer;
     double init_random_weight_propotion = 0.05;
     cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
     cin >> answer;
@@ -242,17 +172,6 @@ int main()
         conv_L1.randomize_weights(init_random_weight_propotion);
         conv_L2.randomize_weights(init_random_weight_propotion);
     }
-
-    int re_randomize_fc_mode = 0;
-    int re_rand_fc_cnt = 0;
-    const int re_rand_after_epc = 10;
-    cout << "Do you want to training kernel weights methode by re randomize fully connected network each 10 times = Y/N " << endl;
-    cin >> answer;
-    if (answer == 'Y' || answer == 'y')
-    {
-        re_randomize_fc_mode = 1;
-    }
-    
 
     const int training_epocs = 10000; // One epocs go through the hole data set once
     const int save_after_epcs = 10;
@@ -299,21 +218,6 @@ int main()
         cout << "input node --- [0] = " << fc_nn_end_block.input_layer[0] << endl;
 
         //============ Traning ==================
-    
-        if(re_randomize_fc_mode==1)
-        {
-            if(re_rand_fc_cnt<re_rand_after_epc)
-            {
-                re_rand_fc_cnt++;
-            }
-            else
-            {
-                best_training_loss = 1000000000;
-                best_verify_loss = best_training_loss;
-                cout << "Randomize fully connected weights ============ " << endl;
-                fc_nn_end_block.randomize_weights(init_random_weight_propotion);
-            }
-        }
 
         training_order_list = fisher_yates_shuffle(training_order_list);
         fc_nn_end_block.loss = 0.0;
@@ -333,9 +237,7 @@ int main()
                     }
                 }
             }
-
             conv_L1.conv_forward1();
-
             conv_L2.input_tensor = conv_L1.output_tensor;
             conv_L2.conv_forward1();
             if (print_cnt > 0)
@@ -452,6 +354,7 @@ int main()
                 conv_L1.conv_forward1();
                 conv_L2.input_tensor = conv_L1.output_tensor;
                 conv_L2.conv_forward1();
+
                 int L2_out_one_side = conv_L2.output_tensor[0].size();
                 int L2_out_ch = conv_L2.output_tensor.size();
                 for (int oc = 0; oc < L2_out_ch; oc++)
