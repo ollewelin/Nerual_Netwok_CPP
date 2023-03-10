@@ -110,7 +110,7 @@ int main()
     fc_nn_end_block.use_softmax = 1;
     fc_nn_end_block.activation_function_mode = 2;
     fc_nn_end_block.use_skip_connect_mode = 0; // 1 for residual network architetcture
-    fc_nn_end_block.use_dopouts = 1;
+    fc_nn_end_block.use_dropouts = 1;
     fc_nn_end_block.dropout_proportion = 0.2;
 
     load_mnist_dataset l_mnist_data;

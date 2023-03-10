@@ -61,7 +61,7 @@ public:
     //0 = SGD Stocastic Gradient Decent
     //1 = Batch Gradient Decent, not yet implemented
     int batch_size; //Only used if trainging_mode 1
-    int use_dopouts;
+    int use_dropouts;
     //0 = No dropout
     //1 = Use dropout
     double loss;
