@@ -319,7 +319,7 @@ Backprop or transpose. Note kernel 180 degree flip
 
 ![](con_test_structure.png)
 
-# Convolution Neural Network Test result
+# Convolution Neural Network Test 2 conv layer structure
 
     Convolution neural network under work...
     Constructor Convloution neural network object 
@@ -418,7 +418,7 @@ Backprop or transpose. Note kernel 180 degree flip
     Load data finnish !
 
 
-## MNIST fashion dataset test Verify correct_ratio = 89.6% Epoch 123
+# MNIST fashion dataset test Verify correct_ratio = 89.6% Epoch 123
 
     convolution L1 L2 done, i = 0
     convolution L1 L2 done, i = 5000
@@ -467,7 +467,7 @@ Backprop or transpose. Note kernel 180 degree flip
     Save kernel weight data weights ...
     Save kernel weight data finnish !
 
-## MNIST DIGITS dataset test Verify correct_ratio = 99.1%
+# MNIST DIGITS dataset test Verify correct_ratio = 99.1%
 
     ...
     Training loss = 826.443
