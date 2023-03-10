@@ -1,4 +1,4 @@
-# Nerual_Netwok_CPP
+# C++ Convolution Neural Network and Residual fully connected Neural Network
 Neural Network
 
 Youtube
