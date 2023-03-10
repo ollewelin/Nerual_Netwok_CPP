@@ -54,7 +54,6 @@ public:
     void load_weights(string, string);//load weights with file name argument 
     void save_weights(string, string);//save weights with file name argument 
     void conv_forward1(void);//Low memory swaping high aritmetric operation variant
-    void conv_forward2(void);//High memory swaping low aritmetric operation variant of conv_forward()
     void conv_backprop(void);
     void conv_update_weights(void);
     void conv_transpose_fwd(void);//Same algorithm as conv_backprop but go forward from output_tensor to input_tensor. Used for show patches or as forward conv autoencodes
