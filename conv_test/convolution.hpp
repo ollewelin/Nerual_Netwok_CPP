@@ -54,7 +54,6 @@ public:
     void load_weights(string, string);//load weights with file name argument 
     void save_weights(string, string);//save weights with file name argument 
     void conv_forward1(void);//Low memory swaping high aritmetric operation variant
-    void conv_forward2(void);//High memory swaping low aritmetric operation variant of conv_forward()
     void conv_backprop(void);
     void conv_update_weights(void);
     void conv_transpose_fwd(void);//Same algorithm as conv_backprop but go forward from output_tensor to input_tensor. Used for show patches or as forward conv autoencodes
@@ -67,7 +66,7 @@ public:
     double fix_leaky_proportion;
     double learning_rate;
     double momentum;
-    int use_dropouts;
+    int use_dopouts;
     int top_conv;//If set to 1 disable calcualtioen of i_delta to speed up first convolution calculate only kernel delta if this is 1
     //0 = No dropout
     //1 = Use dropout

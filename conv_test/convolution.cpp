@@ -9,15 +9,16 @@ convolution::convolution()
 {
     version_major = 0;
     version_mid = 0;
-    version_minor = 1;
+    version_minor = 3;
     // 0.0.0 Not finnish at all
     // 0.0.1 First working version. Not yet implement conv_transpose_fwd() conv_transpose_bkp()
+    // 0.0.3 remove conv_forward2(void) function 
     setup_state = 0;
     kernel_size = 3;
     stride = 1;
     dropout_proportion = 0.0;
     activation_function_mode = 0;
-    use_dropouts = 0;
+    use_dopouts = 0;
     top_conv = 0;
     cout << "Constructor Convloution neural network object " << endl;
     srand(time(NULL)); // Seed radomizer
@@ -401,7 +402,7 @@ double convolution::activation_function(double input_data)
 {
     double output_data = 0.0;
     int this_node_dopped_out = 0;
-    if (use_dropouts == 1)
+    if (use_dopouts == 1)
     {
         double dropout_random = ((double)rand() / RAND_MAX);
         if (dropout_random < dropout_proportion)
@@ -490,7 +491,6 @@ double convolution::delta_activation_func(double delta_outside_function, double 
     return delta_inside_func;
 }
 
-// More computation intensive metode. But vetor memory pipline large jumping metode
 void convolution::conv_forward1()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
@@ -520,40 +520,6 @@ void convolution::conv_forward1()
                 // Make the activation function
                 // Put the dot product to output tensor map
                 output_tensor[out_ch_cnt][y_slide][x_slide] = activation_function(dot_product);
-            }
-        }
-    }
-}
-
-// Less vetor memory large pipline jumping metode But more computation intensive metode
-
-void convolution::conv_forward2()
-{
-    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
-    {
-        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
-        {
-            for (int y_slide = 0; y_slide < output_side_size; y_slide++)
-            {
-                for (int x_slide = 0; x_slide < output_side_size; x_slide++)
-                {
-                    // Make the dot product of input tensor with kernel wheight for one kernel position
-                    double dot_product = kernel_bias_weights[out_ch_cnt]; // start with bias value for the dot product
-                    for (int ky = 0; ky < kernel_size; ky++)
-                    {
-                        int inp_tens_y_pos = ky + y_slide * stride;
-                        for (int kx = 0; kx < kernel_size; kx++)
-                        {
-
-                            int inp_tens_x_pos = kx + x_slide * stride;
-                            // Itterate dot product
-                            dot_product += input_tensor[in_ch_cnt][inp_tens_y_pos][inp_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
-                        }
-                    }
-                    // Make the activation function
-                    // Put the dot product to output tensor map
-                    output_tensor[out_ch_cnt][y_slide][x_slide] = activation_function(dot_product);
-                }
             }
         }
     }
