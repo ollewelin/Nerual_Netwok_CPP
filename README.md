@@ -319,3 +319,162 @@ Backprop or transpose. Note kernel 180 degree flip
 
 ![](con_test_structure.png)
 
+# Convolution Neural Network Test result
+
+    Convolution neural network under work...
+    Constructor Convloution neural network object 
+    Seed radomizer done
+    Constructor Convloution neural network object 
+    Seed radomizer done
+    fc_m_resnet Constructor
+    Seed radomizer done
+    Fully connected residual neural network object
+    fc_m_resnet object version : 0.1.0
+    Constructor load_mnist_dataset 
+    
+    Convloution neural network object
+    Convloution version : 0.0.3
+    conv_L1 setup:
+        ========================================
+        OK stride size is set to 2
+        data_size_one_sample one channel = 784
+        Start doing calculatiote if stride add to input_tensor_size is neccesary
+        root_of_intdata_size = 28
+        kernel_size = 5
+        stride = 2
+        add_side = 1
+        Note! Add bottom rows and right column at input_tensor to make the convolution between input and kernel not miss any input data during stride stop operation 
+        OK input_side_size = 29
+        OK output_side_size = 13
+        kernel_bias_weights.size() = 30
+        kernel_weights.size() = 30
+        kernel_weights[0].size() = 1
+        kernel_weights[0][0].size() = 5
+        kernel_weights[29][0][4].size() = 5
+        input_tensor.size() = 1
+        output_tensor.size() = 30
+        output_tensor[29][12].size() = 13
+    ========================================
+    conv_L2 setup:
+    ========================================
+        OK stride size is set to 2
+        data_size_one_sample one channel = 169
+        Start doing calculatiote if stride add to input_tensor_size is neccesary
+        root_of_intdata_size = 13
+        kernel_size = 5
+        stride = 2
+        add_side = 0
+        OK Note. Input tensor fit perfect to stride no missing data when slide to end without add extra right rows and bottom column at input spartial 
+        OK input_side_size = 13
+        OK output_side_size = 5
+        kernel_bias_weights.size() = 25
+        kernel_weights.size() = 25
+        kernel_weights[0].size() = 30
+        kernel_weights[0][0].size() = 5
+        kernel_weights[24][29][4].size() = 5
+        input_tensor.size() = 30
+        output_tensor.size() = 25
+        output_tensor[24][4].size() = 5
+        ========================================
+    end_inp_nodes = 625
+    train-images-idx3-ubyte is in memory
+    train-labels-idx1-ubyte is in memory
+    lable_size = 60000
+    one_sample_lable_size = 10
+    t10k-images-idx3-ubyte is in memory
+    t10k-labels-idx1-ubyte is in memory
+    lable_size = 10000
+    one_sample_lable_size = 10
+    Destructor load_mnist_dataset 
+    
+
+     Number of hidden layers is set to = 2
+    Size of hidden_layer[0][x] = 200
+    Size of hidden_layer[1][x] = 50
+    hidden_layer vector is now set up
+    Now setup all_weight, change_weights vectors size of this fc block
+    Size of temporary dummy_1D_weight_vector from input layer connection[0] is = 626
+    Size of temporary dummy_1D_weight_vector from hidden layer connection[1] is = 201
+    Size of temporary dummy_1D_weight_vector last hidden layer connection[1] is = 51
+    The size of all_weight and change_weights in now setup OK !
+    Note that the program how call this object could only set this size once. No protections against change size of the public vectors
+    Setup state = 2
+    Size of layer dimentions[] of weights at the this nn block = 3
+    Size of node dimentions[][] of weights for hidden layer number 0 is: 200
+    Size of weight dimentions[][][] of weights for hidden layer number 0 is: 626
+    Size of node dimentions[][] of weights for hidden layer number 1 is: 50
+    Size of weight dimentions[][][] of weights for hidden layer number 1 is: 201
+    Size of node dimentions[][] of weights for hidden layer number 2 is: 10
+    Size of weight dimentions[][][] of weights for hidden layer number 2 is: 51
+    Do you want to load kernel weights from saved weight file = Y/N 
+    y
+    Load data weights ...
+    Load data finnish !
+    Load data weights ...
+    Load data finnish !
+    Do you want to randomize fully connected layers Y or N load weights  = Y/N 
+    n
+    Load data weights ...
+    Load data finnish !
+
+
+## MNIST fashion dataset test Verify correct_ratio = 89.6% Epoch 123
+
+    convolution L1 L2 done, i = 0
+    convolution L1 L2 done, i = 5000
+    convolution L1 L2 done, i = 10000
+    convolution L1 L2 done, i = 15000
+    convolution L1 L2 done, i = 20000
+    convolution L1 L2 done, i = 25000
+    convolution L1 L2 done, i = 30000
+    convolution L1 L2 done, i = 35000
+    convolution L1 L2 done, i = 40000
+    convolution L1 L2 done, i = 45000
+    convolution L1 L2 done, i = 50000
+    convolution L1 L2 done, i = 55000
+    Epoch 123
+    input node [0] = 343.754
+    Output node [0] = 0.928718  Target node [0] = 1
+    Output node [1] = 3.99907e-08  Target node [1] = 0
+    Output node [2] = 2.4325e-06  Target node [2] = 0
+    Output node [3] = 7.97262e-06  Target node [3] = 0
+    Output node [4] = 2.14056e-07  Target node [4] = 0
+    Output node [5] = 3.26907e-13  Target node [5] = 0
+    Output node [6] = 0.0712713  Target node [6] = 0
+    Output node [7] = 2.87745e-15  Target node [7] = 0
+    Output node [8] = 1.51026e-08  Target node [8] = 0
+    Output node [9] = 1.10638e-14  Target node [9] = 0
+    Training loss = 9579.86
+    correct_classify_cnt = 56206
+    correct_ratio = 93.6767
+    Output node [0] = 1.12966e-08  Target node [0] = 0
+    Output node [1] = 6.02691e-18  Target node [1] = 0
+    Output node [2] = 1.27588e-07  Target node [2] = 0
+    Output node [3] = 2.49324e-13  Target node [3] = 0
+    Output node [4] = 6.40636e-06  Target node [4] = 0
+    Output node [5] = 4.48583e-22  Target node [5] = 0
+    Output node [6] = 0.999993  Target node [6] = 1
+    Output node [7] = 3.71775e-25  Target node [7] = 0
+    Output node [8] = 2.38627e-15  Target node [8] = 0
+    Output node [9] = 3.95726e-24  Target node [9] = 0
+    Verify loss = 828.949
+    Verify correct_classify_cnt = 8960
+    Verify correct_ratio = 89.6
+    Save data weights ...
+    Save data finnish !
+    Save kernel weight data weights ...
+    Save kernel weight data finnish !
+    Save kernel weight data weights ...
+    Save kernel weight data finnish !
+
+## MNIST DIGITS dataset test Verify correct_ratio = 99.1%
+
+    ...
+    Training loss = 826.443
+    correct_classify_cnt = 59731
+    correct_ratio = 99.5517
+    ...
+    Verify loss = 80.0458
+    Verify correct_classify_cnt = 9910
+    Verify correct_ratio = 99.1
+    ...
