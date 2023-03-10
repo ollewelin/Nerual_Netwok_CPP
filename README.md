@@ -1,7 +1,10 @@
 # C++ Convolution Neural Network and Residual fully connected Neural Network
 Neural Network
-
 Youtube
+Convolution Neural Network
+https://www.youtube.com/watch?v=daEph4x4RTc
+
+Residual Fully connected Neural Network
 https://www.youtube.com/watch?v=nnH4r4lRVmo&t=146s
 
 Update with softmax
