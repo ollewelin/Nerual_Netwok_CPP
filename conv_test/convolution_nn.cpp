@@ -134,6 +134,8 @@ int main()
     conv_L1.set_out_tensor(30);                                              // output channels
     conv_L1.output_tensor.size();
     conv_L1.top_conv = 1;
+    conv_L1.use_dropouts = 1;
+    conv_L1.dropout_proportion = 0.2;
 
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
 
@@ -144,6 +146,8 @@ int main()
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(25);                                                                                               // output channels
     conv_L2.output_tensor.size();
+    conv_L2.use_dropouts = 1;
+    conv_L2.dropout_proportion = 0.2;
 
     //========= L2 convolution (vectors) all tensor size for convolution object is finnish =============
     // conv_L1.conv_forward1();

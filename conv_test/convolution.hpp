@@ -67,7 +67,7 @@ public:
     double fix_leaky_proportion;
     double learning_rate;
     double momentum;
-    int use_dopouts;
+    int use_dropouts;
     int top_conv;//If set to 1 disable calcualtioen of i_delta to speed up first convolution calculate only kernel delta if this is 1
     //0 = No dropout
     //1 = Use dropout
