@@ -13,9 +13,14 @@ There are several types of normalization techniques, including Batch Normalizati
 
 Code:
 This code implements the forward and backward passes of Batch Normalization. 
-The batch_norm_forward function takes as input the input data x, the scaling parameters gamma and beta, 
-the mean and variance of the input data, mean and var, and the number of data points N and the dimension of the input D. 
+
+The batch_norm_forward function takes as input:
+1. the input data x,
+2. the scaling parameters gamma and beta, 
+3. the mean and variance of the input data, mean and var,
+4. and the number of data points N and the dimension of the input D. 
 It computes the normalized input x_norm and the output out. 
+
 The batch_norm_backward function takes as input: 
 1. the gradient of the output dout, 
 2. the normalized input x_norm, 
