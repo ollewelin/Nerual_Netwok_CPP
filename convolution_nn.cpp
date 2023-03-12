@@ -138,7 +138,7 @@ int main()
     //=== Now setup the hyper parameters of the Neural Network ====
 
     const double learning_rate_end = 0.0001;
-    fc_nn_end_block.momentum = 0.11;
+    fc_nn_end_block.momentum = 0.01;
     fc_nn_end_block.learning_rate = learning_rate_end;
     conv_L1.learning_rate = 0.0001;
     conv_L1.momentum = 0.05;
