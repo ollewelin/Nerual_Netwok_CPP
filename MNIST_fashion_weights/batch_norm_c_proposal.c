@@ -32,7 +32,6 @@ It computes the gradients of the input dx and the scaling parameters dgamma and 
 
 You can call these functions after each convolutional layer to normalize the input data and stabilize the network during training.
 */
-
 void batch_norm_forward(float* x, float* gamma, float* beta, float* mean, float* var, int N, int D, float* x_norm, float* out)
 {
     for (int i = 0; i < N; i++) {
@@ -43,8 +42,12 @@ void batch_norm_forward(float* x, float* gamma, float* beta, float* mean, float*
     }
 }
 
-void batch_norm_backward(float* dout, float* x_norm, float* gamma, float* var, int N, int D, float* dx, float* dgamma, float* dbeta)
+// assume gamma and beta are initialized as arrays of size D
+// assume dgamma and dbeta are initialized as arrays of size D, with all elements set to 0
+
+void batch_norm_backward(float* dout, float* x_norm, float* gamma, float* beta, float* var, int N, int D, float* dx, float* dgamma, float* dbeta)
 {
+    // calculate gradient of beta and gamma
     float* dgamma_sum = (float*) calloc(D, sizeof(float));
     float* dbeta_sum = (float*) calloc(D, sizeof(float));
     for (int i = 0; i < N; i++) {
@@ -53,13 +56,25 @@ void batch_norm_backward(float* dout, float* x_norm, float* gamma, float* var, i
             dbeta_sum[j] += dout[i*D + j];
         }
     }
+    
+    // update gamma and beta
+    float lr = 0.001; // learning rate
+    for (int j = 0; j < D; j++) {
+        gamma[j] -= lr * dgamma_sum[j];
+        beta[j] -= lr * dbeta_sum[j];
+    }
+    
+    // calculate gradient of x
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < D; j++) {
             dx[i*D + j] = gamma[j] * (dout[i*D + j] - (dgamma_sum[j]*x_norm[i*D + j] + dbeta_sum[j])/(N*D)) / sqrt(var[j] + 1e-8);
         }
     }
+    
+    // store gradients of gamma and beta in dgamma and dbeta
     memcpy(dgamma, dgamma_sum, D*sizeof(float));
     memcpy(dbeta, dbeta_sum, D*sizeof(float));
+    
     free(dgamma_sum);
     free(dbeta_sum);
 }
