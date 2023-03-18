@@ -12,6 +12,10 @@ private:
     int channels;
     int rows;
     int cols;
+    int version_major;
+    int version_mid;
+    int version_minor;
+
 public:
     void set_up_tensors(int,int,int,int);//4D [batch_size][channels][row][col].
     int forward_one_sample(void);//return sample coundter
@@ -22,6 +26,11 @@ public:
     double lr;//learning rate
     batch_norm_layer();
     ~batch_norm_layer();
+
+    void get_version(void);
+    int ver_major;
+    int ver_mid;
+    int ver_minor;
 };
 
 #endif //BATCH_NORM_LAYER_H

@@ -7,12 +7,27 @@ const int MAX_CHANNELS = 10000;
 const int MAX_ROWS_OR_COLS = 100000;
 batch_norm_layer::batch_norm_layer()
 {
+    cout << "Batch norm batch_norm_layer object constructor " << endl;
+    version_major = 0;
+    version_mid = 0;
+    version_minor = 1;
+    // 0.0.1 First empty version, untested.
+
+    
     samp_cnt = 0;
     batch_size = 32;//32 = default batch size
     channels = 0;
     rows = 0;
     cols = 0;
 }
+void batch_norm_layer::get_version()
+{
+    cout << "batch_norm_layer version : " << version_major << "." << version_mid << "." << version_minor << endl;
+    ver_major = version_major;
+    ver_mid = version_mid;
+    ver_minor = version_minor;
+}
+
 void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int arg_rows, int arg_cols)//4D [batch_size][channels][row][col].
 {
     if(arg_batch_size > 0 && arg_batch_size < MAX_BATCH_SIZE+1)
