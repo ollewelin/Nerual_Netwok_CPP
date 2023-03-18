@@ -174,6 +174,18 @@ int main()
     conv_L2.activation_function_mode = 2;
     conv_L3.activation_function_mode = 2;
 
+    int training_batches = training_dataset_size / batch_size;
+    int training_dsize_fit_batch = training_batches * batch_size;
+    int verify_batches = verify_dataset_size / batch_size;
+    int verify_dsize_fit_batch = verify_batches * batch_size;
+    cout << "batch_size = " << batch_size << endl;
+    cout << "training_dataset_size = " << training_dataset_size << endl;
+    cout << "training_batches = " << training_batches << endl;
+    cout << "training_dsize_fit_batch = " << training_dsize_fit_batch << endl;
+    cout << "verify_dataset_size = " << verify_dataset_size << endl;
+    cout << "verify_batches = " << verify_batches << endl;
+    cout << "verify_dsize_fit_batch = " << verify_dsize_fit_batch << endl;
+
     char answer;
     double init_fc_random_weight_propotion = 0.001;
     double init_conv_random_weight_propotion = 0.05;
