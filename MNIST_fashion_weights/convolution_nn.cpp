@@ -132,6 +132,10 @@ int main()
 
     l_mnist_data.~load_mnist_dataset();
 
+    cout << endl;
+    cout << endl;
+    cout << "Structure of the Fully Connected Neural Network is this: " << endl;
+
     for (int i = 0; i < end_inp_nodes; i++)
     {
         fc_nn_end_block.input_layer.push_back(0.0);
