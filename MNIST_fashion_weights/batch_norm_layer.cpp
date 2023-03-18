@@ -160,7 +160,7 @@ void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int 
         cout << "Error batch size argument out of range 1 to " << MAX_BATCH_SIZE << " arg_batch_size = " << arg_batch_size << endl;
         cout << "batch_size is default set to = " << batch_size << endl;
     }
-    if (channels > 0 && channels < MAX_CHANNELS)
+    if (arg_channels > 0 && arg_channels < MAX_CHANNELS)
     {
         channels = arg_channels;
     }
@@ -326,6 +326,7 @@ void batch_norm_layer::forward_batch(void)
 
 void batch_norm_layer::backprop_batch(void)
 {
+    int data_size   = (batch_size*rows*cols);
     for (int sample_idx = 0; sample_idx < batch_size; sample_idx++)
     {
         for (int ch_idx = 0; ch_idx < channels; ch_idx++)
@@ -350,7 +351,13 @@ void batch_norm_layer::backprop_batch(void)
                 for (int col_idx = 0; col_idx < cols; col_idx++)
                 {
                     // Calcualte backprop o_tensor_delta, i_tesnor_delta
-                    i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = gamma[ch_idx][row_idx][col_idx] * (o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] - (delta_sum_gamma[ch_idx][row_idx][col_idx] * x_norm[sample_idx][ch_idx][row_idx][col_idx] + delta_sum_beta[ch_idx][row_idx][col_idx]) / (batch_size * rows * cols)) / (sqrt(variance[ch_idx][row_idx][col_idx]) + epsilon);
+                    double xnorm    = x_norm[sample_idx][ch_idx][row_idx][col_idx];
+                    double dgamma   = delta_sum_gamma[ch_idx][row_idx][col_idx];
+                    double dbeta    = delta_sum_beta[ch_idx][row_idx][col_idx];
+                    double gama_l   = gamma[ch_idx][row_idx][col_idx];
+                    double o_delta  = o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
+                    double var      = variance[ch_idx][row_idx][col_idx];
+                    i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = gama_l * (o_delta - (dgamma * xnorm + dbeta) / data_size) / (sqrt(var) + epsilon);
                     // dx[i*D + j] = gamma[j] * (dout[i*D + j] - (dgamma_sum[j]*x_norm[i*D + j] + dbeta_sum[j])/(N*D)) / sqrt(var[j] + 1e-8);
                     if (sample_idx == batch_size - 1)
                     {

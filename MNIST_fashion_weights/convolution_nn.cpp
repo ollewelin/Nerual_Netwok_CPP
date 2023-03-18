@@ -154,7 +154,7 @@ int main()
     //============ Neural Network Size setup is finnish ! ==================
 
     //=== Now setup the hyper parameters of the Neural Network ====
-
+    const int batch_size = 64;
     const double learning_rate_end = 0.0001;
     fc_nn_end_block.momentum = 0.01;
     fc_nn_end_block.learning_rate = learning_rate_end;
@@ -164,7 +164,12 @@ int main()
     conv_L2.momentum = 0.01;
     conv_L3.learning_rate = 0.0001;
     conv_L3.momentum = 0.01;
-
+    L1_batch_norm.lr = 0.001;
+    L2_batch_norm.lr = 0.001;
+    L3_batch_norm.lr = 0.001;
+    L1_batch_norm.set_up_tensors(batch_size, conv_L1.output_tensor.size(), conv_L1.output_tensor[0].size(), conv_L1.output_tensor[0].size());
+    L2_batch_norm.set_up_tensors(batch_size, conv_L2.output_tensor.size(), conv_L2.output_tensor[0].size(), conv_L2.output_tensor[0].size());
+    L3_batch_norm.set_up_tensors(batch_size, conv_L3.output_tensor.size(), conv_L3.output_tensor[0].size(), conv_L3.output_tensor[0].size());
     conv_L1.activation_function_mode = 2;
     conv_L2.activation_function_mode = 2;
     conv_L3.activation_function_mode = 2;
