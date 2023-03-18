@@ -111,9 +111,6 @@ void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int 
         {
             for (int col_idx = 0; col_idx < cols; col_idx++)
             {
-                // TODO..
-                // gamma
-
                 delta_sum_gamma[ch_idx][row_idx][col_idx] = 0.0; // Clear for next batch update
                 delta_sum_beta[ch_idx][row_idx][col_idx] = 0.0;  // Clear for next batch update
             }
