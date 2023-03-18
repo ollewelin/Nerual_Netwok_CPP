@@ -1,6 +1,8 @@
 #include "batch_norm_layer.hpp"
 #include <iostream>
 #include <math.h>
+#include <iostream>
+#include <fstream>
 using namespace std;
 
 const int MAX_BATCH_SIZE = 256;
@@ -18,6 +20,9 @@ batch_norm_layer::batch_norm_layer()
     channels = 0;
     rows = 0;
     cols = 0;
+    setup_state = 0;
+    init_gamma = 1.0;
+    init_beta = 0.0;
 }
 void batch_norm_layer::get_version()
 {
@@ -27,6 +32,123 @@ void batch_norm_layer::get_version()
     ver_minor = version_minor;
 }
 
+const int precision_to_text_file = 16;
+void batch_norm_layer::load_weights(string filename)
+{
+    if (setup_state < 1)
+    {
+        cout << "Error could not load_weights() setup_state must be = 1 or more, setup_state = " << setup_state << endl;
+        cout << "setup_state = " << setup_state << endl;
+        cout << "Exit program" << endl;
+        // TODO
+        exit(0);
+    }
+
+    cout << "Load data weights ..." << endl;
+    ifstream inputFile_w;
+    inputFile_w.precision(precision_to_text_file);
+    inputFile_w.open(filename);
+
+    double d_element = 0.0;
+    int data_load_error = 0;
+    int data_load_numbers = 0;
+    int data_b_load_numbers = 0;
+    for (int gb = 0; gb < 2; gb++)
+    {
+        for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+        {
+            for (int row_idx = 0; row_idx < rows; row_idx++)
+            {
+                for (int col_idx = 0; col_idx < cols; col_idx++)
+                {
+                    if (inputFile_w >> d_element)
+                    {
+
+                        if (gb == 0) // 0= gamma load. 1= beta load
+                        {
+                            gamma[ch_idx][row_idx][col_idx] = d_element; // load data
+                        }
+                        else
+                        {
+                            beta[ch_idx][row_idx][col_idx] = d_element; // load data
+                        }
+                        data_load_numbers++;
+                    }
+                    else
+                    {
+                        data_load_error = 1;
+                    }
+                    if (data_load_error != 0)
+                    {
+                        break;
+                    }
+                }
+                if (data_load_error != 0)
+                {
+                    break;
+                }
+            }
+            if (data_load_error != 0)
+            {
+                break;
+            }
+        }
+        if (data_load_error != 0)
+        {
+            break;
+        }
+    }
+    inputFile_w.close();
+
+    if (data_load_error == 0)
+    {
+        cout << "Load batch norm gamma beta weight data finnish !" << endl;
+    }
+    else
+    {
+        cout << "ERROR! weight file error have not sufficient amount of data to put into  all_weights[l_cnt][n_cnt][w_cnt] vector" << endl;
+        cout << "Loaded this amout of data weights data_load_numbers = " << data_load_numbers << endl;
+        cout << "Loaded this amout of data bias weights data_load_numbers = " << data_b_load_numbers << endl;
+    }
+    setup_state = 2;
+}
+void batch_norm_layer::save_weights(string filename)
+{
+    cout << "Save kernel weight data weights ..." << endl;
+    ofstream outputFile_w;
+    outputFile_w.precision(precision_to_text_file);
+    outputFile_w.open(filename);
+    for (int gb = 0; gb < 2; gb++)
+    {
+        for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+        {
+            for (int row_idx = 0; row_idx < rows; row_idx++)
+            {
+                for (int col_idx = 0; col_idx < cols; col_idx++)
+                {
+
+                    if (gb == 0) // 0= gamma load. 1= beta load
+                    {
+
+                        outputFile_w << gamma[ch_idx][row_idx][col_idx] << endl;
+                    }
+                    else
+                    {
+
+                        outputFile_w << beta[ch_idx][row_idx][col_idx] << endl;
+                    }
+                }
+            }
+        }
+    }
+    outputFile_w.close();
+    cout << "Save batch norm gamma beta weight data finnish !" << endl;
+}
+void batch_norm_layer::set_special_gamma_beta_init(double arg_gamma, double arg_beta)
+{
+    init_gamma = arg_gamma;
+    init_beta = arg_beta;
+}
 void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int arg_rows, int arg_cols) // 4D [batch_size][channels][row][col].
 {
     if (arg_batch_size > 0 && arg_batch_size < MAX_BATCH_SIZE + 1)
@@ -116,6 +238,18 @@ void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int 
             }
         }
     }
+    for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+    {
+        for (int row_idx = 0; row_idx < rows; row_idx++)
+        {
+            for (int col_idx = 0; col_idx < cols; col_idx++)
+            {
+                gamma[ch_idx][row_idx][col_idx] = init_gamma; // Clear for next batch update
+                beta[ch_idx][row_idx][col_idx] = init_beta;   // Clear for next batch update
+            }
+        }
+    }
+    setup_state = 1;
 }
 
 void batch_norm_layer::forward_batch(void)
@@ -215,14 +349,14 @@ void batch_norm_layer::backprop_batch(void)
             {
                 for (int col_idx = 0; col_idx < cols; col_idx++)
                 {
-                   // Calcualte backprop o_tensor_delta, i_tesnor_delta
-                   i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = gamma[ch_idx][row_idx][col_idx] * (o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] - (delta_sum_gamma[ch_idx][row_idx][col_idx] * x_norm[sample_idx][ch_idx][row_idx][col_idx] + delta_sum_beta[ch_idx][row_idx][col_idx])/(batch_size*rows*cols)) / (sqrt(variance[ch_idx][row_idx][col_idx]) + epsilon);
-                   // dx[i*D + j] = gamma[j] * (dout[i*D + j] - (dgamma_sum[j]*x_norm[i*D + j] + dbeta_sum[j])/(N*D)) / sqrt(var[j] + 1e-8);
-                   if(sample_idx == batch_size-1)
-                   {
+                    // Calcualte backprop o_tensor_delta, i_tesnor_delta
+                    i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = gamma[ch_idx][row_idx][col_idx] * (o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] - (delta_sum_gamma[ch_idx][row_idx][col_idx] * x_norm[sample_idx][ch_idx][row_idx][col_idx] + delta_sum_beta[ch_idx][row_idx][col_idx]) / (batch_size * rows * cols)) / (sqrt(variance[ch_idx][row_idx][col_idx]) + epsilon);
+                    // dx[i*D + j] = gamma[j] * (dout[i*D + j] - (dgamma_sum[j]*x_norm[i*D + j] + dbeta_sum[j])/(N*D)) / sqrt(var[j] + 1e-8);
+                    if (sample_idx == batch_size - 1)
+                    {
                         gamma[ch_idx][row_idx][col_idx] += lr * delta_sum_gamma[ch_idx][row_idx][col_idx];
                         beta[ch_idx][row_idx][col_idx] += lr * delta_sum_beta[ch_idx][row_idx][col_idx];
-                   }
+                    }
                 }
             }
         }
