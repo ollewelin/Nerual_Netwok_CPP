@@ -93,6 +93,8 @@ void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int 
         dummy_3D_vector.push_back(dummy_2D_vector);
         gamma.push_back(dummy_2D_vector);
         beta.push_back(dummy_2D_vector);
+        delta_gamma.push_back(dummy_2D_vector);
+        delta_beta.push_back(dummy_2D_vector);
         mean.push_back(dummy_2D_vector);
         variance.push_back(dummy_2D_vector);
     }
@@ -116,36 +118,21 @@ int batch_norm_layer::forward_batch(void)
     {
         // 1. Call this function ever sample thoruge a batch to calcualte mean and varaince
         // Do the mean and varaince calcualtion here for one sample at a time
-        // Clear, Zero the mean and variance vector element now when this fucntion was called for the first time for this mini batch
-        if (samp_cnt == 1)
-        {
-            for (int ch_idx = 0; ch_idx < channels; ch_idx++)
-            {
-                for (int row_idx = 0; row_idx < rows; row_idx++)
-                {
-                    for (int col_idx = 0; col_idx < cols; col_idx++)
-                    {
-                        mean[ch_idx][row_idx][col_idx] = 0.0;
-                        variance[ch_idx][row_idx][col_idx] = 0.0;
-                    }
-                }
-            }
-        }
         // Calcualte and store the mean and varaince in the vectors mean and variance how already are set up outside this fucntion
-        // Insert code below TODO...
         for (int ch_idx = 0; ch_idx < channels; ch_idx++)
         {
             for (int row_idx = 0; row_idx < rows; row_idx++)
             {
                 for (int col_idx = 0; col_idx < cols; col_idx++)
                 {
+                    if (samp_cnt == 1)
+                    {
+                        // Clear, Zero the mean vector element now when this fucntion was called for the first time for this mini batch
+                        mean[ch_idx][row_idx][col_idx] = 0.0;
+                    }
                     // Calculate mean
                     double x = input_tensor[samp_cnt][ch_idx][row_idx][col_idx];
-                    mean[ch_idx][row_idx][col_idx] += (x - mean[ch_idx][row_idx][col_idx]) / samp_cnt;
-
-                    // Calculate variance
-                    double delta = x - mean[ch_idx][row_idx][col_idx];
-                    variance[ch_idx][row_idx][col_idx] += delta * delta;
+                    mean[ch_idx][row_idx][col_idx] += (x - mean[ch_idx][row_idx][col_idx]);
                 }
             }
         }
@@ -153,7 +140,22 @@ int batch_norm_layer::forward_batch(void)
     else
     {
         samp_cnt = 0; // Tell the caller of this fucntion that the batch norm calculation is finnish when samp_cnt = 0
-
+        for (int sample_idx = 0; sample_idx < batch_size; sample_idx++)
+        {
+            for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+            {
+                for (int row_idx = 0; row_idx < rows; row_idx++)
+                {
+                    for (int col_idx = 0; col_idx < cols; col_idx++)
+                    {
+                        mean[ch_idx][row_idx][col_idx] /= batch_size;
+                        // Calculate variance
+                        double diff = input_tensor[sample_idx][ch_idx][row_idx][col_idx] - mean[ch_idx][row_idx][col_idx];
+                        variance[ch_idx][row_idx][col_idx] = diff * diff;
+                    }
+                }
+            }
+        }
         // 2. When this fucntion have been called though all samples of a mini batch it will automaticly
         // do the batch norm forward and then calculated the output_tensor vector with respect to the
         // Use the stored inforrmation data in this vectors
@@ -169,10 +171,56 @@ int batch_norm_layer::forward_batch(void)
                 {
                     for (int col_idx = 0; col_idx < cols; col_idx++)
                     {
+                        // Here, epsilon is a small constant added to the variance to avoid division by zero.
+                        // The x_hat variable represents the normalized input value.
                         double x = input_tensor[sample_idx][ch_idx][row_idx][col_idx];
                         double x_hat = (x - mean[ch_idx][row_idx][col_idx]) / sqrt(variance[ch_idx][row_idx][col_idx] / (samp_cnt - 1) + epsilon);
                         double y = gamma[ch_idx][row_idx][col_idx] * x_hat + beta[ch_idx][row_idx][col_idx];
                         output_tensor[sample_idx][ch_idx][row_idx][col_idx] = y;
+                    }
+                }
+            }
+        }
+    }
+    return samp_cnt;
+}
+
+int batch_norm_layer::backprop_batch(void)
+{
+    samp_cnt++;
+    if (samp_cnt < batch_size)
+    {
+        // 1. Call this function ever sample thoruge a batch to calcualte to calculate every sample delta backpropagataion though this batch norm layer
+        for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+        {
+            for (int row_idx = 0; row_idx < rows; row_idx++)
+            {
+                for (int col_idx = 0; col_idx < cols; col_idx++)
+                {
+                    // TODO..
+                    // Calcualte backprop o_tensor_delta, i_tesnor_delta
+                    //  i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] =  <insert code here>  o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
+                    
+                    //TODO... accumulate delta_gamma and delta_beta 
+
+                }
+            }
+        }
+    }
+    else
+    {
+        samp_cnt = 0; // Tell the caller of this fucntion that the batch norm calculation is finnish when samp_cnt = 0
+
+        for (int sample_idx = 0; sample_idx < batch_size; sample_idx++)
+        {
+            for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+            {
+                for (int row_idx = 0; row_idx < rows; row_idx++)
+                {
+                    for (int col_idx = 0; col_idx < cols; col_idx++)
+                    {
+                        // TODO..
+                        //gamma
                     }
                 }
             }
