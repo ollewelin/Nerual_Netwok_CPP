@@ -162,7 +162,7 @@ int main()
 
     //=== Now setup the hyper parameters of the Neural Network ====
     const int batch_size = 64;
-    const double learning_rate_end = 0.0005;
+    const double learning_rate_end = 0.001;
     fc_nn_end_block.momentum = 0.01;
     fc_nn_end_block.learning_rate = learning_rate_end;
     conv_L1.learning_rate = 0.001;
@@ -274,6 +274,7 @@ int main()
         training_order_list = fisher_yates_shuffle(training_order_list);
         fc_nn_end_block.loss = 0.0;
         int correct_classify_cnt = 0;
+        int correct_classify_cnt_short = 0;
         fc_nn_end_block.dropout_proportion = 0.20;
 
         //   for (int i = 0; i < training_dataset_size; i++)
@@ -296,7 +297,7 @@ int main()
                 conv_L1.conv_forward1();
                 L1_batch_norm.input_tensor[samp_cnt] = conv_L1.output_tensor;
             }
-            L1_batch_norm.forward_batch();//Run througe the hole batch
+            L1_batch_norm.forward_batch(); // Run througe the hole batch
             for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
                 conv_L2.input_tensor = L1_batch_norm.output_tensor[samp_cnt];
@@ -322,7 +323,7 @@ int main()
                     {
                         for (int xi = 0; xi < L3_out_one_side; xi++)
                         {
-                            //fc_nn_end_block.input_layer[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi] = conv_L3.output_tensor[oc][yi][xi];
+                            // fc_nn_end_block.input_layer[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi] = conv_L3.output_tensor[oc][yi][xi];
                             fc_nn_end_block.input_layer[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi] = L3_batch_norm.output_tensor[samp_cnt][oc][yi][xi];
                         }
                     }
@@ -339,6 +340,14 @@ int main()
                 {
                     cout << "convolution L1 L2 L3 done, i = " << i << endl;
                     print_cnt = print_after;
+                    train_loss = fc_nn_end_block.loss;
+                    cout << "   Training loss = " << train_loss << endl;
+                    cout << "   correct_classify_cnt_short= " << correct_classify_cnt_short<< endl;
+                    double correct_ratio = (((double)correct_classify_cnt_short) * 100.0) / ((double)print_after);
+                    cout << "   correct_ratio = " << correct_ratio << endl;
+                    fc_nn_end_block.loss = 0.0;
+                    correct_classify_cnt_short= 0;
+
                 }
                 for (int j = 0; j < end_out_nodes; j++)
                 {
@@ -364,6 +373,7 @@ int main()
                 if (highest_out_class == target)
                 {
                     correct_classify_cnt++;
+                    correct_classify_cnt_short++;
                 }
 
                 //============ Begin Backpropagation ===============
@@ -404,9 +414,9 @@ int main()
                 conv_L1.conv_update_weights();
             }
             //============ Finnised Backpropagation thorugh batch norm and convolution layer ===============
-            if(batch_cnt % 10 == 0)
+            if (batch_cnt % 10 == 0)
             {
-               cout << "Batch counter = " << batch_cnt << " Of number of total batches = " << training_batches << endl;
+                cout << "Batch counter = " << batch_cnt << " Of number of total batches = " << training_batches << endl;
             }
         }
         cout << "Epoch " << epc << endl;
@@ -433,9 +443,9 @@ int main()
         double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)training_dsize_fit_batch);
         cout << "correct_ratio = " << correct_ratio << endl;
 
-
-        //TODO... add batch normalizer
+        // TODO... add batch normalizer
         //=========== verify ===========
+        /*
         print_cnt = 0;
         if (do_verify_if_best_trained == 1)
         {
@@ -532,8 +542,9 @@ int main()
             }
 
             //=========== verify finnish ====
+            
         }
-
+        */
         if (save_epoc_counter < save_after_epcs - 1)
         {
             save_epoc_counter++;
