@@ -162,18 +162,19 @@ int main()
 
     //=== Now setup the hyper parameters of the Neural Network ====
     const int batch_size = 64;
-    const double learning_rate_end = 0.001;
-    fc_nn_end_block.momentum = 0.01;
+    const double learning_rate_end = 0.01;
+    fc_nn_end_block.momentum = 0.1;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.001;
-    conv_L1.momentum = 0.05;
-    conv_L2.learning_rate = 0.001;
-    conv_L2.momentum = 0.05;
-    conv_L3.learning_rate = 0.001;
-    conv_L3.momentum = 0.05;
-    L1_batch_norm.lr = 0.001;
-    L2_batch_norm.lr = 0.001;
-    L3_batch_norm.lr = 0.001;
+    conv_L1.learning_rate = 0.01;
+    conv_L1.momentum = 0.2;
+    conv_L2.learning_rate = 0.01;
+    conv_L2.momentum = 0.2;
+    conv_L3.learning_rate = 0.01;
+    conv_L3.momentum = 0.2;
+    double batch_learning_rate = 0.001;
+    L1_batch_norm.lr = batch_learning_rate;
+    L2_batch_norm.lr = batch_learning_rate;
+    L3_batch_norm.lr = batch_learning_rate;
     L1_batch_norm.set_up_tensors(batch_size, conv_L1.output_tensor.size(), conv_L1.output_tensor[0].size(), conv_L1.output_tensor[0].size());
     L2_batch_norm.set_up_tensors(batch_size, conv_L2.output_tensor.size(), conv_L2.output_tensor[0].size(), conv_L2.output_tensor[0].size());
     L3_batch_norm.set_up_tensors(batch_size, conv_L3.output_tensor.size(), conv_L3.output_tensor[0].size(), conv_L3.output_tensor[0].size());
@@ -304,14 +305,14 @@ int main()
                 conv_L2.conv_forward1();
                 L2_batch_norm.input_tensor[samp_cnt] = conv_L2.output_tensor;
             }
-            conv_L2.conv_forward1();
+            L2_batch_norm.forward_batch();
             for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
                 conv_L3.input_tensor = conv_L2.output_tensor;
                 conv_L3.conv_forward1();
                 L3_batch_norm.input_tensor[samp_cnt] = conv_L3.output_tensor;
             }
-            conv_L3.conv_forward1();
+            L3_batch_norm.forward_batch();
             for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
 
@@ -391,6 +392,10 @@ int main()
             }
             //============ Continue Backpropagation thorugh batch norm and convolution layer ===============
             L3_batch_norm.backprop_batch();
+
+            //debugging
+       //     L3_batch_norm.i_tensor_delta = L3_batch_norm.o_tensor_delta;//test
+
             for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
                 conv_L3.o_tensor_delta = L3_batch_norm.i_tensor_delta[samp_cnt];
@@ -399,6 +404,10 @@ int main()
                 L2_batch_norm.o_tensor_delta[samp_cnt] = conv_L3.i_tensor_delta;
             }
             L2_batch_norm.backprop_batch();
+
+            //debugging
+        //    L2_batch_norm.i_tensor_delta = L2_batch_norm.o_tensor_delta;//test
+
             for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
                 conv_L2.o_tensor_delta = L2_batch_norm.i_tensor_delta[samp_cnt];
@@ -407,6 +416,10 @@ int main()
                 L1_batch_norm.o_tensor_delta[samp_cnt] = conv_L2.i_tensor_delta;
             }
             L1_batch_norm.backprop_batch();
+
+            //debugging
+       //     L1_batch_norm.i_tensor_delta = L1_batch_norm.o_tensor_delta;//test
+
             for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
                 conv_L1.o_tensor_delta = L1_batch_norm.i_tensor_delta[samp_cnt];
@@ -555,6 +568,7 @@ int main()
             //  fc_nn_top_block.save_weights(weight_filename_top);
         }
     }
+
 
     fc_nn_end_block.~fc_m_resnet();
     fc_nn_end_block.~fc_m_resnet();
