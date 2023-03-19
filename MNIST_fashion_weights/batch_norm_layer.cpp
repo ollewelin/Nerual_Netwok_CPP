@@ -326,7 +326,7 @@ void batch_norm_layer::forward_batch(void)
 
 void batch_norm_layer::backprop_batch(void)
 {
-    int data_size   = (batch_size*rows*cols);
+    int data_size = (batch_size * rows * cols);
     for (int sample_idx = 0; sample_idx < batch_size; sample_idx++)
     {
         for (int ch_idx = 0; ch_idx < channels; ch_idx++)
@@ -351,12 +351,12 @@ void batch_norm_layer::backprop_batch(void)
                 for (int col_idx = 0; col_idx < cols; col_idx++)
                 {
                     // Calcualte backprop o_tensor_delta, i_tesnor_delta
-                    double xnorm    = x_norm[sample_idx][ch_idx][row_idx][col_idx];
-                    double dgamma   = delta_sum_gamma[ch_idx][row_idx][col_idx];
-                    double dbeta    = delta_sum_beta[ch_idx][row_idx][col_idx];
-                    double gama_l   = gamma[ch_idx][row_idx][col_idx];
-                    double o_delta  = o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
-                    double var      = variance[ch_idx][row_idx][col_idx];
+                    double xnorm = x_norm[sample_idx][ch_idx][row_idx][col_idx];
+                    double dgamma = delta_sum_gamma[ch_idx][row_idx][col_idx];
+                    double dbeta = delta_sum_beta[ch_idx][row_idx][col_idx];
+                    double gama_l = gamma[ch_idx][row_idx][col_idx];
+                    double o_delta = o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
+                    double var = variance[ch_idx][row_idx][col_idx];
                     i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = gama_l * (o_delta - (dgamma * xnorm + dbeta) / data_size) / (sqrt(var) + epsilon);
                     // dx[i*D + j] = gamma[j] * (dout[i*D + j] - (dgamma_sum[j]*x_norm[i*D + j] + dbeta_sum[j])/(N*D)) / sqrt(var[j] + 1e-8);
                     if (sample_idx == batch_size - 1)

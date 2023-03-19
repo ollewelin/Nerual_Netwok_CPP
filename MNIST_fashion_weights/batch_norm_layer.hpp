@@ -37,7 +37,7 @@ public:
     void load_weights(string);//load weights with file name argument 
     void save_weights(string);//save weights with file name argument 
     void forward_batch(void);
-    void backprop_batch(void);
+    void backprop_batch(void);//
     vector<vector<vector<vector<double>>>> input_tensor;//4D [batch_size][channels][row][col].     The size of this vectors will setup inside set_in_tensor(int, int) function when called.
     vector<vector<vector<vector<double>>>> i_tensor_delta;//4D [batch_size][channels][row][col].   The size of this vectors will setup inside set_in_tensor(int, int) function when called.
     vector<vector<vector<vector<double>>>> output_tensor;//4D [batch_size][channels][output_row][output_col].     The size of this vectors will setup inside set_out_tensor(int) function when called.

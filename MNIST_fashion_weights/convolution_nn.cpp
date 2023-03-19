@@ -52,6 +52,13 @@ int main()
     string L3_kernel_b_weight_filename;
     L2_kernel_b_weight_filename = "L3_kernel_b.dat";
 
+    string L1_batch_n_weight_filename;
+    L1_batch_n_weight_filename = "L1_batch_norm.dat";
+    string L2_batch_n_weight_filename;
+    L2_batch_n_weight_filename = "L2_batch_norm.dat";
+    string L3_batch_n_weight_filename;
+    L3_batch_n_weight_filename = "L3_batch_norm.dat";
+
     fc_nn_end_block.get_version();
 
     fc_nn_end_block.block_type = 2;
@@ -155,15 +162,15 @@ int main()
 
     //=== Now setup the hyper parameters of the Neural Network ====
     const int batch_size = 64;
-    const double learning_rate_end = 0.0001;
+    const double learning_rate_end = 0.0005;
     fc_nn_end_block.momentum = 0.01;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.0001;
-    conv_L1.momentum = 0.01;
-    conv_L2.learning_rate = 0.0001;
-    conv_L2.momentum = 0.01;
-    conv_L3.learning_rate = 0.0001;
-    conv_L3.momentum = 0.01;
+    conv_L1.learning_rate = 0.001;
+    conv_L1.momentum = 0.05;
+    conv_L2.learning_rate = 0.001;
+    conv_L2.momentum = 0.05;
+    conv_L3.learning_rate = 0.001;
+    conv_L3.momentum = 0.05;
     L1_batch_norm.lr = 0.001;
     L2_batch_norm.lr = 0.001;
     L3_batch_norm.lr = 0.001;
@@ -196,6 +203,9 @@ int main()
         conv_L1.load_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
         conv_L2.load_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
         conv_L3.load_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
+        L1_batch_norm.load_weights(L1_batch_n_weight_filename);
+        L2_batch_norm.load_weights(L2_batch_n_weight_filename);
+        L3_batch_norm.load_weights(L3_batch_n_weight_filename);
         cout << "Do you want to randomize fully connected layers Y or N load weights  = Y/N " << endl;
         cin >> answer;
         if (answer == 'Y' || answer == 'y')
@@ -266,92 +276,137 @@ int main()
         int correct_classify_cnt = 0;
         fc_nn_end_block.dropout_proportion = 0.20;
 
-        for (int i = 0; i < training_dataset_size; i++)
+        //   for (int i = 0; i < training_dataset_size; i++)
+        //   for (int i = 0; i < training_dsize_fit_batch; i++)
+        for (int batch_cnt = 0; batch_cnt < training_batches; batch_cnt++)
         {
-            for (int ic = 0; ic < input_channels; ic++)
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
-                for (int yi = 0; yi < one_side; yi++)
+                int i = batch_cnt * batch_size + samp_cnt;
+                for (int ic = 0; ic < input_channels; ic++)
                 {
-                    for (int xi = 0; xi < one_side; xi++)
+                    for (int yi = 0; yi < one_side; yi++)
                     {
-
-                        conv_L1.input_tensor[ic][yi][xi] = training_input_data[training_order_list[i]][ic * input_channels * one_side * one_side + one_side * yi + xi];
+                        for (int xi = 0; xi < one_side; xi++)
+                        {
+                            conv_L1.input_tensor[ic][yi][xi] = training_input_data[training_order_list[i]][ic * input_channels * one_side * one_side + one_side * yi + xi];
+                        }
                     }
                 }
+                conv_L1.conv_forward1();
+                L1_batch_norm.input_tensor[samp_cnt] = conv_L1.output_tensor;
             }
-            conv_L1.conv_forward1();
-            conv_L2.input_tensor = conv_L1.output_tensor;
+            L1_batch_norm.forward_batch();//Run througe the hole batch
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
+            {
+                conv_L2.input_tensor = L1_batch_norm.output_tensor[samp_cnt];
+                conv_L2.conv_forward1();
+                L2_batch_norm.input_tensor[samp_cnt] = conv_L2.output_tensor;
+            }
             conv_L2.conv_forward1();
-            conv_L3.input_tensor = conv_L2.output_tensor;
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
+            {
+                conv_L3.input_tensor = conv_L2.output_tensor;
+                conv_L3.conv_forward1();
+                L3_batch_norm.input_tensor[samp_cnt] = conv_L3.output_tensor;
+            }
             conv_L3.conv_forward1();
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
+            {
 
-            if (print_cnt > 0)
-            {
-                print_cnt--;
-            }
-            else
-            {
-                cout << "convolution L1 L2 done, i = " << i << endl;
-                print_cnt = print_after;
-            }
-
-            int L3_out_one_side = conv_L3.output_tensor[0].size();
-            int L3_out_ch = conv_L3.output_tensor.size();
-            for (int oc = 0; oc < L3_out_ch; oc++)
-            {
-                for (int yi = 0; yi < L3_out_one_side; yi++)
+                int L3_out_one_side = conv_L3.output_tensor[0].size();
+                int L3_out_ch = conv_L3.output_tensor.size();
+                for (int oc = 0; oc < L3_out_ch; oc++)
                 {
-                    for (int xi = 0; xi < L3_out_one_side; xi++)
+                    for (int yi = 0; yi < L3_out_one_side; yi++)
                     {
-                        fc_nn_end_block.input_layer[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi] = conv_L3.output_tensor[oc][yi][xi];
+                        for (int xi = 0; xi < L3_out_one_side; xi++)
+                        {
+                            //fc_nn_end_block.input_layer[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi] = conv_L3.output_tensor[oc][yi][xi];
+                            fc_nn_end_block.input_layer[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi] = L3_batch_norm.output_tensor[samp_cnt][oc][yi][xi];
+                        }
+                    }
+                }
+                // Start Forward pass fully connected network
+                fc_nn_end_block.forward_pass();
+                // Forward pass though fully connected network
+                int i = batch_cnt * batch_size + samp_cnt;
+                if (print_cnt > 0)
+                {
+                    print_cnt--;
+                }
+                else
+                {
+                    cout << "convolution L1 L2 L3 done, i = " << i << endl;
+                    print_cnt = print_after;
+                }
+                for (int j = 0; j < end_out_nodes; j++)
+                {
+                    fc_nn_end_block.target_layer[j] = training_target_data[training_order_list[i]][j];
+                }
+                double highest_output = 0.0;
+                int highest_out_class = 0;
+                int target = 0;
+                for (int j = 0; j < end_out_nodes; j++)
+                {
+                    fc_nn_end_block.target_layer[j] = training_target_data[training_order_list[i]][j];
+                    if (fc_nn_end_block.target_layer[j] > 0.5)
+                    {
+                        target = j;
+                    }
+                    if (fc_nn_end_block.output_layer[j] > highest_output)
+                    {
+                        highest_output = fc_nn_end_block.output_layer[j];
+                        highest_out_class = j;
+                    }
+                }
+                // cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
+                if (highest_out_class == target)
+                {
+                    correct_classify_cnt++;
+                }
+
+                //============ Begin Backpropagation ===============
+                fc_nn_end_block.backpropagtion_and_update();
+                for (int oc = 0; oc < L3_out_ch; oc++)
+                {
+                    for (int yi = 0; yi < L3_out_one_side; yi++)
+                    {
+                        for (int xi = 0; xi < L3_out_one_side; xi++)
+                        {
+                            L3_batch_norm.o_tensor_delta[samp_cnt][oc][yi][xi] = fc_nn_end_block.i_layer_delta[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi];
+                        }
                     }
                 }
             }
-            // Start Forward pass fully connected network
-            fc_nn_end_block.forward_pass();
-            // Forward pass though fully connected network
-
-            double highest_output = 0.0;
-            int highest_out_class = 0;
-            int target = 0;
-            for (int j = 0; j < end_out_nodes; j++)
+            //============ Continue Backpropagation thorugh batch norm and convolution layer ===============
+            L3_batch_norm.backprop_batch();
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
-                fc_nn_end_block.target_layer[j] = training_target_data[training_order_list[i]][j];
-                if (fc_nn_end_block.target_layer[j] > 0.5)
-                {
-                    target = j;
-                }
-                if (fc_nn_end_block.output_layer[j] > highest_output)
-                {
-                    highest_output = fc_nn_end_block.output_layer[j];
-                    highest_out_class = j;
-                }
+                conv_L3.o_tensor_delta = L3_batch_norm.i_tensor_delta[samp_cnt];
+                conv_L3.conv_backprop();
+                conv_L3.conv_update_weights();
+                L2_batch_norm.o_tensor_delta[samp_cnt] = conv_L3.i_tensor_delta;
             }
-
-            fc_nn_end_block.backpropagtion_and_update();
-
-            for (int oc = 0; oc < L3_out_ch; oc++)
+            L2_batch_norm.backprop_batch();
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
-                for (int yi = 0; yi < L3_out_one_side; yi++)
-                {
-                    for (int xi = 0; xi < L3_out_one_side; xi++)
-                    {
-                        conv_L3.o_tensor_delta[oc][yi][xi] = fc_nn_end_block.i_layer_delta[oc * L3_out_one_side * L3_out_one_side + yi * L3_out_one_side + xi];
-                    }
-                }
+                conv_L2.o_tensor_delta = L2_batch_norm.i_tensor_delta[samp_cnt];
+                conv_L2.conv_backprop();
+                conv_L2.conv_update_weights();
+                L1_batch_norm.o_tensor_delta[samp_cnt] = conv_L2.i_tensor_delta;
             }
-            conv_L3.conv_backprop();
-            conv_L2.o_tensor_delta = conv_L3.i_tensor_delta;
-            conv_L2.conv_backprop();
-            conv_L1.o_tensor_delta = conv_L2.i_tensor_delta;
-            conv_L1.conv_backprop();
-            conv_L3.conv_update_weights();
-            conv_L2.conv_update_weights();
-            conv_L1.conv_update_weights();
-            // cout << "highest_out_class = " << highest_out_class << "taget = " << taget <<  endl;
-            if (highest_out_class == target)
+            L1_batch_norm.backprop_batch();
+            for (int samp_cnt = 0; samp_cnt < batch_size; samp_cnt++)
             {
-                correct_classify_cnt++;
+                conv_L1.o_tensor_delta = L1_batch_norm.i_tensor_delta[samp_cnt];
+                conv_L1.conv_backprop();
+                conv_L1.conv_update_weights();
+            }
+            //============ Finnised Backpropagation thorugh batch norm and convolution layer ===============
+            if(batch_cnt % 10 == 0)
+            {
+               cout << "Batch counter = " << batch_cnt << " Of number of total batches = " << training_batches << endl;
             }
         }
         cout << "Epoch " << epc << endl;
@@ -375,9 +430,11 @@ int main()
        */
         cout << "Training loss = " << train_loss << endl;
         cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
-        double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)training_dataset_size);
+        double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)training_dsize_fit_batch);
         cout << "correct_ratio = " << correct_ratio << endl;
 
+
+        //TODO... add batch normalizer
         //=========== verify ===========
         print_cnt = 0;
         if (do_verify_if_best_trained == 1)
@@ -386,7 +443,7 @@ int main()
             verify_order_list = fisher_yates_shuffle(verify_order_list);
             fc_nn_end_block.loss = 0.0;
             correct_classify_cnt = 0;
-            for (int i = 0; i < verify_dataset_size; i++)
+            for (int i = 0; i < verify_dsize_fit_batch; i++)
             {
                 for (int ic = 0; ic < input_channels; ic++)
                 {
@@ -453,7 +510,7 @@ int main()
             verify_loss = fc_nn_end_block.loss;
             cout << "Verify loss = " << verify_loss << endl;
             cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
-            double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)verify_dataset_size);
+            double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)verify_dsize_fit_batch);
             cout << "Verify correct_ratio = " << correct_ratio << endl;
             if (verify_loss > (best_verify_loss + stop_training_when_verify_rise_propotion * best_verify_loss))
             {
@@ -469,6 +526,9 @@ int main()
                 conv_L1.save_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
                 conv_L2.save_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
                 conv_L2.save_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
+                L1_batch_norm.save_weights(L1_batch_n_weight_filename);
+                L2_batch_norm.save_weights(L2_batch_n_weight_filename);
+                L3_batch_norm.save_weights(L3_batch_n_weight_filename);
             }
 
             //=========== verify finnish ====
