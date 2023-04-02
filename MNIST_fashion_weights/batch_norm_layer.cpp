@@ -23,6 +23,7 @@ batch_norm_layer::batch_norm_layer()
     setup_state = 0;
     init_gamma = 1.0;
     init_beta = 0.0;
+    use_only_forward = 0;
 }
 void batch_norm_layer::get_version()
 {
@@ -217,6 +218,10 @@ void batch_norm_layer::set_up_tensors(int arg_batch_size, int arg_channels, int 
         delta_sum_beta.push_back(dummy_2D_vector);
         mean.push_back(dummy_2D_vector);
         variance.push_back(dummy_2D_vector);
+        sum_x_minus_mean.push_back(dummy_2D_vector);
+        delta_var.push_back(dummy_2D_vector);
+        delta_mean.push_back(dummy_2D_vector);
+        inv_sqrt_var.push_back(dummy_2D_vector);
     }
     for (int i = 0; i < batch_size; i++)
     {
@@ -314,10 +319,17 @@ void batch_norm_layer::forward_batch(void)
                     // Here, epsilon is a small constant added to the variance to avoid division by zero.
                     // The x_norm_local variable represents the normalized input value.
                     double x = input_tensor[sample_idx][ch_idx][row_idx][col_idx];
-                    double x_norm_local = (x - mean[ch_idx][row_idx][col_idx]) / (sqrt(variance[ch_idx][row_idx][col_idx]) + epsilon);
+                    double local_sqrt_inv_var = 1.0/(sqrt(variance[ch_idx][row_idx][col_idx]) + epsilon);
+                    double x_norm_local = (x - mean[ch_idx][row_idx][col_idx]) * local_sqrt_inv_var;
                     x_norm[sample_idx][ch_idx][row_idx][col_idx] = x_norm_local; // Stored for backpropagation
                     double y = gamma[ch_idx][row_idx][col_idx] * x_norm_local + beta[ch_idx][row_idx][col_idx];
                     output_tensor[sample_idx][ch_idx][row_idx][col_idx] = y;
+                    if(use_only_forward == 0)
+                    {
+                        sum_x_minus_mean[ch_idx][row_idx][col_idx] = 0.0;//prepare zero for backpropagation
+                        delta_var[ch_idx][row_idx][col_idx] = 0.0;//prepare zero for backpropagation
+                        inv_sqrt_var[ch_idx][row_idx][col_idx] = local_sqrt_inv_var;
+                    }
                 }
             }
         }
@@ -326,6 +338,7 @@ void batch_norm_layer::forward_batch(void)
 
 void batch_norm_layer::backprop_batch(void)
 {
+    double dvar = 0.0;
     int data_size = (batch_size * rows * cols);
     for (int sample_idx = 0; sample_idx < batch_size; sample_idx++)
     {
@@ -335,9 +348,46 @@ void batch_norm_layer::backprop_batch(void)
             {
                 for (int col_idx = 0; col_idx < cols; col_idx++)
                 {
+                    double gama_l = gamma[ch_idx][row_idx][col_idx];
+                    double o_delta = o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
+                    double dXnorm = o_delta * gama_l;
+                    double var = variance[ch_idx][row_idx][col_idx];
                     // Accumulate delta_sum_gamma and delta_sum_beta
                     delta_sum_gamma[ch_idx][row_idx][col_idx] += o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] * x_norm[sample_idx][ch_idx][row_idx][col_idx];
                     delta_sum_beta[ch_idx][row_idx][col_idx] += o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
+                    sum_x_minus_mean[ch_idx][row_idx][col_idx] += 2.0 * (input_tensor[sample_idx][ch_idx][row_idx][col_idx] - mean[ch_idx][row_idx][col_idx]);
+                    delta_mean[ch_idx][row_idx][col_idx] = 0.0;//prepare zero
+                    delta_var[ch_idx][row_idx][col_idx] += dXnorm * mean[ch_idx][row_idx][col_idx] -0.5 * pow((var + epsilon), (-3.0/2.0));
+                }
+            }
+        }
+    }
+    
+    for (int sample_idx = 0; sample_idx < batch_size; sample_idx++)
+    {
+        for (int ch_idx = 0; ch_idx < channels; ch_idx++)
+        {
+            for (int row_idx = 0; row_idx < rows; row_idx++)
+            {
+                for (int col_idx = 0; col_idx < cols; col_idx++)
+                {
+                    // Calcualte backprop delta_mean and update gamma and beta
+                    double xnorm = x_norm[sample_idx][ch_idx][row_idx][col_idx];
+                    double var = variance[ch_idx][row_idx][col_idx];
+                    double dgamma = delta_sum_gamma[ch_idx][row_idx][col_idx];
+                    double dbeta = delta_sum_beta[ch_idx][row_idx][col_idx];
+                    double gama_l = gamma[ch_idx][row_idx][col_idx];
+                    double o_delta = o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
+                    double dXnorm = o_delta * gama_l;
+                    double var_inv = 1.0/sqrt(var + epsilon);
+                    double dvar = delta_var[ch_idx][row_idx][col_idx];
+                    //dmu = np.sum(dX_norm * -var_inv ,axis=0) + dvar * 1/self.n_X * np.sum(-2.* X_mu, axis=0)
+                    delta_mean[ch_idx][row_idx][col_idx] += dXnorm * -var_inv + dvar * 1.0/sum_x_minus_mean[ch_idx][row_idx][col_idx];
+                    if (sample_idx == batch_size - 1)
+                    {
+                        gamma[ch_idx][row_idx][col_idx] += lr * delta_sum_gamma[ch_idx][row_idx][col_idx];
+                        beta[ch_idx][row_idx][col_idx] += lr * delta_sum_beta[ch_idx][row_idx][col_idx];
+                    }
                 }
             }
         }
@@ -350,24 +400,20 @@ void batch_norm_layer::backprop_batch(void)
             {
                 for (int col_idx = 0; col_idx < cols; col_idx++)
                 {
-                    // Calcualte backprop o_tensor_delta, i_tesnor_delta
-                    double xnorm = x_norm[sample_idx][ch_idx][row_idx][col_idx];
-                    double dgamma = delta_sum_gamma[ch_idx][row_idx][col_idx];
-                    double dbeta = delta_sum_beta[ch_idx][row_idx][col_idx];
+                    // Calcualte backprop i_tesnor_delta
                     double gama_l = gamma[ch_idx][row_idx][col_idx];
                     double o_delta = o_tensor_delta[sample_idx][ch_idx][row_idx][col_idx];
-                    double var = variance[ch_idx][row_idx][col_idx];
-                    i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = gama_l * (o_delta - (dgamma * xnorm + dbeta) / data_size) / (sqrt(var) + epsilon);
-                    // dx[i*D + j] = gamma[j] * (dout[i*D + j] - (dgamma_sum[j]*x_norm[i*D + j] + dbeta_sum[j])/(N*D)) / sqrt(var[j] + 1e-8);
-                    if (sample_idx == batch_size - 1)
-                    {
-                        gamma[ch_idx][row_idx][col_idx] += lr * delta_sum_gamma[ch_idx][row_idx][col_idx];
-                        beta[ch_idx][row_idx][col_idx] += lr * delta_sum_beta[ch_idx][row_idx][col_idx];
-                    }
+                    double dXnorm = o_delta * gama_l; 
+                    double x = input_tensor[sample_idx][ch_idx][row_idx][col_idx];
+                    double l_mean = mean[ch_idx][row_idx][col_idx];
+                    double mean_of_sum_x_mu = sum_x_minus_mean[ch_idx][row_idx][col_idx] / batch_size; 
+                    i_tensor_delta[sample_idx][ch_idx][row_idx][col_idx] = dXnorm * inv_sqrt_var[ch_idx][row_idx][col_idx] + delta_mean[ch_idx][row_idx][col_idx] / batch_size + delta_var[ch_idx][row_idx][col_idx] * (x - l_mean);
+                    
                 }
             }
         }
     }
+
 }
 
 batch_norm_layer::~batch_norm_layer()

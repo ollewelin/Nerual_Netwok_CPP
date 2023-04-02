@@ -29,6 +29,10 @@ private:
     vector<vector<vector<double>>> delta_sum_beta;//3D [channels][row][col]. delta for beta
     vector<vector<vector<double>>> mean;//3D [channels][row][col]. Calculated when cycle_mean_variance_through_batch() fucntion called
     vector<vector<vector<double>>> variance;//3D [channels][row][col]. Calculated when cycle_mean_variance_through_batch() fucntion called
+    vector<vector<vector<double>>> sum_x_minus_mean;//3D [channels][row][col]. Calculated sum of the (x - mean)
+    vector<vector<vector<double>>> delta_var;//3D [channels][row][col].
+    vector<vector<vector<double>>> delta_mean;//3D [channels][row][col].
+    vector<vector<vector<double>>> inv_sqrt_var;//3D [channels][row][col].
     vector<vector<vector<vector<double>>>> x_norm;//4D [batch_size][channels][output_row][output_col].
 
 public:
@@ -38,6 +42,7 @@ public:
     void save_weights(string);//save weights with file name argument 
     void forward_batch(void);
     void backprop_batch(void);//
+    int use_only_forward;
     vector<vector<vector<vector<double>>>> input_tensor;//4D [batch_size][channels][row][col].     The size of this vectors will setup inside set_in_tensor(int, int) function when called.
     vector<vector<vector<vector<double>>>> i_tensor_delta;//4D [batch_size][channels][row][col].   The size of this vectors will setup inside set_in_tensor(int, int) function when called.
     vector<vector<vector<vector<double>>>> output_tensor;//4D [batch_size][channels][output_row][output_col].     The size of this vectors will setup inside set_out_tensor(int) function when called.
