@@ -274,7 +274,7 @@ void batch_norm_layer::forward_batch(void)
                     }
                     // Calculate mean
                     double x = input_tensor[sample_idx][ch_idx][row_idx][col_idx];
-                    mean[ch_idx][row_idx][col_idx] += (x - mean[ch_idx][row_idx][col_idx]);
+                    mean[ch_idx][row_idx][col_idx] += x;
                 }
             }
         }
