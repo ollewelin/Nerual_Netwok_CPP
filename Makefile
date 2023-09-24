@@ -6,7 +6,7 @@ CFLAGS = -Wall
 #SRCS = main.cpp fc_m_resnet.cpp simple_nn.cpp
 #PROG = main
 
-SRCS = convolution_nn.cpp fc_m_resnet.cpp load_mnist_dataset.cpp convolution.cpp
+SRCS = convolution_nn.cpp fc_m_resnet.cpp load_mnist_dataset.cpp convolution.cpp batch_norm_layer.cpp
 PROG = convolution_nn
 
 #SRCS = residual_net.cpp fc_m_resnet.cpp load_mnist_dataset.cpp convolution.cpp
