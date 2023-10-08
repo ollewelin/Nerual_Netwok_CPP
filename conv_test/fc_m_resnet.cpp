@@ -55,7 +55,7 @@ fc_m_resnet::fc_m_resnet(/* args */)
     training_mode = 0;
     // 0 = SGD Stocastic Gradient Decent
     // 1 = Batch Gradient Decent, not yet implemented
-    use_dopouts = 0;
+    use_dropouts = 0;
     // 0 = No dropout
     // 1 = Use dropout
     batch_size = 0; // Only used if trainging_mode 1
@@ -63,7 +63,7 @@ fc_m_resnet::fc_m_resnet(/* args */)
     learning_rate = 0.0;
     momentum = 0.0;
     dropout_proportion = 0.0;
-    use_dopouts = 0;
+    use_dropouts = 0;
     cout << "fc_m_resnet Constructor" << endl;
     srand(time(NULL)); // Seed radomizer
     cout << "Seed radomizer done" << endl;
@@ -475,7 +475,7 @@ double fc_m_resnet::activation_function(double input_data, int end_layer)
 {
     double output_data = 0.0;
     int this_node_dopped_out = 0;
-    if (use_dopouts == 1 && end_layer == 0)
+    if (use_dropouts == 1 && end_layer == 0)
     {
         double dropout_random = ((double)rand() / RAND_MAX);
         if (dropout_random < dropout_proportion)

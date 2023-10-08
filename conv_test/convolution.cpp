@@ -20,7 +20,7 @@ convolution::convolution()
     stride = 1;
     dropout_proportion = 0.0;
     activation_function_mode = 0;
-    use_dopouts = 0;
+    use_dropouts = 0;
     top_conv = 0;
     cout << "Constructor Convloution neural network object " << endl;
     srand(time(NULL)); // Seed radomizer
@@ -404,7 +404,7 @@ double convolution::activation_function(double input_data)
 {
     double output_data = 0.0;
     int this_node_dopped_out = 0;
-    if (use_dopouts == 1)
+    if (use_dropouts == 1)
     {
         double dropout_random = ((double)rand() / RAND_MAX);
         if (dropout_random < dropout_proportion)
