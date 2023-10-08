@@ -5,7 +5,6 @@
 #include "fc_m_resnet.hpp"
 #include "convolution.hpp"
 #include "load_mnist_dataset.hpp"
-#include "batch_norm_layer.hpp"
 
 #include <vector>
 #include <time.h>
@@ -27,11 +26,8 @@ int main()
     cout << "Convolution neural network under work..." << endl;
     // ======== create 2 convolution layer objects =========
     convolution conv_L1;
-    batch_norm_layer L1_batch_norm;
     convolution conv_L2;
-    batch_norm_layer L2_batch_norm;
     convolution conv_L3;
-    batch_norm_layer L3_batch_norm;
     //======================================================
 
     //=========== Neural Network size settings ==============
@@ -47,9 +43,9 @@ int main()
     string L2_kernel_b_weight_filename;
     L2_kernel_b_weight_filename = "L2_kernel_b.dat";
     string L3_kernel_k_weight_filename;
-    L2_kernel_k_weight_filename = "L3_kernel_k.dat";
+    L3_kernel_k_weight_filename = "L3_kernel_k.dat";
     string L3_kernel_b_weight_filename;
-    L2_kernel_b_weight_filename = "L3_kernel_b.dat";
+    L3_kernel_b_weight_filename = "L3_kernel_b.dat";
 
     fc_nn_end_block.get_version();
 
@@ -58,7 +54,7 @@ int main()
     fc_nn_end_block.activation_function_mode = 2;
     fc_nn_end_block.use_skip_connect_mode = 0; // 1 for residual network architetcture
     fc_nn_end_block.use_dropouts = 1;
-    fc_nn_end_block.dropout_proportion = 0.2;
+    fc_nn_end_block.dropout_proportion = 0.4;
 
     load_mnist_dataset l_mnist_data;
     vector<vector<double>> training_target_data;
@@ -76,9 +72,10 @@ int main()
     cout << "conv_L1 setup:" << endl;
     int input_channels = 1;     //=== one channel MNIST dataset is used ====
     conv_L1.set_kernel_size(5); // Odd number
-    conv_L1.set_stride(1);
+    conv_L1.set_stride(2);
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
     conv_L1.set_out_tensor(30);                                              // output channels
+    conv_L1.output_tensor.size();
     conv_L1.top_conv = 1;
 
     //========= L1 convolution (vectors) all tensor size for convolution object is finnish =============
@@ -86,15 +83,19 @@ int main()
     //==== Set up convolution layers ===========
     cout << "conv_L2 setup:" << endl;
     conv_L2.set_kernel_size(5); // Odd number
-    conv_L2.set_stride(2);
+    conv_L2.set_stride(1);
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(25);                                                                                               // output channels
+    conv_L2.output_tensor.size();
 
+    //==== Set up convolution layers ===========
     cout << "conv_L3 setup:" << endl;
     conv_L3.set_kernel_size(5); // Odd number
     conv_L3.set_stride(1);
     conv_L3.set_in_tensor((conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()), conv_L2.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L3.set_out_tensor(25);                                                                                               // output channels
+    conv_L3.output_tensor.size();
+
 
     const int end_inp_nodes = (conv_L3.output_tensor[0].size() * conv_L3.output_tensor[0].size()) * conv_L3.output_tensor.size();
     cout << "end_inp_nodes = " << end_inp_nodes << endl;
@@ -145,6 +146,7 @@ int main()
     fc_nn_end_block.set_nr_of_hidden_layers(end_hid_layers);
     fc_nn_end_block.set_nr_of_hidden_nodes_on_layer_nr(end_hid_nodes_L1);
     fc_nn_end_block.set_nr_of_hidden_nodes_on_layer_nr(end_hid_nodes_L2);
+    
     //  Note that set_nr_of_hidden_nodes_on_layer_nr() cal must be exactly same number as the set_nr_of_hidden_layers(end_hid_layers)
     //============ Neural Network Size setup is finnish ! ==================
 
@@ -153,11 +155,11 @@ int main()
     const double learning_rate_end = 0.001;
     fc_nn_end_block.momentum = 0.9;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.001;
+    conv_L1.learning_rate = 0.0001;
     conv_L1.momentum = 0.9;
-    conv_L2.learning_rate = 0.001;
+    conv_L2.learning_rate = 0.0001;
     conv_L2.momentum = 0.9;
-    conv_L3.learning_rate = 0.001;
+    conv_L3.learning_rate = 0.0001;
     conv_L3.momentum = 0.9;
 
     conv_L1.activation_function_mode = 2;
@@ -165,20 +167,18 @@ int main()
     conv_L3.activation_function_mode = 2;
 
     char answer;
-    double init_fc_random_weight_propotion = 0.001;
-    double init_conv_random_weight_propotion = 0.05;
+    double init_random_weight_propotion = 0.05;
     cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
     {
         conv_L1.load_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
         conv_L2.load_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
-        conv_L3.load_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
         cout << "Do you want to randomize fully connected layers Y or N load weights  = Y/N " << endl;
         cin >> answer;
         if (answer == 'Y' || answer == 'y')
         {
-            fc_nn_end_block.randomize_weights(init_fc_random_weight_propotion);
+            fc_nn_end_block.randomize_weights(init_random_weight_propotion);
         }
         else
         {
@@ -187,10 +187,10 @@ int main()
     }
     else
     {
-        fc_nn_end_block.randomize_weights(init_fc_random_weight_propotion);
-        conv_L1.randomize_weights(init_conv_random_weight_propotion);
-        conv_L2.randomize_weights(init_conv_random_weight_propotion);
-        conv_L3.randomize_weights(init_conv_random_weight_propotion);
+        fc_nn_end_block.randomize_weights(init_random_weight_propotion);
+        conv_L1.randomize_weights(init_random_weight_propotion);
+        conv_L2.randomize_weights(init_random_weight_propotion);
+        conv_L3.randomize_weights(init_random_weight_propotion);
     }
 
     const int training_epocs = 10000; // One epocs go through the hole data set once
@@ -382,6 +382,7 @@ int main()
                 conv_L2.conv_forward1();
                 conv_L3.input_tensor = conv_L2.output_tensor;
                 conv_L3.conv_forward1();
+
                 int L3_out_one_side = conv_L3.output_tensor[0].size();
                 int L3_out_ch = conv_L3.output_tensor.size();
                 for (int oc = 0; oc < L3_out_ch; oc++)
@@ -446,7 +447,7 @@ int main()
                 fc_nn_end_block.save_weights(weight_filename_end);
                 conv_L1.save_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
                 conv_L2.save_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
-                conv_L2.save_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
+                conv_L3.save_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
             }
 
             //=========== verify finnish ====
