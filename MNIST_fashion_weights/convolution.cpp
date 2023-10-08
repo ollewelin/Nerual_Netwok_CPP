@@ -8,11 +8,13 @@ using namespace std;
 convolution::convolution()
 {
     version_major = 0;
-    version_mid = 0;
+    version_mid = 3;
     version_minor = 3;
     // 0.0.0 Not finnish at all
-    // 0.0.1 First working version. Not yet implement conv_transpose_fwd() conv_transpose_bkp()
+    // 0.2.0 Added void convolution::conv_transpose_fwd() function not yet tested
     // 0.0.3 remove conv_forward2(void) function 
+    // 0.3.3 Fix bug, add void convolution::clear_i_tens_delta() i_tensor_delta have not cleared data from pre sample before version 0.3.3
+
     setup_state = 0;
     kernel_size = 3;
     stride = 1;
@@ -546,6 +548,22 @@ void convolution::xy_start_stop_kernel(int slide_val)
     }
 }
 
+void convolution::clear_i_tens_delta()
+{
+    //Clear i_tensor_delta
+    for (int y_slide = 0; y_slide < input_side_size; y_slide++)
+    {
+        for (int x_slide = 0; x_slide < input_side_size; x_slide++)
+        {
+            for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+            {
+                // Clear data
+                i_tensor_delta[in_ch_cnt][y_slide][x_slide] = 0.0;
+            }
+        }
+    }
+}
+
 void convolution::conv_backprop()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
@@ -597,6 +615,9 @@ void convolution::conv_backprop()
     }
 if(top_conv != 1)
 {
+    //Clear i_tensor_delta first
+    clear_i_tens_delta();
+
     // Update delta for input tensor. Flipped 180 deg kernel_weight
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -673,6 +694,85 @@ void convolution::conv_update_weights()
 
 void convolution::conv_transpose_fwd()
 {
+//Exact same algorithm as convolution::conv_backprop() function but the kernel delta calculation is removed
+//Notice that this function borrow same memory for traspose data as the detla memory in convolution::conv_backprop() function there for 
+//You should know that delta memroy data will be overwrited here so you could not call this function before update weight if you run forward and then convolution::conv_backprop()
+//You then must call this function after done forward convolution::conv_backprop() and update the weitht from conv_backprop() calculation.
+//Note thet this funtion will also run if this object is a top_conv so if(top_conv != 1) condition is removed
+
+//Use (o_tensor_delta[out_ch_cnt][y_slide][x_slide] as the input data 
+//and use the i_tensor_delta[in_ch_cnt][y_slide][x_slide] as the output transpose (upsampling data output you can use for autoencoder or
+//visualize at top_conv layer if you want
+
+    //Clear i_tensor_delta first
+    clear_i_tens_delta();
+
+    // Compute delta for each output channel
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        accum_bias_deltas[out_ch_cnt] = 0.0; // used only for bias weight update later
+        for (int y_slide = 0; y_slide < output_side_size; y_slide++)
+        {
+            for (int x_slide = 0; x_slide < output_side_size; x_slide++)
+            {
+                // Compute derivative of activation function
+                double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], output_tensor[out_ch_cnt][y_slide][x_slide]);
+                // delta_activation used in this loop for kernel weight delta calculations
+                // store also delta_activation into internal_tensor_delta[][][] used later for delta for input tensor calculation
+                internal_tensor_delta[out_ch_cnt][y_slide][x_slide] = delta_activation;
+             }
+        }
+    }
+    // Update delta for input tensor. Flipped 180 deg kernel_weight
+    for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
+    {
+        for (int y_slide = 0; y_slide < input_side_size; y_slide++)
+        {
+            xy_start_stop_kernel(y_slide);
+            int y_start_ret = start_ret;
+            int y_stop_ret = stop_ret;
+            for (int x_slide = 0; x_slide < input_side_size; x_slide++)
+            {
+                xy_start_stop_kernel(x_slide);
+                int x_start_ret = start_ret;
+                int x_stop_ret = stop_ret;
+                int yi = 0;
+                for (int ky = y_start_ret; ky < y_stop_ret; ky += stride) // Flipped 180 deg kernel_weight
+                {
+                    int out_tens_y_pos = (y_slide / stride) + yi; //
+                    yi--;
+                    if (out_tens_y_pos < 0)
+                    {
+                        out_tens_y_pos = 0;
+                    }
+
+                    if (out_tens_y_pos >= output_side_size - 1)
+                    {
+                        out_tens_y_pos = output_side_size - 1;
+                    }
+                    int xi = 0;
+                    for (int kx = x_start_ret; kx < x_stop_ret; kx += stride) // Flipped 180 deg kernel_weight
+                    {
+                        int out_tens_x_pos = (x_slide / stride) + xi;
+                        xi--;
+                        if (out_tens_x_pos < 0)
+                        {
+                            out_tens_x_pos = 0;
+                        }
+                        if (out_tens_x_pos >= output_side_size - 1)
+                        {
+                            out_tens_x_pos = output_side_size - 1;
+                        }
+                        for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+                        {
+                            // Update delta for input tensor. Flipped 180 deg kernel_weight
+                            i_tensor_delta[in_ch_cnt][y_slide][x_slide] += internal_tensor_delta[out_ch_cnt][out_tens_y_pos][out_tens_x_pos] * kernel_weights[out_ch_cnt][in_ch_cnt][ky][kx];
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 void convolution::conv_transpose_bkp()
 {
