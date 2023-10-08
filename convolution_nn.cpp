@@ -174,6 +174,7 @@ int main()
     {
         conv_L1.load_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
         conv_L2.load_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
+        conv_L3.load_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
         cout << "Do you want to randomize fully connected layers Y or N load weights  = Y/N " << endl;
         cin >> answer;
         if (answer == 'Y' || answer == 'y')
