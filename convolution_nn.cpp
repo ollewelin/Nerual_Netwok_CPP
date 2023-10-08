@@ -76,7 +76,7 @@ int main()
     cout << "conv_L1 setup:" << endl;
     int input_channels = 1;     //=== one channel MNIST dataset is used ====
     conv_L1.set_kernel_size(5); // Odd number
-    conv_L1.set_stride(2);
+    conv_L1.set_stride(1);
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
     conv_L1.set_out_tensor(30);                                              // output channels
     conv_L1.top_conv = 1;
@@ -88,13 +88,13 @@ int main()
     conv_L2.set_kernel_size(5); // Odd number
     conv_L2.set_stride(2);
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
-    conv_L2.set_out_tensor(60);                                                                                               // output channels
+    conv_L2.set_out_tensor(25);                                                                                               // output channels
 
     cout << "conv_L3 setup:" << endl;
     conv_L3.set_kernel_size(5); // Odd number
     conv_L3.set_stride(1);
     conv_L3.set_in_tensor((conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()), conv_L2.output_tensor.size()); // data_size_one_sample_one_channel, input channels
-    conv_L3.set_out_tensor(50);                                                                                               // output channels
+    conv_L3.set_out_tensor(25);                                                                                               // output channels
 
     const int end_inp_nodes = (conv_L3.output_tensor[0].size() * conv_L3.output_tensor[0].size()) * conv_L3.output_tensor.size();
     cout << "end_inp_nodes = " << end_inp_nodes << endl;
