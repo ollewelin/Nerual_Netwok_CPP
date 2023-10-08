@@ -86,13 +86,13 @@ int main()
     //==== Set up convolution layers ===========
     cout << "conv_L2 setup:" << endl;
     conv_L2.set_kernel_size(5); // Odd number
-    conv_L2.set_stride(1);
+    conv_L2.set_stride(2);
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L2.set_out_tensor(60);                                                                                               // output channels
 
     cout << "conv_L3 setup:" << endl;
     conv_L3.set_kernel_size(5); // Odd number
-    conv_L3.set_stride(2);
+    conv_L3.set_stride(1);
     conv_L3.set_in_tensor((conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()), conv_L2.output_tensor.size()); // data_size_one_sample_one_channel, input channels
     conv_L3.set_out_tensor(50);                                                                                               // output channels
 
@@ -150,15 +150,15 @@ int main()
 
     //=== Now setup the hyper parameters of the Neural Network ====
 
-    const double learning_rate_end = 0.0001;
-    fc_nn_end_block.momentum = 0.01;
+    const double learning_rate_end = 0.001;
+    fc_nn_end_block.momentum = 0.9;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.0001;
-    conv_L1.momentum = 0.01;
-    conv_L2.learning_rate = 0.0001;
-    conv_L2.momentum = 0.01;
-    conv_L3.learning_rate = 0.0001;
-    conv_L3.momentum = 0.01;
+    conv_L1.learning_rate = 0.001;
+    conv_L1.momentum = 0.9;
+    conv_L2.learning_rate = 0.001;
+    conv_L2.momentum = 0.9;
+    conv_L3.learning_rate = 0.001;
+    conv_L3.momentum = 0.9;
 
     conv_L1.activation_function_mode = 2;
     conv_L2.activation_function_mode = 2;
