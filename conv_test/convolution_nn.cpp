@@ -49,7 +49,7 @@ int main()
     fc_nn_end_block.activation_function_mode = 2;
     fc_nn_end_block.use_skip_connect_mode = 0; // 1 for residual network architetcture
     fc_nn_end_block.use_dropouts = 1;
-    fc_nn_end_block.dropout_proportion = 0.2;
+    fc_nn_end_block.dropout_proportion = 0.4;
 
     load_mnist_dataset l_mnist_data;
     vector<vector<double>> training_target_data;
@@ -140,9 +140,9 @@ int main()
     const double learning_rate_end = 0.001;
     fc_nn_end_block.momentum = 0.9;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.001;
+    conv_L1.learning_rate = 0.0001;
     conv_L1.momentum = 0.9;
-    conv_L2.learning_rate = 0.001;
+    conv_L2.learning_rate = 0.0001;
     conv_L2.momentum = 0.9;
     conv_L1.activation_function_mode = 2;
     conv_L2.activation_function_mode = 2;
