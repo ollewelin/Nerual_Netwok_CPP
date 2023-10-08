@@ -8,11 +8,13 @@ using namespace std;
 convolution::convolution()
 {
     version_major = 0;
-    version_mid = 2;
+    version_mid = 3;
     version_minor = 3;
     // 0.0.0 Not finnish at all
-    // 0.0.2 Added void convolution::conv_transpose_fwd() function not yet tested
+    // 0.2.0 Added void convolution::conv_transpose_fwd() function not yet tested
     // 0.0.3 remove conv_forward2(void) function 
+    // 0.3.3 Fix bug, add void convolution::clear_i_tens_delta() i_tensor_delta have not cleared data from pre sample before version 0.3.3
+
     setup_state = 0;
     kernel_size = 3;
     stride = 1;
@@ -546,6 +548,22 @@ void convolution::xy_start_stop_kernel(int slide_val)
     }
 }
 
+void convolution::clear_i_tens_delta()
+{
+    //Clear i_tensor_delta
+    for (int y_slide = 0; y_slide < input_side_size; y_slide++)
+    {
+        for (int x_slide = 0; x_slide < input_side_size; x_slide++)
+        {
+            for (int in_ch_cnt = 0; in_ch_cnt < input_tensor_channels; in_ch_cnt++)
+            {
+                // Clear data
+                i_tensor_delta[in_ch_cnt][y_slide][x_slide] = 0.0;
+            }
+        }
+    }
+}
+
 void convolution::conv_backprop()
 {
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
@@ -597,6 +615,9 @@ void convolution::conv_backprop()
     }
 if(top_conv != 1)
 {
+    //Clear i_tensor_delta first
+    clear_i_tens_delta();
+
     // Update delta for input tensor. Flipped 180 deg kernel_weight
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
     {
@@ -682,6 +703,9 @@ void convolution::conv_transpose_fwd()
 //Use (o_tensor_delta[out_ch_cnt][y_slide][x_slide] as the input data 
 //and use the i_tensor_delta[in_ch_cnt][y_slide][x_slide] as the output transpose (upsampling data output you can use for autoencoder or
 //visualize at top_conv layer if you want
+
+    //Clear i_tensor_delta first
+    clear_i_tens_delta();
 
     // Compute delta for each output channel
     for (int out_ch_cnt = 0; out_ch_cnt < output_tensor_channels; out_ch_cnt++)
