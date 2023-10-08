@@ -421,7 +421,7 @@ Backprop or transpose. Note kernel 180 degree flip
     Load data finnish !
 
 
-# MNIST fashion dataset test Verify correct_ratio = 89.6% Epoch 123
+# MNIST fashion dataset test Verify correct_ratio = 89.78% Epoch 20
 
     convolution L1 L2 done, i = 0
     convolution L1 L2 done, i = 5000
@@ -435,34 +435,34 @@ Backprop or transpose. Note kernel 180 degree flip
     convolution L1 L2 done, i = 45000
     convolution L1 L2 done, i = 50000
     convolution L1 L2 done, i = 55000
-    Epoch 123
-    input node [0] = 343.754
-    Output node [0] = 0.928718  Target node [0] = 1
-    Output node [1] = 3.99907e-08  Target node [1] = 0
-    Output node [2] = 2.4325e-06  Target node [2] = 0
-    Output node [3] = 7.97262e-06  Target node [3] = 0
-    Output node [4] = 2.14056e-07  Target node [4] = 0
-    Output node [5] = 3.26907e-13  Target node [5] = 0
-    Output node [6] = 0.0712713  Target node [6] = 0
-    Output node [7] = 2.87745e-15  Target node [7] = 0
-    Output node [8] = 1.51026e-08  Target node [8] = 0
-    Output node [9] = 1.10638e-14  Target node [9] = 0
-    Training loss = 9579.86
-    correct_classify_cnt = 56206
-    correct_ratio = 93.6767
-    Output node [0] = 1.12966e-08  Target node [0] = 0
-    Output node [1] = 6.02691e-18  Target node [1] = 0
-    Output node [2] = 1.27588e-07  Target node [2] = 0
-    Output node [3] = 2.49324e-13  Target node [3] = 0
-    Output node [4] = 6.40636e-06  Target node [4] = 0
-    Output node [5] = 4.48583e-22  Target node [5] = 0
-    Output node [6] = 0.999993  Target node [6] = 1
-    Output node [7] = 3.71775e-25  Target node [7] = 0
-    Output node [8] = 2.38627e-15  Target node [8] = 0
-    Output node [9] = 3.95726e-24  Target node [9] = 0
-    Verify loss = 828.949
-    Verify correct_classify_cnt = 8960
-    Verify correct_ratio = 89.6
+    Epoch 20
+    input node [0] = -0
+    Output node [0] = 0.999982  Target node [0] = 1
+    Output node [1] = 2.74445e-11  Target node [1] = 0
+    Output node [2] = 5.86904e-18  Target node [2] = 0
+    Output node [3] = 1.214e-16  Target node [3] = 0
+    Output node [4] = 2.89755e-16  Target node [4] = 0
+    Output node [5] = 4.71768e-18  Target node [5] = 0
+    Output node [6] = 1.7847e-05  Target node [6] = 0
+    Output node [7] = 9.01904e-22  Target node [7] = 0
+    Output node [8] = 9.70303e-16  Target node [8] = 0
+    Output node [9] = 9.35446e-22  Target node [9] = 0
+    Training loss = 12983.6
+    correct_classify_cnt = 55207
+    correct_ratio = 92.0117
+    Output node [0] = 2.86153e-21  Target node [0] = 0
+    Output node [1] = 7.27001e-29  Target node [1] = 0
+    Output node [2] = 4.43993e-14  Target node [2] = 0
+    Output node [3] = 1  Target node [3] = 1
+    Output node [4] = 8.63952e-16  Target node [4] = 0
+    Output node [5] = 2.47903e-38  Target node [5] = 0
+    Output node [6] = 1.52137e-16  Target node [6] = 0
+    Output node [7] = 4.2724e-42  Target node [7] = 0
+    Output node [8] = 9.11557e-19  Target node [8] = 0
+    Output node [9] = 2.79191e-38  Target node [9] = 0
+    Verify loss = 787.037
+    Verify correct_classify_cnt = 8978
+    Verify correct_ratio = 89.78
     Save data weights ...
     Save data finnish !
     Save kernel weight data weights ...
