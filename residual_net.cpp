@@ -49,20 +49,20 @@ int main()
   fc_nn_top_block.use_softmax = 0;
   fc_nn_top_block.activation_function_mode = 0;
   fc_nn_top_block.use_skip_connect_mode = 0;//1 for residual network architetcture
-  fc_nn_top_block.use_dopouts = 1;
+  fc_nn_top_block.use_dropouts = 1;
  
   fc_nn_mid_block.block_type = 1;
   fc_nn_mid_block.use_softmax = 0;
   fc_nn_mid_block.activation_function_mode = 0;
   fc_nn_mid_block.use_skip_connect_mode = 1;//1 for residual network architetcture
   fc_nn_mid_block.shift_ununiform_skip_connection_after_samp_n = 1;//Switch skip connections 1 = each data sample 
-  fc_nn_mid_block.use_dopouts = 1;
+  fc_nn_mid_block.use_dropouts = 1;
  
   fc_nn_end_block.block_type = 2;
   fc_nn_end_block.use_softmax = 1;
   fc_nn_end_block.activation_function_mode = 0;
   fc_nn_end_block.use_skip_connect_mode = 0;//1 for residual network architetcture
-  fc_nn_end_block.use_dopouts = 0;
+  fc_nn_end_block.use_dropouts = 0;
 
   load_mnist_dataset l_mnist_data;
   vector<vector<double>> training_target_data;

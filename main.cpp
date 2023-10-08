@@ -178,7 +178,7 @@ int main()
   basic_fc_nn.use_softmax = 1;
   basic_fc_nn.activation_function_mode = 0;
   basic_fc_nn.use_skip_connect_mode = 0;
-  basic_fc_nn.use_dopouts = 1;
+  basic_fc_nn.use_dropouts = 1;
   basic_fc_nn.dropout_proportion = 0.25;
   const int inp_nodes = MNIST_pix_size;
   const int out_nodes = 10;
