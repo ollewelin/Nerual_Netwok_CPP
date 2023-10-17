@@ -207,7 +207,7 @@ int main()
     //Set up a OpenCV mat
     // Create a cv::Mat object
     cv::Mat inputMat(input_channels * one_side, one_side, CV_32F);
-    cv::Mat OutputMat(input_channels * one_side, one_side, CV_32F);
+    cv::Mat outputMat(input_channels * one_side, one_side, CV_32F);
 
     // Copy data from conv_L1.input_tensor to cv::Mat
     for (int ic = 0; ic < input_channels; ic++)
@@ -351,6 +351,30 @@ int main()
                 cv::imshow("Input Image", inputMat);
                 // Wait for a keystroke and then close the window
                 cv::waitKey(1);
+
+                //Put in the output data from the convolution operation into the transpose upsampling operation 
+                conv_L2.o_tensor_delta = conv_L2.output_tensor;
+                conv_L2.conv_transpose_fwd();
+                conv_L1.o_tensor_delta = conv_L2.i_tensor_delta;
+                conv_L1.conv_transpose_fwd();
+
+                // Copy data from conv_L1.i_tensor_delta to cv::Mat
+                for (int ic = 0; ic < input_channels; ic++)
+                {
+                    for (int yi = 0; yi < one_side; yi++)
+                    {
+                        for (int xi = 0; xi < one_side; xi++)
+                        {
+                            double input_pixel_data = conv_L1.i_tensor_delta[ic][yi][xi];
+                            outputMat.at<float>(ic * one_side + yi, xi) = (float)input_pixel_data;
+                        }
+                    }
+                }
+                // Display the cv::Mat in a window
+                cv::imshow("Output Image", outputMat);
+                // Wait for a keystroke and then close the window
+                cv::waitKey(1);
+
             }
 
         }
