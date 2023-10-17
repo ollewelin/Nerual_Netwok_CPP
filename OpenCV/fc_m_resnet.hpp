@@ -32,7 +32,8 @@ private:
     //0 = same input/output
     //1 = input > output
     //2 = output > input
-    
+    int shift_ununiform_skip_connection_sample_counter;//Sample coutner related to shift_ununiform_skip_connection_after_samp_n
+    int switch_skip_con_selector;
 public:
     fc_m_resnet(/* args */);
     ~fc_m_resnet();
@@ -51,12 +52,16 @@ public:
     int use_skip_connect_mode;
     //0 = turn OFF skip connections, ordinary fully connected nn block only
     //1 = turn ON skip connectons
-    
+    int shift_ununiform_skip_connection_after_samp_n;
+    //0 = all ununiform in/out skip connections are connected every sample every where (forward and backwards). default
+    //1 = If ununiform in/out skip connectetions are the case, only uniform in/out skip connection is made forward and backwards and switched every sample
+    //2....n = uniform in/out skip connection switch after this number of samples
+
     int training_mode;
     //0 = SGD Stocastic Gradient Decent
     //1 = Batch Gradient Decent, not yet implemented
     int batch_size; //Only used if trainging_mode 1
-    int use_dopouts;
+    int use_dropouts;
     //0 = No dropout
     //1 = Use dropout
     double loss;
