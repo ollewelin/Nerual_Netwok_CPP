@@ -151,7 +151,12 @@ int main()
     conv_L2.momentum = 0.9;
     conv_L1.activation_function_mode = 2;
     conv_L2.activation_function_mode = 2;
-
+/*
+    conv_L1.learning_rate = 0.0;
+    conv_L2.learning_rate = 0.0;
+    conv_L2.momentum = 0.0;
+    conv_L1.momentum = 0.0;
+*/
     char answer;
     double init_random_weight_propotion = 0.05;
     cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
@@ -207,11 +212,14 @@ int main()
 
     //Set up a OpenCV mat
     // Create a cv::Mat object
-    cv::Mat inputMat(input_channels * one_side, one_side, CV_32F);//Show input image
-    cv::Mat outputMat(input_channels * one_side, one_side, CV_32F);//Show a ppsampled imaged from generated from the downsampled convolution signals how was enter the fully connected NN
+    int space_grid = 2;
+
+    cv::Mat inputMat(one_side, one_side, CV_32F);//Show input image
+    cv::Mat outputMat(one_side, one_side, CV_32F);//Show a ppsampled imaged from generated from the downsampled convolution signals how was enter the fully connected NN
+    cv::Mat upsamp_visualization_single_kernels_Mat(one_side, one_side * conv_L2.output_tensor.size() + conv_L2.output_tensor.size() * space_grid, CV_32F);//Show a ppsampled imaged from generated from the downsampled convolution signals how was enter the fully connected NN
 
     //***********
-    int space_grid = 2;
+
     int one_plane_L1_out_conv_size = conv_L1.output_tensor[0][0].size();
     cv::Mat Mat_L1_output_visualize(one_plane_L1_out_conv_size, conv_L1.output_tensor.size() * space_grid + conv_L1.output_tensor.size() * one_plane_L1_out_conv_size , CV_32F);//Show a full pattern of L1 output convolution signals one rectangle for each output channel of L1 conv
     //
@@ -241,7 +249,7 @@ int main()
     //=================
     int print_after = 4999;
     int print_cnt = print_after;
-    const int show_image_each = 100;
+    const int show_image_each = 200;
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -363,8 +371,7 @@ int main()
                 // Display the cv::Mat in a window
                 cv::imshow("Input Image", inputMat);
                 // Wait for a keystroke and then close the window
-                cv::waitKey(1);
-
+               
                 //Put in the output data from the convolution operation into the transpose upsampling operation 
                 conv_L2.o_tensor_delta = conv_L2.output_tensor;
                 conv_L2.conv_transpose_fwd();
@@ -385,11 +392,50 @@ int main()
                 }
                 // Display the cv::Mat in a window
                 cv::imshow("Output Image", outputMat);
-                // Wait for a keystroke and then close the window
+
+                int L1_output_depth = conv_L1.output_tensor.size();
+                int L2_output_depth = conv_L2.output_tensor.size();
+                
+                
+                //--------------------------------------
+                //make upsamp_visualization_single_kernels_Mat
+                for(int L2_oc = 0;L2_oc< L2_output_depth;L2_oc++)
+                {
+                    // Set all elements in the vector to 0.0
+                    for (int oc = 0; oc < L2_out_ch; oc++)
+                    {
+                        for (int yi = 0; yi < L2_out_one_side; yi++)
+                        {
+                            for (int xi = 0; xi < L2_out_one_side; xi++)
+                            {
+                                conv_L2.o_tensor_delta[oc][yi][xi] = 0.0;
+                            }
+                        }
+                    }
+
+                    conv_L2.o_tensor_delta[L2_oc][L2_out_one_side/2][L2_out_one_side/2] = 1.0;
+                    conv_L2.conv_transpose_fwd();
+                    conv_L1.o_tensor_delta = conv_L2.i_tensor_delta;
+                    conv_L1.conv_transpose_fwd();
+
+                    // Copy data from conv_L1.i_tensor_delta to cv::Mat
+                    for (int ic = 0; ic < input_channels; ic++)
+                    {
+                        for (int yi = 0; yi < one_side; yi++)
+                        {
+                            for (int xi = 0; xi < one_side; xi++)
+                            {
+                                double input_pixel_data = conv_L1.i_tensor_delta[ic][yi][xi] +0.5;
+                                upsamp_visualization_single_kernels_Mat.at<float>(ic * one_side + yi, xi + L2_oc*space_grid + L2_oc*one_side) = (float)input_pixel_data;
+                            }
+                        }
+                    }
+                }            
+                cv::imshow("Upsampling 1.0 at center of L2 conv",  upsamp_visualization_single_kernels_Mat);    
                 cv::waitKey(1);
+                //----------------------------------------
 
                 //Visualization of L1 conv output
-                int L1_output_depth = conv_L1.output_tensor.size();
                 for(int oc = 0; oc < L1_output_depth; oc++)
                 {
                     for (int yi=0; yi < one_plane_L1_out_conv_size; yi++)
@@ -406,7 +452,7 @@ int main()
                 cv::imshow("Convolution L1 output",  Mat_L1_output_visualize);
 
                 //Visualization of L2 conv output
-                int L2_output_depth = conv_L2.output_tensor.size();
+                
                 for(int oc = 0; oc < L2_output_depth; oc++)
                 {
                     for (int yi=0; yi < one_plane_L2_out_conv_size; yi++)

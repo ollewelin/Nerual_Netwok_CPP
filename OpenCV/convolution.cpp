@@ -9,11 +9,12 @@ convolution::convolution()
 {
     version_major = 0;
     version_mid = 3;
-    version_minor = 3;
+    version_minor = 4;
     // 0.0.0 Not finnish at all
     // 0.2.0 Added void convolution::conv_transpose_fwd() function not yet tested
     // 0.0.3 remove conv_forward2(void) function 
     // 0.3.3 Fix bug, add void convolution::clear_i_tens_delta() i_tensor_delta have not cleared data from pre sample before version 0.3.3
+    // 0.3.4 Fix bug in conv_transpose_fwd() set the activation output to 1.0 instead of last forwar value
 
     setup_state = 0;
     kernel_size = 3;
@@ -716,7 +717,8 @@ void convolution::conv_transpose_fwd()
             for (int x_slide = 0; x_slide < output_side_size; x_slide++)
             {
                 // Compute derivative of activation function
-                double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], output_tensor[out_ch_cnt][y_slide][x_slide]);
+                //double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], output_tensor[out_ch_cnt][y_slide][x_slide]);
+                double delta_activation = delta_activation_func(o_tensor_delta[out_ch_cnt][y_slide][x_slide], 1.0);
                 // delta_activation used in this loop for kernel weight delta calculations
                 // store also delta_activation into internal_tensor_delta[][][] used later for delta for input tensor calculation
                 internal_tensor_delta[out_ch_cnt][y_slide][x_slide] = delta_activation;
