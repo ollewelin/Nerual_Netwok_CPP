@@ -23,6 +23,7 @@ using namespace std;
 #include <opencv2/core/core.hpp> // Basic OpenCV structures (cv::Mat, Scalar)
 
 
+
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main()
 {
@@ -206,8 +207,18 @@ int main()
 
     //Set up a OpenCV mat
     // Create a cv::Mat object
-    cv::Mat inputMat(input_channels * one_side, one_side, CV_32F);
-    cv::Mat outputMat(input_channels * one_side, one_side, CV_32F);
+    cv::Mat inputMat(input_channels * one_side, one_side, CV_32F);//Show input image
+    cv::Mat outputMat(input_channels * one_side, one_side, CV_32F);//Show a ppsampled imaged from generated from the downsampled convolution signals how was enter the fully connected NN
+
+    //***********
+    int space_grid = 2;
+    int one_plane_L1_out_conv_size = conv_L1.output_tensor[0][0].size();
+    cv::Mat Mat_L1_output_visualize(one_plane_L1_out_conv_size, conv_L1.output_tensor.size() * space_grid + conv_L1.output_tensor.size() * one_plane_L1_out_conv_size , CV_32F);//Show a full pattern of L1 output convolution signals one rectangle for each output channel of L1 conv
+    //
+    int one_plane_L2_out_conv_size = conv_L2.output_tensor[0][0].size();
+    cv::Mat Mat_L2_output_visualize(one_plane_L2_out_conv_size, conv_L2.output_tensor.size() * space_grid + conv_L2.output_tensor.size() * one_plane_L2_out_conv_size , CV_32F);//Show a full pattern of L2 output convolution signals one rectangle for each output channel of L2 conv
+    //***********
+
 
     // Copy data from conv_L1.input_tensor to cv::Mat
     for (int ic = 0; ic < input_channels; ic++)
@@ -332,7 +343,9 @@ int main()
                 correct_classify_cnt++;
             }
 
+            //*******************************************
             //Display Opecv Mat
+            //Only for visualization
             if(i %  show_image_each == 0)
             {
                 // Copy data from conv_L1.input_tensor to cv::Mat
@@ -375,7 +388,43 @@ int main()
                 // Wait for a keystroke and then close the window
                 cv::waitKey(1);
 
+                //Visualization of L1 conv output
+                int L1_output_depth = conv_L1.output_tensor.size();
+                for(int oc = 0; oc < L1_output_depth; oc++)
+                {
+                    for (int yi=0; yi < one_plane_L1_out_conv_size; yi++)
+                    {
+                        for (int xi=0; xi < one_plane_L1_out_conv_size; xi++)
+                        {
+                            int visual_col = xi + (oc * space_grid + oc * one_plane_L1_out_conv_size);
+                            int visual_row = yi;
+                            double pixel_data = conv_L1.output_tensor[oc][yi][xi];
+                            Mat_L1_output_visualize.at<float>(visual_row, visual_col) = (float)pixel_data;
+                        }
+                    }
+                }
+                cv::imshow("Convolution L1 output",  Mat_L1_output_visualize);
+
+                //Visualization of L2 conv output
+                int L2_output_depth = conv_L2.output_tensor.size();
+                for(int oc = 0; oc < L2_output_depth; oc++)
+                {
+                    for (int yi=0; yi < one_plane_L2_out_conv_size; yi++)
+                    {
+                        for (int xi=0; xi < one_plane_L2_out_conv_size; xi++)
+                        {
+                            int visual_col = xi + (oc * space_grid + oc * one_plane_L2_out_conv_size);
+                            int visual_row = yi;
+                            double pixel_data = conv_L2.output_tensor[oc][yi][xi];
+                            Mat_L2_output_visualize.at<float>(visual_row, visual_col) = (float)pixel_data;
+                        }
+                    }
+                }
+        
+                cv::imshow("Convolution L2 output",  Mat_L2_output_visualize);
+                cv::waitKey(1);
             }
+            //*******************************************
 
         }
         cout << "Epoch " << epc << endl;
