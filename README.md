@@ -298,6 +298,8 @@ Backprop or transpose. Note kernel 180 degree flip
 
 ![](conv_transpose.png)
 ![](OpenCV/visualization_convolution.png)
+
+
     conv_test setup:
       ========================================
       OK stride size is set to 2
