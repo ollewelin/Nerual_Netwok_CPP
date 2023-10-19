@@ -294,9 +294,11 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
     
 # Convolution stride=2 example backprop delta or transpose 
 
-Backprop or transpose. Note kernel 180 degree flip
+### Backprop or transpose. Note kernel 180 degree flip
 
 ![](conv_transpose.png)
+
+### OpenCV folder visualization convolution, upsampling operations and kernel  
 ![](OpenCV/visualization_convolution.png)
 
 
