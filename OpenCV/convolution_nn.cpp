@@ -225,6 +225,12 @@ int main()
     //
     int one_plane_L2_out_conv_size = conv_L2.output_tensor[0][0].size();
     cv::Mat Mat_L2_output_visualize(one_plane_L2_out_conv_size, conv_L2.output_tensor.size() * space_grid + conv_L2.output_tensor.size() * one_plane_L2_out_conv_size , CV_32F);//Show a full pattern of L2 output convolution signals one rectangle for each output channel of L2 conv
+
+    //setup convolution kernels visualisation kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
+
+    cv::Mat visual_conv_kernel_L1_Mat((conv_L1.kernel_weights[0][0].size() + space_grid) * conv_L1.kernel_weights[0].size(), (conv_L1.kernel_weights[0][0][0].size() + space_grid) * conv_L1.output_tensor.size(), CV_32F);
+    cv::Mat visual_conv_kernel_L2_Mat((conv_L2.kernel_weights[0][0].size() + space_grid) * conv_L2.kernel_weights[0].size(), (conv_L2.kernel_weights[0][0][0].size() + space_grid) * conv_L2.output_tensor.size(), CV_32F);
+
     //***********
 
 
@@ -432,7 +438,7 @@ int main()
                     }
                 }            
                 cv::imshow("Upsampling 1.0 at center of L2 conv",  upsamp_visualization_single_kernels_Mat);    
-                cv::waitKey(1);
+
                 //----------------------------------------
 
                 //Visualization of L1 conv output
@@ -445,7 +451,7 @@ int main()
                             int visual_col = xi + (oc * space_grid + oc * one_plane_L1_out_conv_size);
                             int visual_row = yi;
                             double pixel_data = conv_L1.output_tensor[oc][yi][xi];
-                            Mat_L1_output_visualize.at<float>(visual_row, visual_col) = (float)pixel_data;
+                            Mat_L1_output_visualize.at<float>(visual_row, visual_col) = (float)pixel_data + 0.5;
                         }
                     }
                 }
@@ -462,12 +468,57 @@ int main()
                             int visual_col = xi + (oc * space_grid + oc * one_plane_L2_out_conv_size);
                             int visual_row = yi;
                             double pixel_data = conv_L2.output_tensor[oc][yi][xi];
-                            Mat_L2_output_visualize.at<float>(visual_row, visual_col) = (float)pixel_data;
+                            Mat_L2_output_visualize.at<float>(visual_row, visual_col) = (float)pixel_data + 0.5;
                         }
                     }
                 }
         
                 cv::imshow("Convolution L2 output",  Mat_L2_output_visualize);
+
+                // visual_conv_kernel_L1_Mat
+                int kernel_output_channels = conv_L1.kernel_weights.size();
+                int kernel_input_channels = conv_L1.kernel_weights[0].size();
+                int kernel_side = conv_L1.kernel_weights[0][0].size();
+                for (int oc = 0; oc < kernel_output_channels; oc++)
+                {
+                    for (int ic = 0; ic < kernel_input_channels; ic++)
+                    {
+                        for (int yi = 0; yi < kernel_side; yi++)
+                        {
+                            for (int xi = 0; xi < kernel_side; xi++)
+                            {
+                                int visual_col = xi + (oc * (kernel_side + space_grid));
+                                int visual_row = yi + ic * (kernel_side + space_grid);
+                                double pixel_data = conv_L1.kernel_weights[oc][ic][yi][xi]; // 4D [output_channel][input_channel][kernel_row][kernel_col]
+                                visual_conv_kernel_L1_Mat.at<float>(visual_row, visual_col) = (float)pixel_data + 0.5;
+                            }
+                        }
+                    }
+                }
+                cv::imshow("Kernel L1 ",  visual_conv_kernel_L1_Mat);
+
+                // visual_conv_kernel_L1_Mat
+                kernel_output_channels = conv_L2.kernel_weights.size();
+                kernel_input_channels = conv_L2.kernel_weights[0].size();
+                kernel_side = conv_L2.kernel_weights[0][0].size();
+                for (int oc = 0; oc < kernel_output_channels; oc++)
+                {
+                    for (int ic = 0; ic < kernel_input_channels; ic++)
+                    {
+                        for (int yi = 0; yi < kernel_side; yi++)
+                        {
+                            for (int xi = 0; xi < kernel_side; xi++)
+                            {
+                                int visual_col = xi + (oc * (kernel_side + space_grid));
+                                int visual_row = yi + ic * (kernel_side + space_grid);
+                                double pixel_data = conv_L2.kernel_weights[oc][ic][yi][xi]; // 4D [output_channel][input_channel][kernel_row][kernel_col]
+                                visual_conv_kernel_L2_Mat.at<float>(visual_row, visual_col) = (float)pixel_data + 0.5;
+                            }
+                        }
+                    }
+                }
+                cv::imshow("Kernel L2 ",  visual_conv_kernel_L2_Mat);
+
                 cv::waitKey(1);
             }
             //*******************************************

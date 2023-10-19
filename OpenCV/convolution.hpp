@@ -27,7 +27,9 @@ private:
     //3 = set_in_tensor() done
     //4 = set_out_tensor_channels() is done
     //5 = randomize_weights() or load_weights() is done
+public:
     vector<vector<vector<vector<double>>>> kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
+private:
     vector<vector<vector<vector<double>>>> change_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<double> accum_bias_deltas;//1D [output_channel]
