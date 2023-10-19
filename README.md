@@ -297,7 +297,7 @@ This network consist of 3 blocks, 3 fc_m_resnet object stacked on each other
 Backprop or transpose. Note kernel 180 degree flip
 
 ![](conv_transpose.png)
-
+![](OpenCV/visualization_convolution.png)
     conv_test setup:
       ========================================
       OK stride size is set to 2
