@@ -158,7 +158,8 @@ int main()
     conv_L1.momentum = 0.0;
 */
     char answer;
-    double init_random_weight_propotion = 0.05;
+    double init_random_weight_propotion = 0.25;
+    double init_random_weight_propotion_conv = 0.25;
     cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
@@ -179,8 +180,8 @@ int main()
     else
     {
         fc_nn_end_block.randomize_weights(init_random_weight_propotion);
-        conv_L1.randomize_weights(init_random_weight_propotion);
-        conv_L2.randomize_weights(init_random_weight_propotion);
+        conv_L1.randomize_weights(init_random_weight_propotion_conv);
+        conv_L2.randomize_weights(init_random_weight_propotion_conv);
     }
 
     const int training_epocs = 10000; // One epocs go through the hole data set once
