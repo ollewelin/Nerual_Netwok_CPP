@@ -27,7 +27,9 @@ private:
     //3 = set_in_tensor() done
     //4 = set_out_tensor_channels() is done
     //5 = randomize_weights() or load_weights() is done
+public:
     vector<vector<vector<vector<double>>>> kernel_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
+private:
     vector<vector<vector<vector<double>>>> change_weights;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<vector<vector<vector<double>>>> kernel_deltas;//4D [output_channel][input_channel][kernel_row][kernel_col]
     vector<double> accum_bias_deltas;//1D [output_channel]
@@ -67,7 +69,7 @@ public:
     double fix_leaky_proportion;
     double learning_rate;
     double momentum;
-    int use_dopouts;
+    int use_dropouts;
     int top_conv;//If set to 1 disable calcualtioen of i_delta to speed up first convolution calculate only kernel delta if this is 1
     //0 = No dropout
     //1 = Use dropout

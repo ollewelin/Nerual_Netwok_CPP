@@ -9,12 +9,14 @@ convolution::convolution()
 {
     version_major = 0;
     version_mid = 3;
-    version_minor = 4;
+    version_minor = 5;
     // 0.0.0 Not finnish at all
     // 0.2.0 Added void convolution::conv_transpose_fwd() function not yet tested
     // 0.0.3 remove conv_forward2(void) function 
     // 0.3.3 Fix bug, add void convolution::clear_i_tens_delta() i_tensor_delta have not cleared data from pre sample before version 0.3.3
     // 0.3.4 Fix bug in conv_transpose_fwd() set the activation output to 1.0 instead of last forwar value
+    // 0.3.5 Make kernel_weights public so it's possible for open CV to show kernels in main
+
 
     setup_state = 0;
     kernel_size = 3;

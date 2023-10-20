@@ -167,7 +167,7 @@ int main()
     conv_L3.activation_function_mode = 2;
 
     char answer;
-    double init_random_weight_propotion = 0.05;
+    double init_random_weight_propotion = 0.25;
     cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
@@ -203,6 +203,7 @@ int main()
     double best_training_loss = 1000000000;
     double best_verify_loss = best_training_loss;
     double train_loss = best_training_loss;
+    double pre_train_loss = 0.0;
     double verify_loss = best_training_loss;
 
     const double stop_training_when_verify_rise_propotion = 0.04;
@@ -229,6 +230,7 @@ int main()
     int print_after = 4999;
     int print_cnt = print_after;
     int one_side = sqrt(data_size_one_sample_one_channel);
+    
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -270,8 +272,14 @@ int main()
             }
             else
             {
-                cout << "convolution L1 L2 done, i = " << i << endl;
+                cout << "convolution L1 L2 L3 done, i = " << i << endl;
                 print_cnt = print_after;
+
+                cout << "Training loss = " << pre_train_loss << endl;
+                cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
+                double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)i);
+                cout << "correct_ratio = " << correct_ratio << endl;
+
             }
 
             int L3_out_one_side = conv_L3.output_tensor[0].size();
@@ -332,6 +340,7 @@ int main()
             {
                 correct_classify_cnt++;
             }
+            pre_train_loss = fc_nn_end_block.loss;
         }
         cout << "Epoch " << epc << endl;
         cout << "input node [0] = " << fc_nn_end_block.input_layer[0] << endl;
