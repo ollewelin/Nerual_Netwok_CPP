@@ -5,7 +5,6 @@
 #include "fc_m_resnet.hpp"
 #include "convolution.hpp"
 #include "load_mnist_dataset.hpp"
-#include "batch_norm_layer.hpp"
 
 #include <vector>
 #include <time.h>
@@ -25,14 +24,10 @@ int main()
 {
 
     cout << "Convolution neural network under work..." << endl;
-    // ======== create 2 convolution layer objects =========
+    // ======== create 3 convolution layer objects =========
     convolution conv_L1;
     convolution conv_L2;
     convolution conv_L3;
-    batch_norm_layer batchnorm_L1;
-    batch_norm_layer batchnorm_L2;
-    batch_norm_layer batchnorm_L3;
-
     //======================================================
 
     //=========== Neural Network size settings ==============
@@ -282,9 +277,10 @@ int main()
 
                 cout << "Training loss = " << pre_train_loss << endl;
                 cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
+                if(i>0){
                 double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)i);
                 cout << "correct_ratio = " << correct_ratio << endl;
-
+                }
             }
 
             int L3_out_one_side = conv_L3.output_tensor[0].size();
