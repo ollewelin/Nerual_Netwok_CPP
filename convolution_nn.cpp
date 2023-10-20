@@ -5,6 +5,7 @@
 #include "fc_m_resnet.hpp"
 #include "convolution.hpp"
 #include "load_mnist_dataset.hpp"
+#include "batch_norm_layer.hpp"
 
 #include <vector>
 #include <time.h>
@@ -28,6 +29,10 @@ int main()
     convolution conv_L1;
     convolution conv_L2;
     convolution conv_L3;
+    batch_norm_layer batchnorm_L1;
+    batch_norm_layer batchnorm_L2;
+    batch_norm_layer batchnorm_L3;
+
     //======================================================
 
     //=========== Neural Network size settings ==============
