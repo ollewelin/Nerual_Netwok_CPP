@@ -763,6 +763,7 @@ int main()
                 fc_nn_end_block.save_weights(weight_filename_end);
                 conv_L1.save_weights(L1_kernel_k_weight_filename, L1_kernel_b_weight_filename);
                 conv_L2.save_weights(L2_kernel_k_weight_filename, L2_kernel_b_weight_filename);
+                conv_L3.save_weights(L3_kernel_k_weight_filename, L3_kernel_b_weight_filename);
             }
 
             //=========== verify finnish ====
