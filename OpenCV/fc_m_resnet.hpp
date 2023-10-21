@@ -64,7 +64,8 @@ public:
     int use_dropouts;
     //0 = No dropout
     //1 = Use dropout
-    double loss;
+    double loss_A;//
+    double loss_B;//Same calculation as A just to diffrent how user can zero out as needed outide this class
     double learning_rate;
     double momentum;
     double dropout_proportion;
