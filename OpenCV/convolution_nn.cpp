@@ -22,11 +22,70 @@ using namespace std;
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp> // Basic OpenCV structures (cv::Mat, Scalar)
 
+/*
+void drawDigit(cv::Mat& image, int digit, int color) {
+    // Set color based on the input
+    cv::Scalar digitColor = (color == 0) ? cv::Scalar(0, 0, 255) : cv::Scalar(0, 255, 0); // Red or Green
+
+    // Create a 30x30 black image
+    image = cv::Mat::zeros(30, 30, CV_8UC3);
+
+    // Choose a font
+    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
+    double fontScale = 1;
+    int thickness = 2;
+
+    // Get text size to properly center the digit
+    cv::Size textSize = cv::getTextSize(std::to_string(digit), fontFace, fontScale, thickness, 0);
+
+    // Calculate position to center the digit
+    int posX = (image.cols - textSize.width) / 2;
+    int posY = (image.rows + textSize.height) / 2;
+
+    // Draw the digit on the image
+    cv::putText(image, std::to_string(digit), cv::Point(posX, posY), fontFace, fontScale, digitColor, thickness, 8);
+}
+*/
+
+
+#include <iomanip> // for std::setprecision
+
+void TargetAndPredictDigit(cv::Mat& image, int target_digit, int predict_digit, float correct_ratio) {
+    // Set colors
+    cv::Scalar yellow = cv::Scalar(0, 255, 255); // Yellow
+    cv::Scalar green = cv::Scalar(0, 255, 0); // Green
+    cv::Scalar red = cv::Scalar(0, 0, 255); // Red
+    cv::Scalar white = cv::Scalar(255, 255, 255); // White
+
+    // Create a larger image to fit the text
+    int width = 500;
+    int height = 62;
+    image = cv::Mat::zeros(height, width, CV_8UC3);
+
+    // Target text
+    std::string targetText = "Target = " + std::to_string(target_digit);
+    cv::putText(image, targetText, cv::Point(10, height - 36), cv::FONT_HERSHEY_SIMPLEX, 1, white, 2, cv::LINE_AA);
+
+    // Predict text
+    std::string predictText = "Predict = " + std::to_string(predict_digit);
+    cv::Scalar predictColor = (target_digit == predict_digit) ? green : red;
+    cv::putText(image, predictText, cv::Point(250, height - 36), cv::FONT_HERSHEY_SIMPLEX, 1, predictColor, 2, cv::LINE_AA);
+
+    // Correct ratio text with two decimal precision
+    std::ostringstream streamObj;
+    streamObj << std::fixed; // fixed-point notation
+    streamObj << std::setprecision(4) << correct_ratio;
+    std::string correctText = "Correct ratio = " + streamObj.str();
+    cv::putText(image, correctText, cv::Point(10, height - 6), cv::FONT_HERSHEY_SIMPLEX, 1, yellow, 2, cv::LINE_AA);
+}
+
+
 
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main()
 {
+
 
     cout << "Convolution neural network under work..." << endl;
     // ======== create 2 convolution layer objects =========
@@ -193,6 +252,7 @@ int main()
     double best_training_loss = 1000000000;
     double best_verify_loss = best_training_loss;
     double train_loss = best_training_loss;
+   // double pre_train_loss = 0.0;
     double verify_loss = best_training_loss;
 
     const double stop_training_when_verify_rise_propotion = 0.04;
@@ -231,7 +291,7 @@ int main()
 
     cv::Mat visual_conv_kernel_L1_Mat((conv_L1.kernel_weights[0][0].size() + space_grid) * conv_L1.kernel_weights[0].size(), (conv_L1.kernel_weights[0][0][0].size() + space_grid) * conv_L1.output_tensor.size(), CV_32F);
     cv::Mat visual_conv_kernel_L2_Mat((conv_L2.kernel_weights[0][0].size() + space_grid) * conv_L2.kernel_weights[0].size(), (conv_L2.kernel_weights[0][0][0].size() + space_grid) * conv_L2.output_tensor.size(), CV_32F);
-
+    cv::Mat digitImage;
     //***********
 
 
@@ -257,6 +317,7 @@ int main()
     int print_after = 4999;
     int print_cnt = print_after;
     const int show_image_each = 200;
+    double correct_ratio = 0.0;
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -287,7 +348,10 @@ int main()
                 }
             }
 
-
+            if (i > 0)
+            {
+                correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)i);
+            }
             conv_L1.conv_forward1();
             conv_L2.input_tensor = conv_L1.output_tensor;
             conv_L2.conv_forward1();
@@ -299,6 +363,10 @@ int main()
             {
                 cout << "convolution L1 L2 done, i = " << i << endl;
                 print_cnt = print_after;
+
+            //    cout << "Training loss = " << pre_train_loss << endl;
+            //    cout << "correct_classify_cnt = " << correct_classify_cnt << endl;
+            //    cout << "correct_ratio = " << correct_ratio << endl;
             }
 
             int L2_out_one_side = conv_L2.output_tensor[0].size();
@@ -518,12 +586,14 @@ int main()
                         }
                     }
                 }
-                cv::imshow("Kernel L2 ",  visual_conv_kernel_L2_Mat);
-
+                cv::imshow("Kernel L2 ", visual_conv_kernel_L2_Mat);
+                TargetAndPredictDigit(digitImage, target, highest_out_class, (float)correct_ratio);
+                // Display the image
+                cv::imshow("Target and Predicted Digit", digitImage);
                 cv::waitKey(1);
             }
             //*******************************************
-
+            //pre_train_loss = fc_nn_end_block.loss;
         }
         cout << "Epoch " << epc << endl;
         cout << "input node [0] = " << fc_nn_end_block.input_layer[0] << endl;
