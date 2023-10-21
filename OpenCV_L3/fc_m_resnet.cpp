@@ -11,7 +11,7 @@ fc_m_resnet::fc_m_resnet(/* args */)
 {
     version_major = 0;
     version_mid = 1;
-    version_minor = 0;
+    version_minor = 1;
     // 0.0.4 fix softmax bugs
     // 0.0.5 fix bug when block type < 2 remove loss calclulation in backprop if not end block
     // 0.0.6 fix bug at  if (block_type < 2){} add else{ .... for end block } at  void fc_m_resnet::set_nr_of_hidden_nodes_on_layer_nr(int nodes)
@@ -19,6 +19,7 @@ fc_m_resnet::fc_m_resnet(/* args */)
     // 0.0.7 use_skip_connect_mode = 0 forced on top block as well as end block. Remove several printout ==== Skip connection is used ====
     // 0.0.8 fix use_skip_connect_mode printout no mater if (inp_l_size != out_l_size)
     // 0.1.0 "shift_ununiform_skip_connection_after_samp_n" are introduced when ununifor skip connections is the case.
+    // 0.1.1 loss_A and loss_B
     shift_ununiform_skip_connection_after_samp_n = 0;
     shift_ununiform_skip_connection_sample_counter = 0;
     switch_skip_con_selector = 0;
@@ -59,7 +60,8 @@ fc_m_resnet::fc_m_resnet(/* args */)
     // 0 = No dropout
     // 1 = Use dropout
     batch_size = 0; // Only used if trainging_mode 1
-    loss = 0.0;
+    loss_A = 0.0;
+    loss_B = 0.0;
     learning_rate = 0.0;
     momentum = 0.0;
     dropout_proportion = 0.0;
@@ -732,7 +734,8 @@ void fc_m_resnet::only_loss_calculation(void)
     int nr_out_nodes = output_layer.size();
     for (int i = 0; i < nr_out_nodes; i++)
     {
-        loss += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
+        loss_A += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
+        loss_B += 0.5 * (target_layer[i] - output_layer[i]) * (target_layer[i] - output_layer[i]); // Squared error * 0.5
     }
 }
 void fc_m_resnet::backpropagtion_and_update(void)
@@ -745,11 +748,15 @@ void fc_m_resnet::backpropagtion_and_update(void)
         {
             if (use_softmax == 0)
             {
-                loss += 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
+                double loss_calc = 0.5 * (target_layer[dst_cnt] - output_layer[dst_cnt]) * (target_layer[dst_cnt] - output_layer[dst_cnt]); // Squared error * 0.5
+                loss_A += loss_calc; //
+                loss_B += loss_calc;//
             }
             else
             {
-                loss -= target_layer[dst_cnt] * log(output_layer[dst_cnt]);
+                double loss_calc = target_layer[dst_cnt] * log(output_layer[dst_cnt]);
+                loss_A -=  loss_calc;
+                loss_B -=  loss_calc;
             }
         }
     }

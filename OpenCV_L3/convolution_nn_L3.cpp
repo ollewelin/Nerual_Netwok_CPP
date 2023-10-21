@@ -22,7 +22,42 @@ using namespace std;
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp> // Basic OpenCV structures (cv::Mat, Scalar)
 
+void TargetAndPredictDigit(cv::Mat& image, int target_digit, int predict_digit, float correct_ratio, double loss) {
+    // Set colors
+    cv::Scalar yellow = cv::Scalar(0, 255, 255); // Yellow
+    cv::Scalar green = cv::Scalar(0, 255, 0); // Green
+    cv::Scalar red = cv::Scalar(0, 0, 255); // Red
+    cv::Scalar white = cv::Scalar(255, 255, 255); // White
+    cv::Scalar customColor = cv::Scalar(150, 150, 0); // White
 
+    // Create a larger image to fit the text
+    int width = 500;
+    int height = 92;
+    image = cv::Mat::zeros(height, width, CV_8UC3);
+
+    // Target text
+    std::string targetText = "Target = " + std::to_string(target_digit);
+    cv::putText(image, targetText, cv::Point(10, height - 66), cv::FONT_HERSHEY_SIMPLEX, 1, white, 2, cv::LINE_AA);
+
+    // Predict text
+    std::string predictText = "Predicted = " + std::to_string(predict_digit);
+    cv::Scalar predictColor = (target_digit == predict_digit) ? green : red;
+    cv::putText(image, predictText, cv::Point(250, height - 66), cv::FONT_HERSHEY_SIMPLEX, 1, predictColor, 2, cv::LINE_AA);
+
+    // Correct ratio text with 4 decimal precision
+    std::ostringstream streamObj;
+    streamObj << std::fixed; // fixed-point notation
+    streamObj << std::setprecision(4) << correct_ratio;
+    std::string correctText = "Correct ratio = " + streamObj.str();
+    cv::putText(image, correctText, cv::Point(10, height - 36), cv::FONT_HERSHEY_SIMPLEX, 1, yellow, 2, cv::LINE_AA);
+
+    // Loss text with two decimal precision
+    std::ostringstream streamObj2;
+    streamObj2 << std::fixed; // fixed-point notation
+    streamObj2 << std::setprecision(10) << loss;
+    std::string lossText = "Loss = " + streamObj2.str();
+    cv::putText(image, lossText, cv::Point(10, height - 6), cv::FONT_HERSHEY_SIMPLEX, 1, customColor, 2, cv::LINE_AA);
+}
 
 vector<int> fisher_yates_shuffle(vector<int> table);
 int main()
@@ -227,7 +262,7 @@ int main()
 
     int one_side = sqrt(data_size_one_sample_one_channel);
 
-    //Set up a OpenCV mat
+    //Set up OpenCV 
     // Create a cv::Mat object
     int space_grid = 2;
 
@@ -252,7 +287,7 @@ int main()
     cv::Mat visual_conv_kernel_L1_Mat((conv_L1.kernel_weights[0][0].size() + space_grid) * conv_L1.kernel_weights[0].size(), (conv_L1.kernel_weights[0][0][0].size() + space_grid) * conv_L1.output_tensor.size(), CV_32F);
     cv::Mat visual_conv_kernel_L2_Mat((conv_L2.kernel_weights[0][0].size() + space_grid) * conv_L2.kernel_weights[0].size(), (conv_L2.kernel_weights[0][0][0].size() + space_grid) * conv_L2.output_tensor.size(), CV_32F);
     cv::Mat visual_conv_kernel_L3_Mat((conv_L3.kernel_weights[0][0].size() + space_grid) * conv_L3.kernel_weights[0].size(), (conv_L3.kernel_weights[0][0][0].size() + space_grid) * conv_L3.output_tensor.size(), CV_32F);
-
+    cv::Mat digitImage;
     //***********
 
 
@@ -278,6 +313,7 @@ int main()
     int print_after = 4999;
     int print_cnt = print_after;
     const int show_image_each = 200;
+    double correct_ratio = 0.0;
     for (int epc = 0; epc < training_epocs; epc++)
     {
         if (stop_training == 1)
@@ -290,12 +326,18 @@ int main()
         //============ Traning ==================
 
         training_order_list = fisher_yates_shuffle(training_order_list);
-        fc_nn_end_block.loss = 0.0;
+        fc_nn_end_block.loss_A = 0.0;
         int correct_classify_cnt = 0;
         fc_nn_end_block.dropout_proportion = 0.20;
 
         for (int i = 0; i < training_dataset_size; i++)
         {
+            if (i > 0)
+            {
+                correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)i);
+            }
+
+            fc_nn_end_block.loss_B = 0.0;
             for (int ic = 0; ic < input_channels; ic++)
             {
                 for (int yi = 0; yi < one_side; yi++)
@@ -598,11 +640,13 @@ int main()
                     }
                 }
                 cv::imshow("Kernel L3 ",  visual_conv_kernel_L3_Mat);
-
+                TargetAndPredictDigit(digitImage, target, highest_out_class, (float)correct_ratio, fc_nn_end_block.loss_B);
+                // Display the image
+                cv::imshow("Target and Predicted Digit", digitImage);
                 cv::waitKey(1);
             }
             //*******************************************
-            pre_train_loss = fc_nn_end_block.loss;
+            pre_train_loss = fc_nn_end_block.loss_A;
         }
         cout << "Epoch " << epc << endl;
         cout << "input node [0] = " << fc_nn_end_block.input_layer[0] << endl;
@@ -610,7 +654,7 @@ int main()
         {
             cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
         }
-        train_loss = fc_nn_end_block.loss;
+        train_loss = fc_nn_end_block.loss_A;
         do_verify_if_best_trained = 1;
         /*
            if(best_training_loss > train_loss)
@@ -634,7 +678,7 @@ int main()
         {
             fc_nn_end_block.dropout_proportion = 0.0;
             verify_order_list = fisher_yates_shuffle(verify_order_list);
-            fc_nn_end_block.loss = 0.0;
+            fc_nn_end_block.loss_A = 0.0;
             correct_classify_cnt = 0;
             for (int i = 0; i < verify_dataset_size; i++)
             {
@@ -701,7 +745,7 @@ int main()
             {
                 cout << "Output node [" << k << "] = " << fc_nn_end_block.output_layer[k] << "  Target node [" << k << "] = " << fc_nn_end_block.target_layer[k] << endl;
             }
-            verify_loss = fc_nn_end_block.loss;
+            verify_loss = fc_nn_end_block.loss_A;
             cout << "Verify loss = " << verify_loss << endl;
             cout << "Verify correct_classify_cnt = " << correct_classify_cnt << endl;
             double correct_ratio = (((double)correct_classify_cnt) * 100.0) / ((double)verify_dataset_size);
@@ -772,3 +816,5 @@ vector<int> fisher_yates_shuffle(vector<int> table)
     }
     return table;
 }
+
+
