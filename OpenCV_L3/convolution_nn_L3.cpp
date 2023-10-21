@@ -122,17 +122,17 @@ int main()
     //==== Set up convolution layers ===========
     cout << "conv_L2 setup:" << endl;
     conv_L2.set_kernel_size(5); // Odd number
-    conv_L2.set_stride(1);
+    conv_L2.set_stride(2);
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
-    conv_L2.set_out_tensor(25);                                                                                               // output channels
+    conv_L2.set_out_tensor(50);                                                                                               // output channels
     conv_L2.output_tensor.size();
 
     //==== Set up convolution layers ===========
     cout << "conv_L3 setup:" << endl;
-    conv_L3.set_kernel_size(5); // Odd number
-    conv_L3.set_stride(1);
+    conv_L3.set_kernel_size(3); // Odd number
+    conv_L3.set_stride(2);
     conv_L3.set_in_tensor((conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()), conv_L2.output_tensor.size()); // data_size_one_sample_one_channel, input channels
-    conv_L3.set_out_tensor(25);                                                                                               // output channels
+    conv_L3.set_out_tensor(50);                                                                                               // output channels
     conv_L3.output_tensor.size();
 
 
