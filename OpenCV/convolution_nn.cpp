@@ -22,32 +22,6 @@ using namespace std;
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/core.hpp> // Basic OpenCV structures (cv::Mat, Scalar)
 
-/*
-void drawDigit(cv::Mat& image, int digit, int color) {
-    // Set color based on the input
-    cv::Scalar digitColor = (color == 0) ? cv::Scalar(0, 0, 255) : cv::Scalar(0, 255, 0); // Red or Green
-
-    // Create a 30x30 black image
-    image = cv::Mat::zeros(30, 30, CV_8UC3);
-
-    // Choose a font
-    int fontFace = cv::FONT_HERSHEY_SIMPLEX;
-    double fontScale = 1;
-    int thickness = 2;
-
-    // Get text size to properly center the digit
-    cv::Size textSize = cv::getTextSize(std::to_string(digit), fontFace, fontScale, thickness, 0);
-
-    // Calculate position to center the digit
-    int posX = (image.cols - textSize.width) / 2;
-    int posY = (image.rows + textSize.height) / 2;
-
-    // Draw the digit on the image
-    cv::putText(image, std::to_string(digit), cv::Point(posX, posY), fontFace, fontScale, digitColor, thickness, 8);
-}
-*/
-
-
 #include <iomanip> // for std::setprecision
 
 void TargetAndPredictDigit(cv::Mat& image, int target_digit, int predict_digit, float correct_ratio, double loss) {
