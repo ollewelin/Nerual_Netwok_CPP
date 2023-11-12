@@ -92,7 +92,7 @@ int main()
 
     fc_nn_end_block.block_type = 2;
     fc_nn_end_block.use_softmax = 1;
-    fc_nn_end_block.activation_function_mode = 2;
+    fc_nn_end_block.activation_function_mode = 0;
     fc_nn_end_block.use_skip_connect_mode = 0; // 1 for residual network architetcture
     fc_nn_end_block.use_dropouts = 1;
     fc_nn_end_block.dropout_proportion = 0.4;
@@ -115,7 +115,7 @@ int main()
     conv_L1.set_kernel_size(5); // Odd number
     conv_L1.set_stride(2);
     conv_L1.set_in_tensor(data_size_one_sample_one_channel, input_channels); // data_size_one_sample_one_channel, input channels
-    conv_L1.set_out_tensor(30);                                              // output channels
+    conv_L1.set_out_tensor(50);                                              // output channels
     conv_L1.output_tensor.size();
     conv_L1.top_conv = 1;
 
@@ -126,14 +126,14 @@ int main()
     conv_L2.set_kernel_size(5); // Odd number
     conv_L2.set_stride(2);
     conv_L2.set_in_tensor((conv_L1.output_tensor[0].size() * conv_L1.output_tensor[0].size()), conv_L1.output_tensor.size()); // data_size_one_sample_one_channel, input channels
-    conv_L2.set_out_tensor(25);                                                                                               // output channels
+    conv_L2.set_out_tensor(80);                                                                                               // output channels
     conv_L2.output_tensor.size();
 
     const int end_inp_nodes = (conv_L2.output_tensor[0].size() * conv_L2.output_tensor[0].size()) * conv_L2.output_tensor.size();
     cout << "end_inp_nodes = " << end_inp_nodes << endl;
     const int end_hid_layers = 2;
-    const int end_hid_nodes_L1 = 200;
-    const int end_hid_nodes_L2 = 50;
+    const int end_hid_nodes_L1 = 300;
+    const int end_hid_nodes_L2 = 100;
     const int end_out_nodes = 10;
 
     vector<double> dummy_one_target_data_point;
@@ -183,15 +183,15 @@ int main()
 
     //=== Now setup the hyper parameters of the Neural Network ====
 
-    const double learning_rate_end = 0.001;
+    const double learning_rate_end = 0.01;
     fc_nn_end_block.momentum = 0.9;
     fc_nn_end_block.learning_rate = learning_rate_end;
-    conv_L1.learning_rate = 0.0001;
+    conv_L1.learning_rate = 0.01;
     conv_L1.momentum = 0.9;
-    conv_L2.learning_rate = 0.0001;
+    conv_L2.learning_rate = 0.01;
     conv_L2.momentum = 0.9;
-    conv_L1.activation_function_mode = 2;
-    conv_L2.activation_function_mode = 2;
+    conv_L1.activation_function_mode = 0;
+    conv_L2.activation_function_mode = 0;
 /*
     conv_L1.learning_rate = 0.0;
     conv_L2.learning_rate = 0.0;
@@ -199,8 +199,8 @@ int main()
     conv_L1.momentum = 0.0;
 */
     char answer;
-    double init_random_weight_propotion = 0.25;
-    double init_random_weight_propotion_conv = 0.25;
+    double init_random_weight_propotion = 0.65;
+    double init_random_weight_propotion_conv = 0.65;
     cout << "Do you want to load kernel weights from saved weight file = Y/N " << endl;
     cin >> answer;
     if (answer == 'Y' || answer == 'y')
@@ -450,6 +450,8 @@ int main()
                 }
                 // Display the cv::Mat in a window
                 cv::imshow("Output Image", outputMat);
+                cv::Mat outputMat_scaled = 0.05 * outputMat;
+                cv::imshow("outputMat_scaled", outputMat_scaled);
 
                 int L1_output_depth = conv_L1.output_tensor.size();
                 int L2_output_depth = conv_L2.output_tensor.size();
@@ -489,7 +491,10 @@ int main()
                         }
                     }
                 }            
+                
                 cv::imshow("Upsampling 1.0 at center of L2 conv",  upsamp_visualization_single_kernels_Mat);    
+
+                
 
                 //----------------------------------------
 
