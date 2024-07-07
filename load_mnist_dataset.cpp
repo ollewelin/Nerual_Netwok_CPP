@@ -8,6 +8,7 @@ using namespace std;
 #include <iostream>
 #include <fstream>
 #include <stdlib.h> // exit(0);
+#include <curl/curl.h>
 
 const int mnist_training_size = 60000;
 const int mnist_verify_size = 10000;
@@ -64,28 +65,58 @@ void load_mnist_dataset::download_mnist(void)
   char answer_character;
   printf("Suggestions, download and extraxt dataset into program folder\n");
   printf("Do you want to download MNIST data set from web Y/N ?\n");
-  printf("From web sites:\n");
-  printf("http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz\n");
-  printf("http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz\n");
-  printf("http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz\n");
-  printf("http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz\n");
+ // printf("From web sites:\n");
+ // printf("https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original dataset/t10k-images.idx3-ubyte\n");
+ // printf("https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original dataset/t10k-labels.idx1-ubyte\n");
+ // printf("https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original dataset/train-images.idx3-ubyte\n");
+ // printf("https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original dataset/train-labels.idx1-ubyte\n");
+  printf("with git clone web sites:\n");
+  printf("git clone https://github.com/mrgloom/MNIST-dataset-in-different-formats.git\n");
   answer_character = getchar();
   // answer_character = getchar();
   if (answer_character == 'Y' || answer_character == 'y')
   {
     int dummy = 0;
-    printf("remove old MNIST dataset .gz files\n");
-    dummy = system("rm train-images-idx3-ubyte.gz");
-    dummy = system("rm train-labels-idx1-ubyte.gz");
-    dummy = system("rm t10k-images-idx3-ubyte.gz");
-    dummy = system("rm t10k-labels-idx1-ubyte.gz");
-    printf("Start download MNIST dataset .gz files\n");
-    dummy = system("wget http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz");
-    dummy = system("wget http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz");
-    dummy = system("wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz");
-    dummy = system("wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz");
+   // printf("remove old MNIST dataset .gz files\n");
+   // dummy = system("rm train-images-idx3-ubyte.gz");
+   // dummy = system("rm train-labels-idx1-ubyte.gz");
+   // dummy = system("rm t10k-images-idx3-ubyte.gz");
+   // dummy = system("rm t10k-labels-idx1-ubyte.gz");
+  //  printf("Start download MNIST dataset .gz files\n");
+ //   dummy = system("wget http://yann.lecun.com/exdb/mnist/train-images-idx3-ubyte.gz");
+ //   dummy = system("wget http://yann.lecun.com/exdb/mnist/train-labels-idx1-ubyte.gz");
+ //   dummy = system("wget http://yann.lecun.com/exdb/mnist/t10k-images-idx3-ubyte.gz");
+ //   dummy = system("wget http://yann.lecun.com/exdb/mnist/t10k-labels-idx1-ubyte.gz");
 
-    /* try to open file to read */
+    //replace this with
+    //git clone https://github.com/mrgloom/MNIST-dataset-in-different-formats
+    //cd 
+    //https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/t10k-images.idx3-ubyte
+    //https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/t10k-labels.idx1-ubyte
+    //https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/train-images.idx3-ubyte
+    //https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/train-labels.idx1-ubyte
+
+       const char* repo_url = "https://github.com/mrgloom/MNIST-dataset-in-different-formats.git";
+
+    // Construct the git clone command
+    char git_clone_cmd[256];
+    snprintf(git_clone_cmd, sizeof(git_clone_cmd), "git clone %s", repo_url);
+
+    // Execute the git clone command
+    int result = system(git_clone_cmd);
+
+    if (result == 0) {
+        printf("Repository cloned successfully!\n");
+    } else {
+        printf("Error cloning repository.\n");
+    }
+
+   // dummy = system("wget https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/t10k-images.idx3-ubyte");
+   // dummy = system("wget https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/t10k-labels.idx1-ubyte");
+   // dummy = system("wget https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/train-images.idx3-ubyte");
+   // dummy = system("wget https://github.com/mrgloom/MNIST-dataset-in-different-formats/blob/master/data/Original%20dataset/train-labels.idx1-ubyte");
+
+    /* try to open file to read 
     int check_all_files_there = -1;
     ifstream file1("train-images-idx3-ubyte.gz", ios::in | ios::binary | ios::ate);
     if (file1.is_open())
@@ -144,6 +175,7 @@ void load_mnist_dataset::download_mnist(void)
       printf("Exit program\n");
       exit(0);
     }
+    */
     dummy++;
   }
   else
@@ -290,10 +322,10 @@ int load_mnist_dataset::get_one_sample_data_size(void)
 load_mnist_dataset::load_mnist_dataset()
 {
   cout << "Constructor load_mnist_dataset " << endl;
-  filename_tr_data = "train-images-idx3-ubyte";
-  filename_tr_lable = "train-labels-idx1-ubyte";
-  filename_ver_data = "t10k-images-idx3-ubyte";
-  filename_ver_lable = "t10k-labels-idx1-ubyte";
+  filename_tr_data = "./MNIST-dataset-in-different-formats/data/Original dataset/train-images.idx3-ubyte";
+  filename_tr_lable = "./MNIST-dataset-in-different-formats/data/Original dataset/train-labels.idx1-ubyte";
+  filename_ver_data = "./MNIST-dataset-in-different-formats/data/Original dataset/t10k-images.idx3-ubyte";
+  filename_ver_lable = "./MNIST-dataset-in-different-formats/data/Original dataset/t10k-labels.idx1-ubyte";
 }
 
 load_mnist_dataset::~load_mnist_dataset()
